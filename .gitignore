@@ -1,0 +1,4 @@
+.qodo
+.env
+docker/minio/data
+docker/pgsql/data
