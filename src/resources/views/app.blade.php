@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title inertia>{{ config('app.name', 'AEMINA') }}</title>
+        <title inertia>{{ config('app.name', 'Lukisa') }}</title>
         <!-- Scripts -->
         @routes
         @viteReactRefresh
