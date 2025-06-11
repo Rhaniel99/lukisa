@@ -37,6 +37,7 @@ services:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
         - USER=${USER:-laravel}
+    user: "${UID}:${GID}"
     container_name: php_lukisa
     ports:
       - "9000:9000"
@@ -59,6 +60,7 @@ services:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
         - USER=${USER:-laravel}
+    user: "${UID}:${GID}"
     container_name: artisan_lukisa
     volumes:
       - ./src:/var/www/html
@@ -78,16 +80,17 @@ services:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
         - USER=${USER:-laravel}
+    user: "${UID}:${GID}"
     container_name: composer_lukisa
     volumes:
       - ./src:/var/www/html
       - .env:/var/www/html/.env
     working_dir: /var/www/html
-    depends_on:
-      - php
-    user: ${USER:-laravel}
-    profiles: ["composer"]
-    entrypoint: ['composer', '--ignore-platform-reqs', '--no-scripts']
+    # depends_on:
+    #   - php
+    # user: ${USER:-laravel}
+    # profiles: ["composer"]
+    # entrypoint: ['composer', '--ignore-platform-reqs', '--no-scripts']
     networks:
       - laravel
       - shared_network
@@ -97,6 +100,7 @@ services:
       context: ./docker/node
       dockerfile: Dockerfile
     container_name: node_lukisa
+    user: "${UID}:${GID}"
     volumes:
       - ./src:/var/www/html
       - .env:/var/www/html/.env
