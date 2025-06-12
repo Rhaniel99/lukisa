@@ -4,15 +4,21 @@ namespace Modules\Authentication\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AuthenticationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function formLogin(): Response
     {
-        return view('authentication::index');
+        return Inertia::render('Authentication/Login');
+    }
+
+    public function authLogin(Request $request)
+    {
+        dd($request->all());
+        // return view('authentication::index');
     }
 
     /**
@@ -26,7 +32,9 @@ class AuthenticationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+    }
 
     /**
      * Show the specified resource.
@@ -47,10 +55,14 @@ class AuthenticationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id) {}
+    public function update(Request $request, $id)
+    {
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id) {}
+    public function destroy($id)
+    {
+    }
 }
