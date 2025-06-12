@@ -1,18 +1,18 @@
 <?php
 
-namespace Modules\Auth\Http\Controllers;
+namespace Modules\Authentication\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class AuthController extends Controller
+class AuthenticationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('auth::index');
+        return view('authentication::index');
     }
 
     /**
@@ -20,7 +20,7 @@ class AuthController extends Controller
      */
     public function create()
     {
-        return view('auth::create');
+        return view('authentication::create');
     }
 
     /**
@@ -33,7 +33,7 @@ class AuthController extends Controller
      */
     public function show($id)
     {
-        return view('auth::show');
+        return view('authentication::show');
     }
 
     /**
@@ -41,7 +41,7 @@ class AuthController extends Controller
      */
     public function edit($id)
     {
-        return view('auth::edit');
+        return view('authentication::edit');
     }
 
     /**
