@@ -86,7 +86,7 @@ return [
         | This path will also be added automatically to the list of scanned folders.
         |
         */
-        'modules' => base_path('modules'),
+        'modules' => base_path('src/modules'),
 
         /*
         |--------------------------------------------------------------------------
