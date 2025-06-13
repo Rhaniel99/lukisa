@@ -89,7 +89,7 @@ services:
     # depends_on:
     #   - php
     # user: ${USER:-laravel}
-    # profiles: ["composer"]
+    profiles: ["composer"]
     # entrypoint: ['composer', '--ignore-platform-reqs', '--no-scripts']
     networks:
       - laravel
