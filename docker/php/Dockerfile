@@ -1,53 +1,75 @@
-FROM php:8.2-fpm
+# --- Estágio de Build ---
+# Usamos uma imagem completa para instalar dependências de compilação
+FROM php:8.2-fpm as builder
 
-# Argumentos de ambiente
+# Argumentos que serão passados do docker-compose
 ARG UID
 ARG GID
 ARG USER
 
-ENV UID=${UID}
-ENV GID=${GID}
-ENV USER=${USER}
-
-# Remover o grupo dialout
-RUN delgroup dialout
-
-# Adicionar o grupo e o usuário
-RUN addgroup --gid ${GID} ${USER} \
-    && adduser --uid ${UID} --gid ${GID} --disabled-password --gecos "" ${USER}
-
-# Modificar a configuração do PHP-FPM para usar o novo usuário
-RUN sed -i "s/user = www-data/user = '${USER}'/g" /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i "s/group = www-data/group = '${USER}'/g" /usr/local/etc/php-fpm.d/www.conf \
-    && echo "php_admin_flag[log_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
-
-# Instalar dependências, incluindo vainfo
+# Instala dependências de sistema necessárias para compilar as extensões PHP
 RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    libzip-dev \
+    libicu-dev \
+    libonig-dev \
     libva-dev \
     mesa-va-drivers \
     ffmpeg \
     wget \
-    postgresql-server-dev-all \
-    libzip-dev \
-    libicu-dev \
-    x264 \
-    x265 \
-    vainfo \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar o Redis e outras extensões PHP necessárias
-RUN mkdir -p /usr/src/php/ext/redis \
-    && wget -O /tmp/phpredis.tar.gz https://github.com/phpredis/phpredis/archive/5.3.4.tar.gz \
-    && tar xvz -C /usr/src/php/ext/redis --strip 1 -f /tmp/phpredis.tar.gz \
-    && echo 'redis' >> /usr/src/php-available-exts \
-    && docker-php-ext-install redis \
-    && docker-php-ext-install pdo pdo_pgsql bcmath zip pcntl intl
+# Instala as extensões PHP
+# bcmath, pdo_pgsql, zip, intl são essenciais para Laravel
+RUN docker-php-ext-install pdo pdo_pgsql bcmath zip pcntl intl
 
-# Configuração de diretórios e permissões
-RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chown -R ${UID}:${GID} /var/www/html \
-    && chown -R ${UID}:${GID} /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Instala a extensão Redis via PECL (mais simples)
+RUN pecl install redis && docker-php-ext-enable redis
 
-# Rodar PHP-FPM
-CMD ["php-fpm", "-y", "/usr/local/etc/php-fpm.conf", "-R"]
+
+# --- Estágio Final ---
+# Usamos uma imagem base limpa. A versão -alpine é muito menor.
+FROM php:8.2-fpm-alpine
+
+# Copia as extensões PHP compiladas do estágio de 'builder'
+COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+
+# Argumentos e variáveis de ambiente
+ARG UID
+ARG GID
+ARG USER
+ENV UID=${UID}
+ENV GID=${GID}
+ENV USER=${USER}
+
+# Instala apenas as dependências de sistema necessárias para a EXECUÇÃO
+# libpq-dev não é mais necessário, apenas a libpq.so.5 que vem em libpq
+RUN apk add --no-cache \
+    libzip \
+    libicu \
+    libpq \
+    ffmpeg \
+    vainfo
+
+# Adiciona usuário e grupo para rodar a aplicação sem ser root (Ótima prática!)
+# A imagem alpine já usa `adduser` e `addgroup` de forma parecida
+RUN addgroup -g ${GID} -S ${USER} && adduser -u ${UID} -G ${USER} -S -s /bin/sh ${USER}
+
+# Configura o PHP-FPM para usar o novo usuário
+RUN sed -i "s/user = www-data/user = ${USER}/g" /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i "s/group = www-data/group = ${USER}/g" /usr/local/etc/php-fpm.d/www.conf
+
+# Define o diretório de trabalho
+WORKDIR /var/www/html
+
+# A criação de diretórios e permissões é melhor tratada no entrypoint ou script de inicialização,
+# mas para desenvolvimento, manter aqui é aceitável.
+# O volume será montado aqui de qualquer forma.
+USER ${USER}
+
+# Expõe a porta do PHP-FPM
+EXPOSE 9000
+
+# Comando para iniciar o PHP-FPM
+CMD ["php-fpm"]

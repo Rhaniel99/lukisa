@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Modules\Authentication\DTOs\LoginData;
 
 class AuthenticationController extends Controller
 {
@@ -15,9 +16,9 @@ class AuthenticationController extends Controller
         return Inertia::render('Authentication/Login');
     }
 
-    public function authLogin(Request $request)
+    public function authLogin(LoginData $r)
     {
-        dd($request->all());
+        dd($r);
         // return view('authentication::index');
     }
 
