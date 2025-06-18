@@ -19,7 +19,6 @@ class AuthenticationController extends Controller
     public function authLogin(LoginData $r)
     {
         dd($r);
-        // return view('authentication::index');
     }
 
     /**
