@@ -51,18 +51,9 @@ class AuthenticationController extends Controller
         return to_route('lukisa.index')->with(['success' => "Bem vindo! Sua conta foi criada com sucesso."]);
     }
 
-    public function logout()
+    public function formForgout()
     {
-        Auth::logout();
-        return to_route('home');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('authentication::edit');
+        return Inertia::render('Public/Authentication/Forgout');
     }
 
     /**
@@ -72,10 +63,10 @@ class AuthenticationController extends Controller
     {
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
+    public function logout()
     {
+        Auth::logout();
+        return to_route('home');
     }
+
 }
