@@ -7,6 +7,24 @@ networks:
       config:
         - subnet: 172.29.0.0/16
 
+x-php-common: &php-common
+  build:
+    context: ./docker/php
+    dockerfile: Dockerfile
+    args:
+      - UID=${UID:-1000}
+      - GID=${GID:-1000}
+      - USER=${USER:-laravel}
+  user: "${UID}:${GID}"
+  volumes:
+    - ./src:/var/www/html:z
+    - .env:/var/www/html/.env
+  networks:
+    - laravel
+    - shared_network
+  restart: always
+
+
 services:
   nginx:
     build:
@@ -30,66 +48,32 @@ services:
       - shared_network
 
   php:
-    build:
-      context: ./docker/php
-      dockerfile: Dockerfile
-      args:
-        - UID=${UID:-1000}
-        - GID=${GID:-1000}
-        - USER=${USER:-laravel}
-    user: "${UID}:${GID}"
+    <<: *php-common # Herda a configuração comum
     container_name: php_lukisa
     ports:
       - "9000:9000"
-    volumes:
+    volumes: # Adiciona volumes específicos
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
       - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
-    restart: always
-    networks:
-      - laravel
-      - shared_network
     devices:
-      - /dev/dri:/dev/dri 
+      - /dev/dri:/dev/dri
 
   artisan:
-    build:
-      context: ./docker/php
-      dockerfile: Dockerfile
-      args:
-        - UID=${UID:-1000}
-        - GID=${GID:-1000}
-        - USER=${USER:-laravel}
-    user: "${UID}:${GID}"
+    <<: *php-common
     container_name: artisan_lukisa
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
     working_dir: /var/www/html
     profiles: ["artisan"]
     entrypoint: ['php', '/var/www/html/artisan']
-    networks:
-      - laravel
-      - shared_network
+    restart: "no" # Artisan não precisa de restart
 
   composer:
-    build:
-      context: ./docker/composer
-      dockerfile: Dockerfile
-      args:
-        - UID=${UID:-1000}
-        - GID=${GID:-1000}
-        - USER=${USER:-laravel}
-    user: "${UID}:${GID}"
+    <<: *php-common
     container_name: composer_lukisa
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
     working_dir: /var/www/html
     profiles: ["composer"]
-    networks:
-      - laravel
-      - shared_network
+    entrypoint: ['composer']
+    restart: "no"
 
   node:
     build:

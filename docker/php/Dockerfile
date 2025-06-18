@@ -1,6 +1,5 @@
-# --- Estágio de Build ---
-# Usamos uma imagem completa para instalar dependências de compilação
-FROM php:8.2-fpm as builder
+# Corrigido "as" para "AS" para seguir a convenção
+FROM php:8.2-fpm AS builder
 
 # Argumentos que serão passados do docker-compose
 ARG UID
@@ -20,7 +19,6 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala as extensões PHP
-# bcmath, pdo_pgsql, zip, intl são essenciais para Laravel
 RUN docker-php-ext-install pdo pdo_pgsql bcmath zip pcntl intl
 
 # Instala a extensão Redis via PECL (mais simples)
@@ -35,6 +33,9 @@ FROM php:8.2-fpm-alpine
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 
+# Habilita explicitamente no estágio final as extensões que copiamos.
+RUN docker-php-ext-enable pdo pdo_pgsql bcmath zip pcntl intl redis
+
 # Argumentos e variáveis de ambiente
 ARG UID
 ARG GID
@@ -44,16 +45,17 @@ ENV GID=${GID}
 ENV USER=${USER}
 
 # Instala apenas as dependências de sistema necessárias para a EXECUÇÃO
-# libpq-dev não é mais necessário, apenas a libpq.so.5 que vem em libpq
+# ---- LINHA CORRIGIDA ----
 RUN apk add --no-cache \
     libzip \
-    libicu \
-    libpq \
+    icu-libs \
+    postgresql-libs \
+    oniguruma \
     ffmpeg \
-    vainfo
+    libva \
+    libva-utils
 
-# Adiciona usuário e grupo para rodar a aplicação sem ser root (Ótima prática!)
-# A imagem alpine já usa `adduser` e `addgroup` de forma parecida
+# Adiciona usuário e grupo para rodar a aplicação sem ser root
 RUN addgroup -g ${GID} -S ${USER} && adduser -u ${UID} -G ${USER} -S -s /bin/sh ${USER}
 
 # Configura o PHP-FPM para usar o novo usuário
@@ -63,8 +65,6 @@ RUN sed -i "s/user = www-data/user = ${USER}/g" /usr/local/etc/php-fpm.d/www.con
 # Define o diretório de trabalho
 WORKDIR /var/www/html
 
-# A criação de diretórios e permissões é melhor tratada no entrypoint ou script de inicialização,
-# mas para desenvolvimento, manter aqui é aceitável.
 # O volume será montado aqui de qualquer forma.
 USER ${USER}
 
