@@ -12,5 +12,6 @@ Route::get('/forgout', [AuthenticationController::class, 'formForgout'])->name('
 Route::post('/login', [AuthenticationController::class, 'authLogin'])->name('auth.login');
 Route::post('/register', [AuthenticationController::class, 'regSignup'])->name('auth.register');
 Route::post('/logout', [AuthenticationController::class, 'logout'])->name('auth.logout');
+Route::post('/forgot/verify', [AuthenticationController::class, 'formVerify'])->name('form.verify');
 
 

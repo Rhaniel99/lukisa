@@ -53,7 +53,7 @@ class AuthenticationController extends Controller
 
     public function formForgout()
     {
-        return Inertia::render('Public/Authentication/Forgout');
+        return Inertia::render('Public/Authentication/Forgot');
     }
 
     /**
