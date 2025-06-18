@@ -24,7 +24,6 @@ x-php-common: &php-common
     - shared_network
   restart: always
 
-
 services:
   nginx:
     build:
