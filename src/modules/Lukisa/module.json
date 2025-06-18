@@ -1,0 +1,11 @@
+{
+    "name": "Lukisa",
+    "alias": "lukisa",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Lukisa\\Providers\\LukisaServiceProvider"
+    ],
+    "files": []
+}

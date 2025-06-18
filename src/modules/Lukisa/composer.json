@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/lukisa",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Lukisa\\": "app/",
+            "Modules\\Lukisa\\Database\\Factories\\": "database/factories/",
+            "Modules\\Lukisa\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Lukisa\\Tests\\": "tests/"
+        }
+    }
+}

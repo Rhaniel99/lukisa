@@ -2,4 +2,5 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn() => inertia('Welcome'))->name('home');
+Route::get('/', fn() => inertia('Public/Home'))->name('home');
+

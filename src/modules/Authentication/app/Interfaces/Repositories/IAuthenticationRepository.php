@@ -2,8 +2,9 @@
 
 namespace Modules\Authentication\Interfaces\Repositories;
 
-/**
- * Interface IAuthenticationRepository
- * @package Modules\Authentication\Interfaces\Repositories
- */
-interface IAuthenticationRepository {}
+use App\Models\User;
+
+interface IAuthenticationRepository {
+    public function create(array $data): User;
+
+}

@@ -4,7 +4,7 @@ import { Form } from "@/Components/UI/Form";
 
 export const LoginForm: React.FC = () => {
     // ? O hook useForm gerencia o estado do formulário para nós.
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, reset } = useForm({
         email: "",
         password: "",
         remember: false,
@@ -12,7 +12,11 @@ export const LoginForm: React.FC = () => {
 
     // ? Função que é chamada quando o formulário é enviado.
     const submit = () => {
-        post(route("auth.login"));
+        post(route("auth.login"), {
+            onError: () => {
+                reset("password");
+            },
+        });
     };
 
     return (

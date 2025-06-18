@@ -3,45 +3,58 @@
 namespace Modules\Authentication\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Auth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Authentication\DTOs\LoginData;
+use Modules\Authentication\DTOs\RegisterData;
+use Modules\Authentication\Interfaces\Services\IAuthenticationService;
+
 
 class AuthenticationController extends Controller
 {
+    protected IAuthenticationService $authService;
+
+    public function __construct(IAuthenticationService $authService)
+    {
+        $this->authService = $authService;
+    }
 
     public function formLogin(): Response
     {
-        return Inertia::render('Authentication/Login');
+        return Inertia::render('Public/Authentication/Login');
     }
 
     public function authLogin(LoginData $r)
     {
-        dd($r);
+        $success = $this->authService->login($r);
+
+        if (!$success) {
+            // O Inertia irá automaticamente colocar essa mensagem no objeto 'errors'.
+            return back()->withErrors(['errors' => "Email ou senha inválidos."]);
+        }
+
+        return to_route('lukisa.index')->with(['success' => "Seja bem vindo novamente!"]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function formSignup()
     {
-        return view('authentication::create');
+        return Inertia::render('Public/Authentication/Signup');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function regSignup(RegisterData $r)
     {
+        $user = $this->authService->register($r);
+        Auth::login($user);
+        request()->session()->regenerate();
+        return to_route('lukisa.index')->with(['success' => "Bem vindo! Sua conta foi criada com sucesso."]);
     }
 
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function logout()
     {
-        return view('authentication::show');
+        Auth::logout();
+        return to_route('home');
     }
 
     /**

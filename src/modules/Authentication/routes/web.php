@@ -3,11 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Authentication\Http\Controllers\AuthenticationController;
 
-// Route::middleware(['auth', 'verified'])->group(function () {
-//     Route::resource('authentications', AuthenticationController::class)->names('authentication');
-// });
-
+// ? GET
 Route::get('/login', [AuthenticationController::class, 'formLogin'])->name('form.login');
-Route::post('/login', [AuthenticationController::class, 'authLogin'])->name('auth.login');
+Route::get('/signup', [AuthenticationController::class, 'formSignup'])->name('form.signup');
 
-//
+// ? POST
+Route::post('/login', [AuthenticationController::class, 'authLogin'])->name('auth.login');
+Route::post('/register', [AuthenticationController::class, 'regSignup'])->name('auth.register');
+Route::post('/logout', [AuthenticationController::class, 'logout'])->name('auth.logout');
+
+
