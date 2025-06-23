@@ -4,9 +4,12 @@ namespace Modules\Authentication\Services;
 
 use App\Models\User;
 use Auth;
+use Carbon\Carbon;
 use Hash;
+use Modules\Authentication\DTOs\CheckUserData;
 use Modules\Authentication\DTOs\LoginData;
 use Modules\Authentication\DTOs\RegisterData;
+use Modules\Authentication\DTOs\ResetPasswordData;
 use Modules\Authentication\Interfaces\Repositories\IAuthenticationRepository;
 use Modules\Authentication\Interfaces\Services\IAuthenticationService;
 
@@ -46,5 +49,21 @@ class AuthenticationService implements IAuthenticationService
         $newUser = $this->authRepository->create($userData);
 
         return $newUser;
+    }
+
+    public function findByEmailAndBirthDate(CheckUserData $data):  User
+    {
+        $birth = Carbon::parse($data->birth_date);
+        return $this->authRepository->findByEmailAndBirthDate($data->email, $birth);
+    }
+
+    public function resetPassword(ResetPasswordData $data): bool
+    {
+        $hashedPassword = Hash::make($data->password);
+
+        return $this->authRepository->updatePasswordByEmail(
+            $data->email,
+            $hashedPassword
+        );
     }
 }

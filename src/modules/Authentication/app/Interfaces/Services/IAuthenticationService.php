@@ -3,8 +3,10 @@
 namespace Modules\Authentication\Interfaces\Services;
 
 use App\Models\User;
+use Modules\Authentication\DTOs\CheckUserData;
 use Modules\Authentication\DTOs\LoginData;
 use Modules\Authentication\DTOs\RegisterData;
+use Modules\Authentication\DTOs\ResetPasswordData;
 
 interface IAuthenticationService
 {
@@ -17,5 +19,9 @@ interface IAuthenticationService
     public function login(LoginData $data): bool;
 
     public function register(RegisterData $data): User;
+
+    public function findByEmailAndBirthDate(CheckUserData $data):  User;
+
+    public function resetPassword(ResetPasswordData $data): bool;
 
 }
