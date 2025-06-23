@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Authentication\DTOs\CheckUserData;
@@ -34,8 +35,9 @@ class AuthenticationController extends Controller
         $success = $this->authService->login($r);
 
         if (!$success) {
-            // O Inertia irá automaticamente colocar essa mensagem no objeto 'errors'.
-            return back()->withErrors(['errors' => "Email ou senha inválidos."]);
+            throw ValidationException::withMessages([
+                'email' => 'O e-mail ou a senha informados estão incorretos.',
+            ]);
         }
 
         return to_route('lukisa.index')->with(['success' => "Seja bem vindo novamente!"]);
