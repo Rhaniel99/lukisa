@@ -51,7 +51,7 @@ class AuthenticationService implements IAuthenticationService
         return $newUser;
     }
 
-    public function findByEmailAndBirthDate(CheckUserData $data):  User
+    public function findByEmailAndBirthDate(CheckUserData $data):  ?User
     {
         $birth = Carbon::parse($data->birth_date);
         return $this->authRepository->findByEmailAndBirthDate($data->email, $birth);

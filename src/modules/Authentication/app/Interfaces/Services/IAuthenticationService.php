@@ -20,7 +20,7 @@ interface IAuthenticationService
 
     public function register(RegisterData $data): User;
 
-    public function findByEmailAndBirthDate(CheckUserData $data):  User;
+    public function findByEmailAndBirthDate(CheckUserData $data):  ?User;
 
     public function resetPassword(ResetPasswordData $data): bool;
 

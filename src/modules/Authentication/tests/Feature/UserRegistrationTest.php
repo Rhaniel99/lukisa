@@ -83,4 +83,35 @@ class UserRegistrationTest extends TestCase
         // Garante que o usuário não foi autenticado.
         $this->assertGuest();
     }
+
+    /**
+     * Testa se o registro falha se o e-mail já existir no banco de dados.
+     *
+     * @return void
+     */
+    public function test_registration_fails_if_email_already_exists(): void
+    {
+        // 1. Arrange (Preparar)
+        // Primeiro, criamos um usuário para garantir que o e-mail já exista no banco.
+        User::factory()->create(['email' => 'userexistente@example.com']);
+
+        // Preparamos os dados para uma nova tentativa de registro com o MESMO e-mail.
+        $newUserData = [
+            'name' => 'Outro Usuario',
+            'email' => 'userexistente@example.com', // E-mail duplicado
+            'birth_date' => '1995-01-01',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ];
+
+        // 2. Act (Agir)
+        $response = $this->post(route('auth.register'), $newUserData);
+
+        // 3. Assert (Verificar)
+        // Verificamos se a sessão contém um erro de validação para o campo 'email'.
+        $response->assertSessionHasErrors('email');
+
+        // Garante que o usuário não foi autenticado.
+        $this->assertGuest();
+    }
 }
