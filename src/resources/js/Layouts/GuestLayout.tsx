@@ -1,18 +1,17 @@
-import React, { PropsWithChildren } from 'react';
-import Notification from '@/Components/Notifications/Toast';
+import type React from "react";
+import Notification from "@/Components/Notifications/Toast";
 
-export default function GuestLayout({ children }: PropsWithChildren) {
+interface LayoutProps {
+    children: React.ReactNode;
+}
+
+export default function GuestLayout({ children }: LayoutProps) {
     return (
         <>
             <Notification />
-
-            {/* <div className="bg-lukisa-cream min-h-screen"> */}
-                {/* <nav className="border-b border-gray-200 bg-white p-4">
-                    <p>Navegação Publica</p>
-                </nav> */}
-
-                <main className='bg-lukisa-cream min-h-screen'>{children}</main>
-            {/* </div> */}
+            <div className="min-h-screen bg-gradient-to-br from-lukisa-light via-lukisa-cream to-lukisa-sage">
+                {children}
+            </div>
         </>
     );
 }

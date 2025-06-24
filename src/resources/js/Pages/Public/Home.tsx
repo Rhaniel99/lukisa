@@ -1,20 +1,41 @@
 import React, { useState } from "react";
 import { useForm, Link, Head } from "@inertiajs/react";
-import { Switch } from "@/components/ui/switch"
-
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/Components/UI/Form";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import logo from "/public/img/logo.svg";
+import { Header } from "@/Components/Shared/Header";
 
 const Home: React.FC = () => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        email: "",
+        password: "",
+        remember: false,
+    });
+
+    const submit = () => {
+        post(route("auth.login"), {
+            onError: () => {
+                reset("password");
+            },
+        });
+    };
+
     return (
         <>
             <Head title="Bem-vindo" />
 
+            <div className="min-h-screen">
+            <Header />
 
-            
-            <div>
-                aqui
-            <Switch />
-
-            </div>
 
             {/*
             <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
@@ -50,6 +71,8 @@ const Home: React.FC = () => {
                 </div>
             </div>
             */}
+
+            </div>
         </>
     );
 };
