@@ -77,7 +77,9 @@ services:
     restart: "no"
 
   node:
-    image: node:lts-alpine
+    build:
+      context: ./docker/node
+      dockerfile: Dockerfile
     container_name: node_lukisa
     user: "${UID}:${GID}"
     volumes:

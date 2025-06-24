@@ -6,13 +6,13 @@ export default function GuestLayout({ children }: PropsWithChildren) {
         <>
             <Notification />
 
-            <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-                <nav className="border-b border-gray-200 bg-white p-4">
+            {/* <div className="bg-lukisa-cream min-h-screen"> */}
+                {/* <nav className="border-b border-gray-200 bg-white p-4">
                     <p>Navegação Publica</p>
-                </nav>
+                </nav> */}
 
-                <main>{children}</main>
-            </div>
+                <main className='bg-lukisa-cream min-h-screen'>{children}</main>
+            {/* </div> */}
         </>
     );
 }
