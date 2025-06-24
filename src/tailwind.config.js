@@ -9,8 +9,9 @@ export default {
         "./resources/**/*.ts",
         "./resources/**/*.tsx",
         "./resources/**/*.css",
-        "./resources/js/components/ui/**/*.{js,jsx,ts,tsx}",
+        "*.{js,ts,jsx,tsx,mdx}",
     ],
+    prefix: "",
     theme: {
         container: {
             center: true,
