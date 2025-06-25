@@ -1,6 +1,10 @@
 import React, { FormEvent } from "react";
 import { useForm } from "@inertiajs/react";
 import { Form } from "@/Components/UI/Form";
+import { Label } from "@/components/ui/label";
+import { Calendar, Loader2, Lock, Mail, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const SignupForm: React.FC = () => {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -20,122 +24,144 @@ export const SignupForm: React.FC = () => {
     };
 
     return (
-        <Form onSubmit={submit} className="w-full max-w-sm">
-            {/* Campo de Nome */}
-
-            <div className="mb-4">
-                <label htmlFor="name" className="...">
+        <Form onSubmit={submit} className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="name" className="text-lukisa-dark">
                     Nome Completo
-                </label>
-                <input
-                    id="name"
-                    type="text"
-                    value={data.name}
-                    onChange={(e) => setData("name", e.target.value)}
-                    className="..."
-                    required
-                    autoFocus
-                />
-                {errors.name && (
-                    <p className="mt-2 text-xs text-red-600">{errors.name}</p>
-                )}
+                </Label>
+                <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
+                    <Input
+                        id="name"
+                        name="name"
+                        autoComplete="name"
+                        type="text"
+                        placeholder="Digite seu nome completo"
+                        value={data.name}
+                        onChange={(e) => setData("name", e.target.value)}
+                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                        required
+                    />
+                    {/* {errors.name && (
+                        <p className="mt-2 text-xs text-red-600">
+                            {errors.name}
+                        </p>
+                    )} */}
+                </div>
             </div>
 
-            {/* Campo de E-mail */}
-            <div className="mb-4">
-                <label htmlFor="email" className="...">
+            <div className="space-y-2">
+                <Label htmlFor="email" className="text-lukisa-dark">
                     Email
-                </label>
-                <input
-                    id="email"
-                    type="email"
-                    value={data.email}
-                    onChange={(e) => setData("email", e.target.value)}
-                    className="..."
-                    required
-                    autoFocus
-                />
-                {errors.email && (
+                </Label>
+                <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
+                    <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        placeholder="Digite seu e-mail"
+                        value={data.email}
+                        onChange={(e) => setData("email", e.target.value)}
+                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                        required
+                    />
+                    {/* {errors.email && (
                     <p className="mt-2 text-xs text-red-600">{errors.email}</p>
-                )}
+                )} */}
+                </div>
             </div>
 
-            {/* Campo de Data de Nascimento */}
-            <div className="mb-4">
-                <label htmlFor="birth_date" className="...">
+            <div className="space-y-2">
+                <Label htmlFor="dateOfBirth" className="text-lukisa-dark">
                     Data de Nascimento
-                </label>
-                <input
-                    id="birth_date"
-                    type="date"
-                    value={data.birth_date}
-                    onChange={(e) => setData("birth_date", e.target.value)}
-                    className="..."
-                    required
-                />
-                {errors.birth_date && (
+                </Label>
+                <div className="relative">
+                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
+                    <Input
+                        id="birth_date"
+                        type="date"
+                        autoComplete="bday"
+                        value={data.birth_date}
+                        onChange={(e) => setData("birth_date", e.target.value)}
+                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                        required
+                    />
+                    {/* {errors.birth_date && (
                     <p className="mt-2 text-xs text-red-600">
                         {errors.birth_date}
                     </p>
-                )}
+                    )} */}
+                </div>
             </div>
 
-            {/* Campo de Senha */}
-            <div className="mb-6">
-                <label htmlFor="password" className="...">
+            <div className="space-y-2">
+                <Label htmlFor="password" className="text-lukisa-dark">
                     Senha
-                </label>
-                <input
-                    id="password"
-                    type="password"
-                    value={data.password}
-                    onChange={(e) => setData("password", e.target.value)}
-                    className="..."
-                    required
-                />
-                {errors.password && (
+                </Label>
+                <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
+                    <Input
+                        id="password"
+                        type="password"
+                        placeholder="Crie uma senha"
+                        autoComplete="new-password"
+                        value={data.password}
+                        onChange={(e) => setData("password", e.target.value)}
+                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                        required
+                    />
+                    {/* {errors.password && (
                     <p className="mt-2 text-xs text-red-600">
                         {errors.password}
                     </p>
-                )}
+                )} */}
+                </div>
             </div>
 
-            {/* Campo de Confirme Senha */}
-            <div className="mb-6">
-                <label
-                    htmlFor="password_confirmation"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
+            <div className="space-y-2">
+                <Label htmlFor="password_confirmation" className="text-lukisa-dark">
                     Confirmar Senha
-                </label>
-                <input
-                    id="password_confirmation"
-                    type="password"
-                    value={data.password_confirmation}
-                    onChange={(e) =>
-                        setData("password_confirmation", e.target.value)
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-                    required
-                />
+                </Label>
+                <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
+                    <Input
+                        id="password_confirmation"
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder="Confirme sua senha"
+                        value={data.password_confirmation}
+                        onChange={(e) =>
+                            setData("password_confirmation", e.target.value)
+                        }
+                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                        required
+                    />
 
-                {errors.password_confirmation && (
+                    {/* {errors.password_confirmation && (
                     <p className="mt-2 text-xs text-red-600">
                         {errors.password_confirmation}
                     </p>
-                )}
+                )} */}
+                </div>
             </div>
 
-            {/* Botão de Envio */}
-            <div className="flex items-center">
-                <button
-                    type="submit"
-                    className="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-md transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 disabled:opacity-50"
-                    disabled={processing}
-                >
-                    {processing ? "Enviando..." : "Cadastrar"}
-                </button>
-            </div>
+            <Button
+                type="submit"
+                className="w-full bg-lukisa-sage hover:bg-lukisa-brown text-white"
+                size="lg"
+                disabled={processing}
+            >
+                {processing ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Criando...
+                    </>
+                ) : (
+                    "Criar Conta"
+                )}
+            </Button>
         </Form>
     );
 };

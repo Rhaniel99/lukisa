@@ -26,7 +26,7 @@ class AuthenticationService implements IAuthenticationService
     {
         $credentials = $data->only('email', 'password')->toArray();
 
-        $remember = $data->remember ?? false;
+        $remember = $data->remember;
 
         if (!Auth::attempt($credentials, $remember)) {
             return false;

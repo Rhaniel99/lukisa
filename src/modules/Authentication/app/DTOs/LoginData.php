@@ -6,6 +6,7 @@ use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\Validation\Required;
 use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\StringType;
+use Spatie\LaravelData\Attributes\Validation\BooleanType;
 
 class LoginData extends Data
 {
@@ -15,5 +16,8 @@ class LoginData extends Data
 
         #[Required, StringType]
         public string $password,
+
+        #[Required, BooleanType]
+        public bool $remember
     ) {}
 }

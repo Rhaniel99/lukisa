@@ -7,8 +7,6 @@ use Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
-use Inertia\Response;
 use Modules\Authentication\DTOs\CheckUserData;
 use Modules\Authentication\DTOs\LoginData;
 use Modules\Authentication\DTOs\RegisterData;
@@ -25,9 +23,8 @@ class AuthenticationController extends Controller
         $this->authService = $authService;
     }
 
-    public function formLogin(): Response
-    {
-        return Inertia::render('Public/Authentication/Login');
+    public function regProfile(Request $r){
+        dd($r->all());
     }
 
     public function authLogin(LoginData $r)
@@ -43,22 +40,12 @@ class AuthenticationController extends Controller
         return to_route('lukisa.index')->with(['success' => "Seja bem vindo novamente!"]);
     }
 
-    public function formSignup()
-    {
-        return Inertia::render('Public/Authentication/Signup');
-    }
-
     public function regSignup(RegisterData $r)
     {
         $user = $this->authService->register($r);
         Auth::login($user);
         request()->session()->regenerate();
         return to_route('lukisa.index')->with(['success' => "Bem vindo! Sua conta foi criada com sucesso."]);
-    }
-
-    public function formForgot()
-    {
-        return Inertia::render('Public/Authentication/Forgot');
     }
 
     public function forgotVerify(CheckUserData $r)

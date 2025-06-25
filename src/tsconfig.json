@@ -8,7 +8,6 @@
         "isolatedModules": true,
         "target": "ESNext",
         "esModuleInterop": true,
-        "typeRoots": ["resources/js/types", "node_modules/@types"],
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
         "noEmit": true,

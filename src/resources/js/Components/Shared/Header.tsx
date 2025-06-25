@@ -11,15 +11,15 @@ export function Header() {
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
-          <Link href="/login" className="text-lukisa-brown hover:text-lukisa-dark transition-colors font-medium">
-            Sign In
+          <Link href={route("form.login")} className="text-lukisa-brown hover:text-lukisa-dark transition-colors font-medium">
+            Entrar
           </Link>
           <Link
-            href="/register"
+            href={route("form.signup")}
             className="bg-lukisa-sage text-white px-4 py-2 rounded-lg hover:bg-lukisa-brown transition-colors font-medium"
           >
-            Get Started
-          </Link>
+            Crie sua conta
+            </Link>
         </nav>
       </div>
     </header>

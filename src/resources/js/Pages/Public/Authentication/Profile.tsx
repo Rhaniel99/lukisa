@@ -1,8 +1,3 @@
-import React from "react";
-import { Head, Link } from "@inertiajs/react";
-import { ForgotForm } from "./Components/ForgotForm";
-import { ArrowLeft } from "lucide-react";
-import logo from "/public/img/logo.svg";
 import {
     Card,
     CardContent,
@@ -10,25 +5,21 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import logo from "/public/img/logo.svg";
+import { Button } from "@/components/ui/button";
+import { Head } from "@inertiajs/react";
+import ProfileForm from './Components/ProfileForm';
 
-const Forgot: React.FC = () => {
+export default function Profile() {
+
     return (
         <>
-            <Head title="Esqueci a senha" />
+            <Head title="Perfil" />
 
-            {/* Container principal para centralizar o conteúdo na tela */}
             <div className="min-h-screen flex items-center justify-center p-4">
                 <div className="w-full max-w-md animate-fade-in">
                     {/* Header */}
                     <div className="text-center mb-8">
-                        <Link
-                            href={route("form.login")}
-                            className="inline-flex items-center space-x-2 text-lukisa-brown hover:text-lukisa-dark transition-colors mb-6"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            <span>Voltar para Entrar</span>
-                        </Link>
-
                         <div className="flex items-center justify-center space-x-3 mb-4">
                             <img
                                 src={logo}
@@ -42,15 +33,34 @@ const Forgot: React.FC = () => {
                             </h1>
                         </div>
                     </div>
+
                     <Card className="bg-white/80 backdrop-blur-sm border-lukisa-cream shadow-xl">
+                        <CardHeader className="text-center">
+                            <CardTitle className="text-2xl text-lukisa-dark">
+                                Complete seu perfil
+                            </CardTitle>
+                            <CardDescription className="text-lukisa-brown">
+                                Configure seu nome de usuário e foto de perfil
+                            </CardDescription>
+                        </CardHeader>
+
                         <CardContent className="space-y-6">
-                            <ForgotForm />
+
+                            <ProfileForm />
+
+                            <div className="text-center">
+                                <Button
+                                    variant="ghost"
+                                    className="text-lukisa-brown hover:text-lukisa-dark"
+                                    onClick={() => (window.location.href = "/")}
+                                >
+                                    Pular por enquanto
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
             </div>
         </>
     );
-};
-
-export default Forgot;
+}

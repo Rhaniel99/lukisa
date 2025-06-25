@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('birth_date');
             $table->string('username')->nullable();
             $table->string('avatar')->nullable();
+            $table->integer('status')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
