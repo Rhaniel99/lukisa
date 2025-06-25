@@ -36,6 +36,14 @@ const Home: React.FC = () => {
             <div className="min-h-screen">
             <Header />
 
+            <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+                <div className="text-center">
+                    <h1 className="mb-8 text-4xl font-bold text-gray-800 dark:text-gray-200">
+                        Bem-vindo à Aplicação
+                    </h1>
+                    </div>
+            </div>
+
             {/*
             <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
                 <div className="text-center">
