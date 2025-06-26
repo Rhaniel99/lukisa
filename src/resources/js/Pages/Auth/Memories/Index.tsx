@@ -145,7 +145,7 @@ const flyToCurrentLocation = () => {
                 </MapContainer>
 
 
-                <div className="absolute top-4 right-4 z-[1000]">
+                <div className="absolute top-2 right-14 z-[1000]">
                     <Button onClick={flyToCurrentLocation} size="icon">
                         <LocateFixed className="h-4 w-4" />
                     </Button>
