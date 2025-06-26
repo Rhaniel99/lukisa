@@ -5,12 +5,12 @@ namespace Modules\Authentication\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Auth;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Modules\Authentication\DTOs\CheckUserData;
 use Modules\Authentication\DTOs\LoginData;
 use Modules\Authentication\DTOs\RegisterData;
 use Modules\Authentication\DTOs\ResetPasswordData;
+use Modules\Authentication\DTOs\UpdateProfileData;
 use Modules\Authentication\Interfaces\Services\IAuthenticationService;
 
 
@@ -23,8 +23,18 @@ class AuthenticationController extends Controller
         $this->authService = $authService;
     }
 
-    public function regProfile(Request $r){
-        dd($r->all());
+    public function regProfile(UpdateProfileData $r): RedirectResponse
+    {
+        $userId = Auth::id();
+
+        $success = $this->authService->updateUserProfile($userId, $r);
+
+        if (!$success) {
+            return back()->with('error', 'Ocorreu um erro ao atualizar seu perfil. Por favor, tente novamente.');
+        }
+
+        return to_route('lukisa.index')
+            ->with('success', 'Perfil atualizado com sucesso!');
     }
 
     public function authLogin(LoginData $r)

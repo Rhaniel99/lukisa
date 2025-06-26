@@ -26,4 +26,11 @@ class AuthenticationRepository implements IAuthenticationRepository
         // Se for > 0, a atualização foi bem-sucedida.
         return User::where('email', $email)->update(['password' => $hashedPassword]) > 0;
     }
+
+    public function update(int $userId, array $data): bool
+    {
+        // O método update do Eloquent retorna o número de linhas afetadas.
+        // Se for > 0, a atualização foi bem-sucedida.
+        return User::where('id', $userId)->update($data) > 0;
+    }
 }

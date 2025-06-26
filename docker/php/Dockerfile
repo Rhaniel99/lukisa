@@ -16,10 +16,15 @@ RUN apk add --no-cache \
     oniguruma-dev \
     libsodium-dev \
     ffmpeg-dev \
-    libva-dev
+    libva-dev \
+    libjpeg-turbo-dev 
+
 
 # Instala as extensões PHP, incluindo 'sodium' que estava faltando
-RUN docker-php-ext-install pdo pdo_pgsql bcmath zip pcntl intl sodium
+RUN docker-php-ext-install pdo pdo_pgsql bcmath zip pcntl intl sodium exif
+
+# garante que o ini de exif exista e seja carregado no CLI
+RUN docker-php-ext-enable exif
 
 # Instala a extensão Redis via PECL
 RUN pecl install redis \
@@ -52,7 +57,7 @@ RUN apk add --no-cache \
     libsodium \
     ffmpeg \
     libva \
-    libva-utils
+    libjpeg-turbo
 
 # Adiciona usuário e grupo para rodar a aplicação sem ser root
 RUN addgroup -g ${GID} -S ${USER} && adduser -u ${UID} -G ${USER} -S -s /bin/sh ${USER}

@@ -12,4 +12,6 @@ interface IAuthenticationRepository {
 
     public function updatePasswordByEmail(string $email, string $hashedPassword): bool;
 
+    public function update(int $userId, array $data): bool;
+
 }

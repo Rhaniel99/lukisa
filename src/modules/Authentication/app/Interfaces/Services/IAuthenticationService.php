@@ -7,6 +7,7 @@ use Modules\Authentication\DTOs\CheckUserData;
 use Modules\Authentication\DTOs\LoginData;
 use Modules\Authentication\DTOs\RegisterData;
 use Modules\Authentication\DTOs\ResetPasswordData;
+use Modules\Authentication\DTOs\UpdateProfileData;
 
 interface IAuthenticationService
 {
@@ -23,5 +24,7 @@ interface IAuthenticationService
     public function findByEmailAndBirthDate(CheckUserData $data):  ?User;
 
     public function resetPassword(ResetPasswordData $data): bool;
+
+    public function updateUserProfile(int $userId, UpdateProfileData $data): bool;
 
 }
