@@ -4,6 +4,7 @@ namespace Modules\Memories\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Modules\Memories\Models\Place;
 
 class MemoriesController extends Controller
 {
@@ -12,7 +13,16 @@ class MemoriesController extends Controller
      */
     public function index()
     {
-        return view('memories::index');
+        $places = Place::with([
+            'memories.user:id,name,avatar', // Apenas colunas necessárias do usuário
+            'memories.media', // Todas as mídias da memória
+            'memories.likes', // Para contagem de curtidas
+            'memories.comments' // Para contagem de comentários
+        ])->get();
+
+        return inertia('Auth/Memories/Index', [
+            'places' => $places
+        ]);
     }
 
     /**
@@ -26,7 +36,9 @@ class MemoriesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+    }
 
     /**
      * Show the specified resource.
@@ -47,10 +59,14 @@ class MemoriesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id) {}
+    public function update(Request $request, $id)
+    {
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id) {}
+    public function destroy($id)
+    {
+    }
 }
