@@ -4,7 +4,8 @@ namespace Modules\Memories\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Modules\Memories\Models\Place;
+use Inertia\Inertia;
+use Modules\Memories\ViewModels\MemoriesIndexViewModel;
 
 class MemoriesController extends Controller
 {
@@ -13,16 +14,7 @@ class MemoriesController extends Controller
      */
     public function index()
     {
-        $places = Place::with([
-            'memories.user:id,name,avatar', // Apenas colunas necessárias do usuário
-            'memories.media', // Todas as mídias da memória
-            'memories.likes', // Para contagem de curtidas
-            'memories.comments' // Para contagem de comentários
-        ])->get();
-
-        return inertia('Auth/Memories/Index', [
-            'places' => $places
-        ]);
+        return Inertia::render('Auth/Memories/Index', MemoriesIndexViewModel::fromRequest());
     }
 
     /**
