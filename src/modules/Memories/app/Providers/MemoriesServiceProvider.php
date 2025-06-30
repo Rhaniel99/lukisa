@@ -4,6 +4,10 @@ namespace Modules\Memories\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Memories\Interfaces\Repositories\IMemoriesRepository;
+use Modules\Memories\Interfaces\Services\IMemoriesService;
+use Modules\Memories\Repositories\MemoriesRepository;
+use Modules\Memories\Services\MemoriesService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -36,6 +40,17 @@ class MemoriesServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+
+        $this->app->bind(
+            IMemoriesService::class,
+            MemoriesService::class
+        );
+
+        $this->app->bind(
+            IMemoriesRepository::class,
+            MemoriesRepository::class
+        );
+
     }
 
     /**

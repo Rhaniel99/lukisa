@@ -5,13 +5,19 @@ namespace Modules\Memories\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Modules\Memories\DTOs\StoreMemoryData;
+use Modules\Memories\Interfaces\Services\IMemoriesService;
 use Modules\Memories\ViewModels\MemoriesIndexViewModel;
 
 class MemoriesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected IMemoriesService $memoryService;
+
+    public function __construct(IMemoriesService $memoryService)
+    {
+        $this->memoryService = $memoryService;
+    }
+
     public function index()
     {
         return Inertia::render('Auth/Memories/Index', MemoriesIndexViewModel::fromRequest());
@@ -28,8 +34,15 @@ class MemoriesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMemoryData $r)
     {
+        $success = $this->memoryService->saveMemories($r);
+
+        if (!$success) {
+            return back()->with('error', 'Ocorreu um erro. Por favor, tente novamente.');
+        }
+
+        return to_route('memo.maps.index')->with('success', 'Memoria salva com sucesso!');
     }
 
     /**
