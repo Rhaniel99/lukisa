@@ -36,6 +36,23 @@ const handleDelete = (e: React.MouseEvent, memoryId: number) => {
     }
 };
 
+const handleLikeToggle = (memory: Memory) => {
+    // Para uma UI mais rápida, podemos fazer uma atualização otimista (opcional)
+    // Mas por enquanto, vamos apenas chamar a rota. O Inertia cuidará da atualização.
+
+    if (memory.liked) {
+        // Se já estiver curtido, chama a rota de 'unlike'
+        router.delete(route("memories.unlike", memory.id), {
+            preserveScroll: true,
+        });
+    } else {
+        // Se não estiver curtido, chama a rota de 'like'
+        router.post(route("memories.like", memory.id), {
+            preserveScroll: true,
+        });
+    }
+};
+
 export const PinSidebar: React.FC<PinSidebarProps> = ({
     isOpen,
     isLoading,
@@ -151,11 +168,15 @@ export const PinSidebar: React.FC<PinSidebarProps> = ({
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center space-x-4">
                                             <div className="flex items-center text-xs text-slate-500">
+                                                {/* ✅ Adicione o onClick aqui */}
                                                 <Heart
-                                                    className={`w-4 h-4 mr-1 ${
+                                                    onClick={() =>
+                                                        handleLikeToggle(memory)
+                                                    }
+                                                    className={`w-4 h-4 mr-1 cursor-pointer transition-all ${
                                                         memory.liked
                                                             ? "fill-red-500 text-red-500"
-                                                            : "text-slate-500"
+                                                            : "text-slate-500 hover:text-red-400"
                                                     }`}
                                                 />
                                                 {memory.likes}

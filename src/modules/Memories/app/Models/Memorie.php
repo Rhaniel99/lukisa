@@ -59,8 +59,7 @@ class Memorie extends Model implements HasMedia
     public function likes(): BelongsToMany
     {
         // Precisamos especificar o nome completo da tabela pivô (com schema)
-        return $this->belongsToMany(User::class, 'memories.likes', 'memory_id', 'user_id')
-            ->withTimestamps(); // Para poder acessar o created_at da curtida
+        return $this->belongsToMany(User::class, 'memories.likes', 'memory_id', 'user_id');
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Memories\Http\Controllers\LikeController;
 use Modules\Memories\Http\Controllers\MemoriesController;
 
 Route::middleware(['auth', 'check.profile'])->group(function () {
@@ -11,4 +12,7 @@ Route::middleware(['auth', 'check.profile'])->group(function () {
     // Route::inertia('/memories-maps', 'Auth/Memories/Index')->name('memo.maps.index');
 
     // Route::resource('memories', MemoriesController::class)->names('memories');
+
+    Route::post('/memories/{memory}/like', [LikeController::class, 'store'])->name('memories.like');
+    Route::delete('/memories/{memory}/unlike', [LikeController::class, 'destroy'])->name('memories.unlike');
 });
