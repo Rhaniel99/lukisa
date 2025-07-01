@@ -4,7 +4,7 @@ import { LatLng, LatLngExpression, Map } from "leaflet";
 import { Place } from "@/Types/models";
 import PlaceMarker from "./PlaceMarker";
 import MapSearchField from "./MapSearchField";
-// Helper para o clique no mapa
+
 const MapClickHandler: React.FC<{ onMapClick: (latlng: LatLng) => void }> = ({
     onMapClick,
 }) => {
@@ -28,7 +28,6 @@ const MemoriesMap: React.FC<MemoriesMapProps> = ({
     hereApiKey,
 }) => {
     // ✅ 2. Montamos a URL do TileLayer do Mapbox
-    // Usamos o estilo 'streets-v12' que é um ótimo padrão.
     const hereTileUrl = `https://maps.hereapi.com/v3/base/mc/{z}/{x}/{y}/png8?apiKey=${hereApiKey}`;
     const hereAttribution =
         'Map data ©2025 <a href="https://www.here.com">HERE</a>';
@@ -41,11 +40,10 @@ const MemoriesMap: React.FC<MemoriesMapProps> = ({
                 style={{ height: "100%", width: "100%" }}
                 ref={setMapInstance}
             >
+
                 <TileLayer
                     url={hereTileUrl}
                     attribution={hereAttribution}
-                    // tileSize={512}
-                    // zoomOffset={-1}
                 />
 
                 <MapSearchField hereApiKey={hereApiKey} />

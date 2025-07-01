@@ -16,7 +16,6 @@ const CreateMemoryForm: React.FC<CreateMemoryFormProps> = ({
     coordinates,
     onSuccess,
 }) => {
-    console.log(coordinates);
     const { data, setData, post, processing, errors } = useForm({
         title: "",
         content: "",
@@ -27,10 +26,24 @@ const CreateMemoryForm: React.FC<CreateMemoryFormProps> = ({
 
     const submit = () => {
         post(route("memo.maps.store"), {
-            onError: () => {
-                // reset("password");
+            onSuccess: () => {
+                onSuccess();
             },
         });
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files ? e.target.files[0] : null;
+        setData("media", file);
+
+        // Debug: verificar se o arquivo foi selecionado
+        if (file) {
+            console.log("Arquivo selecionado:", {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+            });
+        }
     };
 
     return (
@@ -60,19 +73,29 @@ const CreateMemoryForm: React.FC<CreateMemoryFormProps> = ({
                     </p>
                 )}
             </div>
+
             <div>
                 <Label htmlFor="media">Foto ou Áudio</Label>
                 <Input
                     id="media"
                     type="file"
-                    onChange={(e) =>
-                        setData(
-                            "media",
-                            e.target.files ? e.target.files[0] : null
-                        )
-                    }
+                    accept="image/jpeg,image/png,image/webp,image/jpg,audio/mpeg,audio/wav,audio/mp3"
+                    onChange={handleFileChange}
                 />
+                {errors.media && (
+                    <p className="text-red-500 text-xs mt-1">{errors.media}</p>
+                )}
+
+                {/* Preview do arquivo selecionado */}
+                {data.media && (
+                    <div className="mt-2 text-sm text-gray-600">
+                        Arquivo selecionado: {data.media.name}
+                        <br />
+                        Tamanho: {(data.media.size / 1024 / 1024).toFixed(2)} MB
+                    </div>
+                )}
             </div>
+
             <Button type="submit" disabled={processing}>
                 {processing ? "Salvando..." : "Salvar Memória"}
             </Button>

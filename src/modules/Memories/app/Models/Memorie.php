@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Memorie\Models;
+namespace Modules\Memories\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +15,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 // use Modules\Memories\Database\Factories\MemoriesFactory;
 
-class Memorie  extends Model implements HasMedia
+class Memorie extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia; // Adiciona o trait da media-library
 
