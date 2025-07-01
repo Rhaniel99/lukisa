@@ -6,6 +6,7 @@ use Modules\Memories\Http\Controllers\MemoriesController;
 Route::middleware(['auth', 'check.profile'])->group(function () {
     Route::get('/memories-maps', [MemoriesController::class, 'index'])->name('memo.maps.index');
     Route::post('/memories-maps', [MemoriesController::class, 'store'])->name('memo.maps.store');
+    Route::delete('/memories-maps/{memory}', [MemoriesController::class, 'destroy'])->name('memo.maps.destroy');
 
     // Route::inertia('/memories-maps', 'Auth/Memories/Index')->name('memo.maps.index');
 

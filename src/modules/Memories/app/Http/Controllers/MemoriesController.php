@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Modules\Memories\DTOs\StoreMemoryData;
 use Modules\Memories\Interfaces\Services\IMemoriesService;
+use Modules\Memories\Models\Memorie;
 use Modules\Memories\ViewModels\MemoriesIndexViewModel;
 
 class MemoriesController extends Controller
@@ -32,8 +33,17 @@ class MemoriesController extends Controller
         }
 
         return back()->with('success', 'Memoria salva com sucesso!');
+    }
 
-        // return to_route('memo.maps.index')->with('success', 'Memoria salva com sucesso!');
+    public function destroy(Memorie $memory)
+    {
+        if ($memory->user_id !== auth()->id()) { abort(403); }
+
+        $memory->delete();
+
+        // Redireciona de volta com uma mensagem de sucesso.
+        // O Inertia cuidará de atualizar a página.
+        return back()->with('success', 'Memória removida com sucesso!');
     }
 
     /**
@@ -62,7 +72,5 @@ class MemoriesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
-    {
-    }
+
 }

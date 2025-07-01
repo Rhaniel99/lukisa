@@ -11,12 +11,14 @@ export interface Memory {
     id: number;
     title: string;
     description: string;
-    createdAt: string;
+    created: string;
     likes: number;
     liked: boolean;
     image: string | null;
+    is_owner: boolean;
     author: User;
     comments: Comment[]; // A coleção de comentários já virá aqui
+    commentsCount: number;
 }
 
 // O Place que vem do ViewModel é mais simples

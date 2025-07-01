@@ -12,7 +12,7 @@ import { PinSidebar } from "./Components/PinSidebar";
 
 type MemoriesIndexPageProps = PageProps & {
     places: Place[];
-    selectedPlaceMemories?: Memory[]; 
+    selectedPlaceMemories?: Memory[]; // Prop opcional do partial reload
 };
 
 const Index: React.FC<{ places: Place[] }> = ({ places }) => {
@@ -20,8 +20,6 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
     const { props } = usePage<MemoriesIndexPageProps>();
     const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
     const [isLoadingMemories, setIsLoadingMemories] = useState(false);
-    const [newMemoryCoords, setNewMemoryCoords] = useState<LatLng | null>(null);
-    const [map, setMap] = useState<Map | null>(null);
 
     const handlePlaceClick = useCallback(
         (place: Place) => {
@@ -44,29 +42,8 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
         [selectedPlace]
     );
 
-    const handleSaveSuccess = () => {
-        // 1. Fecha o dialog de criação de memória.
-        setNewMemoryCoords(null);
-
-        // 2. Verifica se uma sidebar está aberta.
-        if (selectedPlace) {
-            // 3. Se estiver, dispara o partial reload para atualizar seu conteúdo.
-            setIsLoadingMemories(true);
-            router.reload({
-                only: ["selectedPlaceMemories"],
-                data: { place_id: selectedPlace.id },
-                onFinish: () => {
-                    setIsLoadingMemories(false);
-                },
-            });
-        } else {
-            // Opcional: Se nenhuma sidebar estiver aberta (criando um novo pin),
-            // você pode querer recarregar a lista de 'places' para mostrar o novo pin.
-            router.reload({ only: ["places"] });
-        }
-    };
-
-
+    const [newMemoryCoords, setNewMemoryCoords] = useState<LatLng | null>(null);
+    const [map, setMap] = useState<Map | null>(null);
 
     // ✅ 1. Lê a chave de API do ambiente Vite
     const hereApiKey = import.meta.env.VITE_HERE_API_KEY;
@@ -106,7 +83,7 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
 
             <div className="relative h-screen w-screen">
                 <MemoriesMap
-                    places={props.places}
+                    places={places}
                     onPlaceClick={handlePlaceClick} // ✅ Passe a função para o mapa
                     initialPosition={initialPosition}
                     onMapClick={handleMapClick}
@@ -133,7 +110,7 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
                 {newMemoryCoords && (
                     <AddMemoryDialog
                         isOpen={!!newMemoryCoords}
-                        onClose={handleSaveSuccess}
+                        onClose={() => setNewMemoryCoords(null)}
                         coordinates={newMemoryCoords}
                     />
                 )}

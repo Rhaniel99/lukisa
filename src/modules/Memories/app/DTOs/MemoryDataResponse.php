@@ -17,12 +17,13 @@ class MemoryDataResponse extends Data
         public readonly int $id,
         public readonly string $title,
         public readonly string $description,
-        public readonly string $createdAt,
+        public readonly string $created,
         public readonly int $likes,
         public readonly int $commentsCount,
         public readonly bool $liked,
         public readonly ?string $image,
         public readonly UserData $author,
+        public bool $is_owner,
 
         /** @var DataCollection<CommentData> */
         #[DataCollectionOf(CommentData::class)]
@@ -32,16 +33,20 @@ class MemoryDataResponse extends Data
 
     public static function fromModel(Memorie $memory): self
     {
+        \Log::info($memory->user_id);
+        \Log::warning(auth()->id());
+
         return new self(
             id: $memory->id,
             title: $memory->title,
             description: $memory->content,
-            createdAt: $memory->created_at->toFormattedDateString(),
+            created: $memory->created_at->format('Y-m-d'),
             likes: $memory->likes_count ?? 0,
             commentsCount: $memory->comments_count ?? 0,
             liked: $memory->isLikedBy(auth()->user()),
             image: $memory->getFirstMediaUrl('memories_media'),
             author: UserData::fromModel($memory->user),
+            is_owner: $memory->user_id === auth()->id(),
 
             comments: Lazy::whenLoaded(
                 'comments', // 1. O nome da relação
