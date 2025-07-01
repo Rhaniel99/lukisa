@@ -31,7 +31,7 @@ class Memorie extends Model implements HasMedia
         'place_id',
     ];
 
-  public function user(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -49,7 +49,7 @@ class Memorie extends Model implements HasMedia
      */
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class, 'memory_id');
     }
 
     /**
@@ -60,6 +60,27 @@ class Memorie extends Model implements HasMedia
     {
         // Precisamos especificar o nome completo da tabela pivô (com schema)
         return $this->belongsToMany(User::class, 'memories.likes', 'memory_id', 'user_id')
-                    ->withTimestamps(); // Para poder acessar o created_at da curtida
+            ->withTimestamps(); // Para poder acessar o created_at da curtida
+    }
+
+    /**
+     * Verifica se a memória foi curtida por um usuário específico.
+     *
+     * @param \App\Models\User|null $user
+     * @return boolean
+     */
+    public function isLikedBy(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        // Se você já carregou os likes, verifique na coleção para evitar nova query.
+        if ($this->relationLoaded('likes')) {
+            return $this->likes->contains($user);
+        }
+
+        // Caso contrário, faça uma query otimizada com exists().
+        return $this->likes()->where('user_id', $user->id)->exists();
     }
 }

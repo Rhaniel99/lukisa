@@ -50,4 +50,19 @@ class User extends Authenticatable
             'birth_date' => 'date',
         ];
     }
+
+     public function getAvatarUrlAttribute(): ?string // ✅ Nome do Accessor
+    {
+        // Se o usuário não tiver um avatar definido, retorna null.
+        if (empty($this->avatar)) {
+            return null;
+        }
+
+        // Gera uma URL temporária para o arquivo no disco 's3' (seu MinIO)
+        // que expira em 15 minutos.
+        return \Storage::disk('s3')->temporaryUrl(
+            $this->avatar,
+            now()->addMinutes(15)
+        );
+    }
 }

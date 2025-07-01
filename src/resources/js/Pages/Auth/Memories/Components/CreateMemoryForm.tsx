@@ -26,6 +26,7 @@ const CreateMemoryForm: React.FC<CreateMemoryFormProps> = ({
 
     const submit = () => {
         post(route("memo.maps.store"), {
+            preserveScroll: true,
             onSuccess: () => {
                 onSuccess();
             },

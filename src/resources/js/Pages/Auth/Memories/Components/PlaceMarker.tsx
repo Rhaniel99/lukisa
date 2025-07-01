@@ -5,26 +5,19 @@ import { Place } from '@/Types/models'; // Importando do nosso arquivo central
 
 interface PlaceMarkerProps {
     place: Place;
+    onPlaceClick: (place: Place) => void;
 }
 
-const PlaceMarker: React.FC<PlaceMarkerProps> = ({ place }) => {
+const PlaceMarker: React.FC<PlaceMarkerProps> = ({ place, onPlaceClick }) => {
     return (
-        <Marker position={[place.latitude, place.longitude]}>
-            <Popup>
-                <div>
-                    <h3 className="font-bold text-lg">
-                        Memórias neste local:
-                    </h3>
-                    <ul className="list-disc pl-5 mt-2">
-                        {place.memories.map((memory) => (
-                            <li key={memory.id}>
-                                <span className="font-semibold">{memory.title}</span> por{' '}
-                                {memory.user.name}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </Popup>
+        <Marker
+            key={place.id}
+            position={[place.latitude, place.longitude]}
+            // ✅ O evento de clique agora chama a função do componente pai
+            eventHandlers={{ click: () => onPlaceClick(place) }}
+        >
+            {/* Um Popup simples para feedback visual imediato */}
+            <Popup>Clique para ver as memórias deste local.</Popup>
         </Marker>
     );
 };

@@ -44,6 +44,6 @@ class Comment extends Model
      */
     public function memory(): BelongsTo
     {
-        return $this->belongsTo(Memorie::class);
+        return $this->belongsTo(Memorie::class, 'memory_id');
     }
 }

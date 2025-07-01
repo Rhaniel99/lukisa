@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 import Notification from "@/Components/Notifications/Toast";
 import { Link } from "@inertiajs/react";
 

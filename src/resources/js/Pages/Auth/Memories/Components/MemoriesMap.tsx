@@ -18,10 +18,12 @@ interface MemoriesMapProps {
     onMapClick: (latlng: LatLng) => void;
     setMapInstance: (map: Map) => void;
     hereApiKey: string;
+    onPlaceClick: (place: Place) => void;
 }
 
 const MemoriesMap: React.FC<MemoriesMapProps> = ({
     places,
+    onPlaceClick,
     initialPosition,
     onMapClick,
     setMapInstance,
@@ -40,16 +42,16 @@ const MemoriesMap: React.FC<MemoriesMapProps> = ({
                 style={{ height: "100%", width: "100%" }}
                 ref={setMapInstance}
             >
-
-                <TileLayer
-                    url={hereTileUrl}
-                    attribution={hereAttribution}
-                />
+                <TileLayer url={hereTileUrl} attribution={hereAttribution} />
 
                 <MapSearchField hereApiKey={hereApiKey} />
 
                 {places.map((place) => (
-                    <PlaceMarker key={place.id} place={place} />
+                    <PlaceMarker
+                        key={place.id}
+                        place={place}
+                        onPlaceClick={onPlaceClick} // ✅ Passe a função para o marcador
+                    />
                 ))}
 
                 <MapClickHandler onMapClick={onMapClick} />

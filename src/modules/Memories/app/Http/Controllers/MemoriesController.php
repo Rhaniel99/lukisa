@@ -18,22 +18,11 @@ class MemoriesController extends Controller
         $this->memoryService = $memoryService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Auth/Memories/Index', MemoriesIndexViewModel::fromRequest());
+        return Inertia::render('Auth/Memories/Index', MemoriesIndexViewModel::fromRequest($request));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('memories::create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreMemoryData $r)
     {
         $success = $this->memoryService->saveMemories($r);
@@ -42,7 +31,9 @@ class MemoriesController extends Controller
             return back()->with('error', 'Ocorreu um erro. Por favor, tente novamente.');
         }
 
-        return to_route('memo.maps.index')->with('success', 'Memoria salva com sucesso!');
+        return back()->with('success', 'Memoria salva com sucesso!');
+
+        // return to_route('memo.maps.index')->with('success', 'Memoria salva com sucesso!');
     }
 
     /**
