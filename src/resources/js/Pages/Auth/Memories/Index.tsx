@@ -6,6 +6,7 @@ import { Place, Memory, PageProps } from "@/Types/models";
 import MemoriesMap from "./Components/MemoriesMap";
 import FlyToLocationButton from "./Components/FlyToLocationButton";
 import AddMemoryDialog from "./Components/AddMemoryDialog";
+import { MemoryDetailModal } from "./Components/MemoryDetailModal";
 
 import "leaflet/dist/leaflet.css";
 import { PinSidebar } from "./Components/PinSidebar";
@@ -77,6 +78,43 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
         setNewMemoryCoords(coordinates);
     };
 
+    //
+    const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSelectMemoryFromSidebar = (memory: Memory) => {
+        // Quando o usuário clica em uma memória, buscamos a versão mais recente
+        // com todos os comentários para preencher o modal.
+        router.get(route('memo.maps.show', memory.id), {}, {
+          preserveState: true,
+          preserveScroll: true,
+          onSuccess: (page) => {
+            // A prop `selectedMemoryDetails` virá do controller
+            setSelectedMemory(page.props.selectedMemoryDetails as Memory);
+          }
+        });
+    };
+
+    const handleCloseDetailModal = () => {
+        setSelectedMemory(null);
+    };
+
+
+        // A lógica de like agora precisa estar aqui para poder ser usada
+    // tanto na lista da sidebar quanto no modal.
+    const handleLikeToggle = (memoryToUpdate: Memory) => {
+      // Como o estado agora vive no servidor (via props),
+      // não precisamos mais da atualização otimista aqui.
+      // O Inertia cuidará de atualizar as props.
+      const routeName = memoryToUpdate.liked ? 'memories.unlike' : 'memories.like';
+      const method = memoryToUpdate.liked ? 'delete' : 'post';
+      router[method](route(routeName, memoryToUpdate.id), {
+        preserveScroll: true,
+        preserveState: true,
+      });
+    }
+
+    //
     return (
         <>
             <Head title="Maps" />
@@ -101,10 +139,14 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
                     place={selectedPlace}
                     onClose={handleCloseSidebar}
                     onAddMemoryClick={handleAddMemoryToPlace}
-                    onMemorySelect={(memory) => {
-                        // Lógica para abrir o modal de detalhes virá aqui
-                        console.log("Memória selecionada:", memory);
-                    }}
+                    onMemorySelect={handleSelectMemoryFromSidebar}
+                />
+
+
+                <MemoryDetailModal
+                    memory={selectedMemory}
+                    onClose={handleCloseDetailModal}
+                    onLike={handleLikeToggle}
                 />
 
                 {newMemoryCoords && (

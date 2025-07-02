@@ -5,6 +5,7 @@ namespace Modules\Memories\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Modules\Memories\DTOs\MemoryDataResponse;
 use Modules\Memories\DTOs\StoreMemoryData;
 use Modules\Memories\Interfaces\Services\IMemoriesService;
 use Modules\Memories\Models\Memorie;
@@ -46,14 +47,14 @@ class MemoriesController extends Controller
         return back()->with('success', 'Memória removida com sucesso!');
     }
 
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function show(Memorie $memory)
     {
-        return view('memories::show');
-    }
+        // Carrega as relações necessárias que talvez não estivessem na carga inicial
+        $memory->load(['user', 'comments.user']);
 
+        // Retorna a página atual, mas adicionando a prop 'selectedMemoryDetails'
+        return inertia()->share('selectedMemoryDetails', MemoryDataResponse::from($memory));
+    }
     /**
      * Show the form for editing the specified resource.
      */

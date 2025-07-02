@@ -3,7 +3,7 @@ import { PageProps as InertiaPageProps } from '@inertiajs/core';
 export interface Comment {
     id: number;
     text: string;
-    createdAt: string;
+    created: string;
     author: User;
 }
 
