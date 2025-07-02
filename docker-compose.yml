@@ -53,7 +53,6 @@ services:
       - redis
     ports:
       - "9000:9000"
-      - "8080:8080"
     volumes: # Adiciona volumes específicos
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env

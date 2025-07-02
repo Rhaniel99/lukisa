@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
-import { toast, Flip } from "react-toastify";
+import { toast, Flip, ToastContainer } from "react-toastify";
 import { PageProps } from "@/Types/models"; // Verifique se o caminho está correto
 
 // --- Tipagem ---
@@ -56,7 +56,7 @@ const NotificationListener: FC = () => {
     }, [auth.user?.id]);
 
     // Componente "headless", não renderiza nada na UI.
-    return null;
+    return <ToastContainer />;
 };
 
 export default NotificationListener;
