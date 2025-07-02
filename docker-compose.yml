@@ -42,6 +42,8 @@ services:
       - .env:/var/www/html/.env
     depends_on:
       - php
+      - reverb
+      - redis
     networks:
       - laravel
       - shared_network
