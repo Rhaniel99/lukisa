@@ -4,23 +4,21 @@ namespace Modules\Memories\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Modules\Memories\Models\Memorie;
+use Modules\Memories\Events\MemoryLikeUpdated; // ✅ Importar nosso evento
 
 class LikeController extends Controller
 {
     public function store(Memorie $memory)
     {
-        // Adiciona o like do usuário atual à memória
         $memory->likes()->attach(auth()->id());
-
-
+        broadcast(new MemoryLikeUpdated($memory))->toOthers();
         return back();
     }
 
     public function destroy(Memorie $memory)
     {
-        // Remove o like do usuário atual da memória
         $memory->likes()->detach(auth()->id());
-
+        broadcast(new MemoryLikeUpdated($memory))->toOthers();
         return back();
     }
 }

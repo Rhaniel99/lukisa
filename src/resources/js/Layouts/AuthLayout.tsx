@@ -1,13 +1,11 @@
 import { PropsWithChildren } from "react";
-import Notification from "@/Components/Notifications/Toast";
 import { Link } from "@inertiajs/react";
-import NotificationListener from "@/Components/Notifications/ToastListener";
+import NotificationHandler from "@/Components/Notifications/NotificationHandler";
 
 export default function AuthLayout({ children }: PropsWithChildren) {
     return (
         <>
-            <Notification />
-            <NotificationListener />
+            <NotificationHandler />
 
             <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
                 <nav className="flex items-center justify-between border-b border-gray-200 bg-white p-4">

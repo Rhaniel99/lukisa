@@ -38,13 +38,13 @@ const CreateMemoryForm: React.FC<CreateMemoryFormProps> = ({
         setData("media", file);
 
         // Debug: verificar se o arquivo foi selecionado
-        if (file) {
-            console.log("Arquivo selecionado:", {
-                name: file.name,
-                size: file.size,
-                type: file.type,
-            });
-        }
+        // if (file) {
+        //     console.log("Arquivo selecionado:", {
+        //         name: file.name,
+        //         size: file.size,
+        //         type: file.type,
+        //     });
+        // }
     };
 
     return (
