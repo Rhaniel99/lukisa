@@ -4,7 +4,9 @@ use App\Models\User;
 use App\Notifications\MessageTestNotification;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn() => inertia('Public/Home'))->name('home');
+Route::middleware('guest')->group(function () {
+    Route::get('/', fn() => inertia('Public/Home'))->name('home');
+});
 
 Route::get('send', function () {
     $message['status'] = request()->query('status', 'success');

@@ -4,9 +4,11 @@ use Illuminate\Support\Facades\Route;
 use Modules\Authentication\Http\Controllers\AuthenticationController;
 
 // ? GET
-Route::inertia('/login', 'Public/Authentication/Login')->name('form.login');
-Route::inertia('/signup', 'Public/Authentication/Signup')->name('form.signup');
-Route::inertia('/forgot', 'Public/Authentication/Forgot')->name('form.forgot');
+Route::middleware('guest')->group(function () {
+    Route::inertia('/login', 'Public/Authentication/Login')->name('form.login');
+    Route::inertia('/signup', 'Public/Authentication/Signup')->name('form.signup');
+    Route::inertia('/forgot', 'Public/Authentication/Forgot')->name('form.forgot');
+});
 
 // ? POST
 Route::post('/login', [AuthenticationController::class, 'authLogin'])->name('auth.login');

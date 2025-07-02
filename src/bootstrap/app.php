@@ -19,9 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'check.profile' => \App\Http\Middleware\CheckProfile::class,
+            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
 
-         $middleware->redirectGuestsTo('/');
+         $middleware->redirectGuestsTo('/login');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
