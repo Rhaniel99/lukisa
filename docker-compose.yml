@@ -44,6 +44,7 @@ services:
       - php
       - reverb
       - redis
+      - horizon
     networks:
       - laravel
       - shared_network
@@ -127,6 +128,30 @@ services:
       - redis
       # - pgsql
     restart: always
+
+  horizon:
+    build:
+      context: .
+      dockerfile: ./docker/horizon/Dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+        - USER=${USER:-laravel}
+    container_name: horizon
+    volumes:
+      - ./src:/var/www/html
+      - .env:/var/www/html/.env
+    depends_on:
+      - redis
+      # - pgsql
+    working_dir: /var/www/html
+    entrypoint: ['php', '/var/www/html/artisan', 'horizon']
+    restart: always
+    networks:
+      - laravel
+      - shared_network
+    devices:
+      - /dev/dri:/dev/dri
 
 volumes:
   redis_data:
