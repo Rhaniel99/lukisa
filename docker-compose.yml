@@ -8,6 +8,7 @@ networks:
         - subnet: 172.29.0.0/16
 
 x-php-common: &php-common
+  image: lukisa-php:latest
   build:
     context: ./docker/php
     dockerfile: Dockerfile
@@ -19,6 +20,7 @@ x-php-common: &php-common
   volumes:
     - ./src:/var/www/html:z
     - .env:/var/www/html/.env
+  working_dir: /var/www/html
   networks:
     - laravel
     - shared_network
@@ -56,7 +58,7 @@ services:
       - redis
     ports:
       - "9000:9000"
-    volumes: # Adiciona volumes específicos
+    volumes:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
       - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
@@ -66,18 +68,47 @@ services:
   artisan:
     <<: *php-common
     container_name: artisan_lukisa
-    working_dir: /var/www/html
     profiles: ["artisan"]
-    entrypoint: ['php', '/var/www/html/artisan']
-    restart: "no" # Artisan não precisa de restart
+    volumes:
+      - ./src:/var/www/html:z
+      - .env:/var/www/html/.env
+    entrypoint: ['php', 'artisan']
+    restart: "no"
 
   composer:
     <<: *php-common
     container_name: composer_lukisa
-    working_dir: /var/www/html
     profiles: ["composer"]
+    volumes:
+      - ./src:/var/www/html:z
+      - .env:/var/www/html/.env
     entrypoint: ['composer']
     restart: "no"
+
+  reverb:
+    <<: *php-common
+    container_name: reverb_lukisa
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/var/www/html:z
+      - .env:/var/www/html/.env
+    depends_on:
+      - php
+      - redis
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+
+  horizon:
+    <<: *php-common
+    container_name: horizon_lukisa
+    depends_on:
+      - redis
+    volumes:
+      - ./src:/var/www/html:z
+      - .env:/var/www/html/.env
+    command: php artisan horizon
+    devices:
+      - /dev/dri:/dev/dri
 
   node:
     build:
@@ -112,46 +143,6 @@ services:
     networks:
       - laravel
       - shared_network
-
-  reverb:
-    build:
-      context: .
-      dockerfile: ./docker/reverb/Dockerfile
-    container_name: reverb
-    ports:
-      - "8080:8080"
-    working_dir: /var/www/html
-    networks:
-      - laravel
-    depends_on:
-      - php
-      - redis
-      # - pgsql
-    restart: always
-
-  horizon:
-    build:
-      context: .
-      dockerfile: ./docker/horizon/Dockerfile
-      args:
-        - UID=${UID:-1000}
-        - GID=${GID:-1000}
-        - USER=${USER:-laravel}
-    container_name: horizon
-    volumes:
-      - ./src:/var/www/html
-      - .env:/var/www/html/.env
-    depends_on:
-      - redis
-      # - pgsql
-    working_dir: /var/www/html
-    entrypoint: ['php', '/var/www/html/artisan', 'horizon']
-    restart: always
-    networks:
-      - laravel
-      - shared_network
-    devices:
-      - /dev/dri:/dev/dri
 
 volumes:
   redis_data:

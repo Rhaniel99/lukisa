@@ -1,0 +1,27 @@
+# Arquivos e diretórios do Git
+.git
+.gitignore
+
+# Arquivos de ambiente locais (o .env já é montado como volume)
+.env
+.env.example
+
+# Dependências do Node.js (devem ser instaladas dentro do contêiner, se necessário)
+src/node_modules
+
+# Arquivos de log e cache do Docker
+docker/minio/data
+docker/pgsql/data
+
+# Logs e cache do Laravel
+src/storage/logs
+src/storage/framework/cache
+src/storage/framework/sessions
+src/storage/framework/views
+
+# Dependências do Composer (são instaladas via 'composer install')
+src/vendor
+
+# Arquivos de IDE
+.idea
+.vscode
