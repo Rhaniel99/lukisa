@@ -111,6 +111,22 @@ services:
       - laravel
       - shared_network
 
+  reverb:
+    build:
+      context: .
+      dockerfile: ./docker/reverb/Dockerfile
+    container_name: reverb
+    ports:
+      - "8080:8080"
+    working_dir: /var/www/html
+    networks:
+      - laravel
+    depends_on:
+      - php
+      - redis
+      # - pgsql
+    restart: always
+
 volumes:
   redis_data:
     driver: local

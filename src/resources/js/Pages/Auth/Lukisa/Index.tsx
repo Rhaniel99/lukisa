@@ -6,21 +6,21 @@ import { PageProps } from "@/Types/models";
 const Index: React.FC = () => {
     const { auth } = usePage<PageProps>().props;
 
-    useEffect(() => {
-        // Escuta no canal 'canal-de-teste' pelo evento '.evento.teste'
-        const channel = window.Echo.channel("canal-de-teste");
+    // useEffect(() => {
+    //     // Escuta no canal 'canal-de-teste' pelo evento '.evento.teste'
+    //     const channel = window.Echo.channel("canal-de-teste");
 
-        channel.listen(".evento.teste", (data: { message: string }) => {
-            console.log("Evento recebido do Reverb:", data);
-            alert(data.message);
-        });
+    //     channel.listen(".evento.teste", (data: { message: string }) => {
+    //         console.log("Evento recebido do Reverb:", data);
+    //         alert(data.message);
+    //     });
 
-        // Função de limpeza: para de escutar quando o componente é desmontado
-        return () => {
-            channel.stopListening(".evento.teste");
-            window.Echo.leave("canal-de-teste");
-        };
-    }, []); // O array vazio garante que o efeito rode apenas uma vez
+    //     // Função de limpeza: para de escutar quando o componente é desmontado
+    //     return () => {
+    //         channel.stopListening(".evento.teste");
+    //         window.Echo.leave("canal-de-teste");
+    //     };
+    // }, []); // O array vazio garante que o efeito rode apenas uma vez
 
     return (
         <>
