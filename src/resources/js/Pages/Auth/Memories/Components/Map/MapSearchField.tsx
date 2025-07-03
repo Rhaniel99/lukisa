@@ -2,21 +2,20 @@ import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import { GeoSearchControl, HereProvider } from "leaflet-geosearch";
 import "leaflet-geosearch/dist/geosearch.css";
+import { useHereApiKey } from "@/Hooks/useHereApiKey";
 
 const cepRegex = /^\d{5}-?\d{3}$/;
-const cepAndNumberRegex = /^(?<cep>\d{5}-?\d{3})[,]?\s*(?<number>\w+\d*|\d+)\s*$/;
+const cepAndNumberRegex =
+    /^(?<cep>\d{5}-?\d{3})[,]?\s*(?<number>\w+\d*|\d+)\s*$/;
 
-interface MapSearchFieldProps {
-    hereApiKey: string;
-}
-
-const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
+const MapSearchField: React.FC = () => {
+    const apiKey = useHereApiKey();
     const map = useMap();
 
     useEffect(() => {
         // Verificação se a API key existe
-        if (!hereApiKey) {
-            console.error('HERE API Key não fornecida para o MapSearchField');
+        if (!apiKey) {
+            console.error("HERE API Key não fornecida para o MapSearchField");
             return;
         }
 
@@ -25,13 +24,13 @@ const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
         try {
             const provider = new HereProvider({
                 params: {
-                    apiKey: hereApiKey,
+                    apiKey: apiKey,
                 },
             });
 
             // Override do método search
             provider.search = async ({ query }: { query: string }) => {
-                console.log('Pesquisando por:', query);
+                console.log("Pesquisando por:", query);
 
                 const currentCenter = map.getCenter();
                 const proximity = `${currentCenter.lat},${currentCenter.lng}`;
@@ -39,20 +38,25 @@ const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
                 // Função helper para formatar a resposta da HERE
                 const formatHereResponse = (hereData: any) => {
                     if (!hereData.items || hereData.items.length === 0) {
-                        console.log('Nenhum resultado encontrado');
+                        console.log("Nenhum resultado encontrado");
                         return [];
                     }
 
-                    console.log('Resultados encontrados:', hereData.items.length);
+                    console.log(
+                        "Resultados encontrados:",
+                        hereData.items.length
+                    );
 
                     return hereData.items.map((item: any) => ({
                         x: item.position.lng,
                         y: item.position.lat,
                         label: item.title,
-                        bounds: item.mapView ? [
-                            [item.mapView.south, item.mapView.west],
-                            [item.mapView.north, item.mapView.east],
-                        ] : null,
+                        bounds: item.mapView
+                            ? [
+                                  [item.mapView.south, item.mapView.west],
+                                  [item.mapView.north, item.mapView.east],
+                              ]
+                            : null,
                         raw: item,
                     }));
                 };
@@ -63,14 +67,19 @@ const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
                 if (cepAndNumberMatch?.groups) {
                     const { cep, number } = cepAndNumberMatch.groups;
                     try {
-                        console.log('Buscando CEP + Número:', cep, number);
+                        console.log("Buscando CEP + Número:", cep, number);
 
                         const viaCepResponse = await fetch(
-                            `https://viacep.com.br/ws/${cep.replace("-", "")}/json/`
+                            `https://viacep.com.br/ws/${cep.replace(
+                                "-",
+                                ""
+                            )}/json/`
                         );
 
                         if (!viaCepResponse.ok) {
-                            throw new Error(`Erro HTTP: ${viaCepResponse.status}`);
+                            throw new Error(
+                                `Erro HTTP: ${viaCepResponse.status}`
+                            );
                         }
 
                         const viaCepData = await viaCepResponse.json();
@@ -81,21 +90,22 @@ const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
 
                         const preciseAddress = `${viaCepData.logradouro}, ${number}, ${viaCepData.localidade} - ${viaCepData.uf}`;
 
-                        console.log('Endereço formatado:', preciseAddress);
+                        console.log("Endereço formatado:", preciseAddress);
 
                         const hereApiUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(
                             preciseAddress
-                        )}&at=${proximity}&in=countryCode:BRA&apiKey=${hereApiKey}`;
+                        )}&at=${proximity}&in=countryCode:BRA&apiKey=${apiKey}`;
 
                         const hereResponse = await fetch(hereApiUrl);
 
                         if (!hereResponse.ok) {
-                            throw new Error(`Erro HERE API: ${hereResponse.status}`);
+                            throw new Error(
+                                `Erro HERE API: ${hereResponse.status}`
+                            );
                         }
 
                         const hereData = await hereResponse.json();
                         return formatHereResponse(hereData);
-
                     } catch (error) {
                         console.error("Erro na busca por CEP + Número:", error);
                         return [];
@@ -104,14 +114,19 @@ const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
                 // CASO 2: Busca por CEP único
                 else if (cepRegex.test(query)) {
                     try {
-                        console.log('Buscando CEP:', query);
+                        console.log("Buscando CEP:", query);
 
                         const viaCepResponse = await fetch(
-                            `https://viacep.com.br/ws/${query.replace("-", "")}/json/`
+                            `https://viacep.com.br/ws/${query.replace(
+                                "-",
+                                ""
+                            )}/json/`
                         );
 
                         if (!viaCepResponse.ok) {
-                            throw new Error(`Erro HTTP: ${viaCepResponse.status}`);
+                            throw new Error(
+                                `Erro HTTP: ${viaCepResponse.status}`
+                            );
                         }
 
                         const viaCepData = await viaCepResponse.json();
@@ -122,21 +137,22 @@ const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
 
                         const address = `${viaCepData.logradouro}, ${viaCepData.localidade} - ${viaCepData.uf}`;
 
-                        console.log('Endereço do CEP:', address);
+                        console.log("Endereço do CEP:", address);
 
                         const hereApiUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(
                             address
-                        )}&at=${proximity}&in=countryCode:BRA&apiKey=${hereApiKey}`;
+                        )}&at=${proximity}&in=countryCode:BRA&apiKey=${apiKey}`;
 
                         const hereResponse = await fetch(hereApiUrl);
 
                         if (!hereResponse.ok) {
-                            throw new Error(`Erro HERE API: ${hereResponse.status}`);
+                            throw new Error(
+                                `Erro HERE API: ${hereResponse.status}`
+                            );
                         }
 
                         const hereData = await hereResponse.json();
                         return formatHereResponse(hereData);
-
                     } catch (error) {
                         console.error("Erro na busca por CEP:", error);
                         return [];
@@ -145,21 +161,22 @@ const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
                 // CASO 3: Busca de texto normal
                 else {
                     try {
-                        console.log('Busca de texto:', query);
+                        console.log("Busca de texto:", query);
 
                         const hereApiUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(
                             query
-                        )}&at=${proximity}&in=countryCode:BRA&apiKey=${hereApiKey}`;
+                        )}&at=${proximity}&in=countryCode:BRA&apiKey=${apiKey}`;
 
                         const hereResponse = await fetch(hereApiUrl);
 
                         if (!hereResponse.ok) {
-                            throw new Error(`Erro HERE API: ${hereResponse.status}`);
+                            throw new Error(
+                                `Erro HERE API: ${hereResponse.status}`
+                            );
                         }
 
                         const hereData = await hereResponse.json();
                         return formatHereResponse(hereData);
-
                     } catch (error) {
                         console.error("Erro na busca de texto:", error);
                         return [];
@@ -180,25 +197,24 @@ const MapSearchField: React.FC<MapSearchFieldProps> = ({ hereApiKey }) => {
                 autoCompleteDelay: 250,
             });
 
-            console.log('Adicionando controle de busca ao mapa');
+            console.log("Adicionando controle de busca ao mapa");
             map.addControl(searchControl);
-
         } catch (error) {
-            console.error('Erro ao inicializar MapSearchField:', error);
+            console.error("Erro ao inicializar MapSearchField:", error);
         }
 
         // Cleanup
         return () => {
             if (searchControl && map) {
                 try {
-                    console.log('Removendo controle de busca do mapa');
+                    console.log("Removendo controle de busca do mapa");
                     map.removeControl(searchControl);
                 } catch (error) {
-                    console.error('Erro ao remover controle:', error);
+                    console.error("Erro ao remover controle:", error);
                 }
             }
         };
-    }, [map, hereApiKey]);
+    }, [map, apiKey]);
 
     return null;
 };

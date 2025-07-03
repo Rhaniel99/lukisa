@@ -3,12 +3,12 @@ import React from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import { Place } from '@/Types/models'; // Importando do nosso arquivo central
 
-interface PlaceMarkerProps {
+interface MapPlaceMarkerProps {
     place: Place;
     onPlaceClick: (place: Place) => void;
 }
 
-const PlaceMarker: React.FC<PlaceMarkerProps> = ({ place, onPlaceClick }) => {
+const MapPlaceMarker: React.FC<MapPlaceMarkerProps> = ({ place, onPlaceClick }) => {
     return (
         <Marker
             key={place.id}
@@ -22,4 +22,4 @@ const PlaceMarker: React.FC<PlaceMarkerProps> = ({ place, onPlaceClick }) => {
     );
 };
 
-export default PlaceMarker;
+export default MapPlaceMarker;
