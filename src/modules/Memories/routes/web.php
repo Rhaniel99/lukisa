@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Memories\Http\Controllers\CommentController;
 use Modules\Memories\Http\Controllers\LikeController;
 use Modules\Memories\Http\Controllers\MemoriesController;
 
@@ -14,6 +15,8 @@ Route::middleware(['auth', 'check.profile'])->group(function () {
 
     // Route::resource('memories', MemoriesController::class)->names('memories');
 
-    Route::post('/memories/{memory}/like', [LikeController::class, 'store'])->name('memories.like');
-    Route::delete('/memories/{memory}/unlike', [LikeController::class, 'destroy'])->name('memories.unlike');
+    Route::post('/memories-maps/{memory}/like', [LikeController::class, 'store'])->name('memories.like');
+    Route::delete('/memories-maps/{memory}/unlike', [LikeController::class, 'destroy'])->name('memories.unlike');
+
+    Route::post('/memories-maps/{memory}/comments', [CommentController::class, 'store'])->name('memo.comments.store');
 });

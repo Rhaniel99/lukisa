@@ -6,12 +6,12 @@ import { PageProps } from "@/Types/models"; // Ajuste o caminho se necessário
 
 // --- Tipos ---
 interface FlashProps {
-  success?: string;
-  error?: string;
+    success?: string;
+    error?: string;
 }
 
 interface NotificationPayload {
-    status: 'success' | 'error' | 'info';
+    status: "success" | "error" | "info";
     body: string;
 }
 
@@ -24,6 +24,12 @@ export default function NotificationHandler() {
     useEffect(() => {
         if (flash?.success) {
             toast.success(flash.success);
+            router.reload({
+                only: [], // Não recarregar nenhum dado específico
+                // preserveState: true, // Manter o estado atual
+                // preserveScroll: true, // Manter posição do scroll
+                replace: true, // Substituir entrada do histórico
+            });
         }
         if (flash?.error) {
             toast.error(flash.error);
@@ -31,8 +37,7 @@ export default function NotificationHandler() {
         if (errors && Object.keys(errors).length > 0) {
             Object.values(errors).forEach((errMsg) => toast.error(errMsg));
         }
-  }, [flash, errors]);
-
+    }, [flash, errors]);
 
     // --- Lógica do Antigo ToastListener.tsx (Broadcast) ---
     useEffect(() => {
@@ -42,11 +47,14 @@ export default function NotificationHandler() {
 
         const channelName = `App.Models.User.${auth.user.id}`;
 
-        window.Echo.private(channelName)
-            .notification((notification: NotificationPayload) => {
+        window.Echo.private(channelName).notification(
+            (notification: NotificationPayload) => {
                 console.log("Notificação de broadcast recebida:", notification);
-                toast(notification.body, { type: notification.status || 'info' });
-            });
+                toast(notification.body, {
+                    type: notification.status || "info",
+                });
+            }
+        );
 
         console.log(`Ouvindo notificações no canal: ${channelName}`);
 

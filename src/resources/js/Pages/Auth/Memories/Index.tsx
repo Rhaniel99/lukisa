@@ -80,18 +80,14 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
 
     //
     const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleSelectMemoryFromSidebar = (memory: Memory) => {
-        // Quando o usuário clica em uma memória, buscamos a versão mais recente
-        // com todos os comentários para preencher o modal.
-        router.get(route('memo.maps.show', memory.id), {}, {
-          preserveState: true,
-          preserveScroll: true,
-          onSuccess: (page) => {
-            // A prop `selectedMemoryDetails` virá do controller
+        router.reload({
+            only: ['selectedMemoryDetails'],
+            data: { memory_id: memory.id },
+            onSuccess: (page) => {
             setSelectedMemory(page.props.selectedMemoryDetails as Memory);
-          }
+            }
         });
     };
 

@@ -33,8 +33,8 @@ class MemoryDataResponse extends Data
 
     public static function fromModel(Memorie $memory): self
     {
-        \Log::info($memory->user_id);
-        \Log::warning(auth()->id());
+        // \Log::info($memory->user_id);
+        // \Log::warning(auth()->id());
 
         return new self(
             id: $memory->id,

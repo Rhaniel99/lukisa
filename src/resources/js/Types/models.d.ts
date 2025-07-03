@@ -18,7 +18,7 @@ export interface Memory {
     is_owner: boolean;
     author: User;
     comments: Comment[]; // A coleção de comentários já virá aqui
-    commentsCount: number;
+    comments_count: number;
 }
 
 // O Place que vem do ViewModel é mais simples
@@ -38,6 +38,7 @@ export type User = {
     name: string;
     email: string;
     avatar: string | null;
+    avatar_url: string | null;
 };
 
 // ✅ Define e exporta o tipo base que todas as páginas terão

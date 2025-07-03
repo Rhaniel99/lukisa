@@ -77,7 +77,7 @@ export const MemoryCard: React.FC<MemoryCardProps> = React.memo(
                             </div>
                             <div className="flex items-center text-xs text-slate-500">
                                 <MessageCircle className="mr-1 h-4 w-4 text-slate-500" />
-                                {memory.commentsCount ?? memory.comments.length}
+                                {memory.comments_count ?? memory.comments.length}
                             </div>
                         </div>
                         <span className="rounded-full bg-gray-200 px-2.5 py-1 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">

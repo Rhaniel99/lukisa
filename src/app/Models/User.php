@@ -12,6 +12,8 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $appends = ['avatar_url']; 
+
     /**
      * The attributes that are mass assignable.
      *

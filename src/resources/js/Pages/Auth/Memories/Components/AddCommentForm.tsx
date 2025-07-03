@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { usePage } from "@inertiajs/react";
+import { Form } from "@/Components/UI/Form";
 
 interface AddCommentFormProps {
     memory: Memory;
@@ -17,23 +18,19 @@ export const AddCommentForm: React.FC<AddCommentFormProps> = ({ memory }) => {
         content: "",
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!data.content.trim()) return;
-
-        // post(route("memories.comments.store", memory.id), {
-        //     preserveScroll: true,
-        //     onSuccess: () => reset("content"),
-        // });
+    const submit = () => {
+        post(route("memo.comments.store", memory.id), {
+            preserveScroll: true, // Mantém a posição do scroll na página
+            onSuccess: () => {
+                reset("content"); // Limpa o campo de texto após o sucesso
+            },
+        });
     };
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="flex w-full items-start space-x-3"
-        >
+        <Form onSubmit={submit} className="flex w-full items-start space-x-3">
             <Avatar className="h-9 w-9">
-                <AvatarImage src={auth.user.avatar || ""} />
+                <AvatarImage src={auth.user.avatar_url || ""} />
                 <AvatarFallback>{auth.user.name[0]}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -43,6 +40,7 @@ export const AddCommentForm: React.FC<AddCommentFormProps> = ({ memory }) => {
                     placeholder="Adicione um comentário..."
                     className="resize-none"
                     rows={1}
+                    disabled={processing} // Desabilita o textarea durante o envio
                 />
                 <div className="mt-2 flex justify-end">
                     <Button
@@ -50,7 +48,7 @@ export const AddCommentForm: React.FC<AddCommentFormProps> = ({ memory }) => {
                         disabled={processing || !data.content.trim()}
                         size="sm"
                     >
-                        Comentar
+                        {processing ? "Enviando..." : "Comentar"}
                     </Button>
                 </div>
                 {errors.content && (
@@ -59,6 +57,6 @@ export const AddCommentForm: React.FC<AddCommentFormProps> = ({ memory }) => {
                     </p>
                 )}
             </div>
-        </form>
+        </Form>
     );
 };
