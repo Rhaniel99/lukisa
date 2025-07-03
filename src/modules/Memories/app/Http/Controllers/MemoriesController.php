@@ -50,10 +50,16 @@ class MemoriesController extends Controller
     public function show(Memorie $memory)
     {
         // Carrega as relações necessárias que talvez não estivessem na carga inicial
+        // Carrega as relações necessárias
         $memory->load(['user', 'comments.user']);
 
+        // 1. Compartilha os detalhes da memória para a próxima requisição Inertia
+        inertia()->share('selectedMemoryDetails', MemoryDataResponse::from($memory));
+
         // Retorna a página atual, mas adicionando a prop 'selectedMemoryDetails'
-        return inertia()->share('selectedMemoryDetails', MemoryDataResponse::from($memory));
+        return redirect()->back();
+
+        // return inertia()->share('selectedMemoryDetails', MemoryDataResponse::from($memory));
     }
     /**
      * Show the form for editing the specified resource.
