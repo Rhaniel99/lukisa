@@ -13,6 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Heart, MessageCircle, X } from "lucide-react";
 import { AddCommentForm } from "./AddCommentForm";
+import { useCommentRealtime } from "../Hooks/useCommentRealtime";
 
 // Definindo a interface de props que o componente recebe
 interface MemoryDetailModalProps {
@@ -26,18 +27,19 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
     onClose,
     onLike,
 }) => {
+    const { comments, count } = useCommentRealtime(memory);
+
     // Se não houver memória selecionada, o componente não renderiza nada
     if (!memory) {
         return null;
     }
 
-    console.log(memory);
     return (
         // Fundo com overlay escuro que cobre a tela toda
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm animate-fade-in">
             <Card className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 max-h-[90vh] overflow-hidden bg-white dark:bg-slate-950">
                 {/* Coluna da Imagem */}
-                <div className="relative flex items-center justify-center bg-slate-100 dark:bg-slate-900 md:max-h-[90vh]">
+                <div className="relative flex items-center justify-center bg-slate-100 dark:bg-slate-900 md:max-h-[90vh] overflow-hidden">
                     <img
                         src={memory.image || "/placeholder.svg"}
                         alt={memory.title}
@@ -78,7 +80,7 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                     </CardHeader>
 
                     {/* Área de rolagem para o conteúdo e comentários */}
-                    <ScrollArea className="flex-grow">
+                    <ScrollArea className="flex-grow min-h-0">
                         <CardContent className="space-y-4 px-6 pb-6">
                             <p className="text-slate-700 dark:text-slate-300">
                                 {memory.description}
@@ -103,18 +105,16 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                                 <div className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
                                     <MessageCircle className="w-4 h-4 mr-2" />
                                     <span>
-                                        {memory.comments_count ??
-                                            memory.comments?.length ??
-                                            0}{" "}
-                                        comentários
+                                        {/* ✅ Use a contagem reativa do hook */}
+                                        {count} comentários
                                     </span>
                                 </div>
                             </div>
 
                             {/* Lista de Comentários */}
                             <div className="space-y-4">
-                                {memory.comments?.length > 0 ? (
-                                    memory.comments.map((comment) => (
+                                {comments.length > 0 ? (
+                                    comments.map((comment) => (
                                         <div
                                             key={comment.id}
                                             className="flex items-start space-x-3"

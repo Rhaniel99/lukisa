@@ -1,49 +1,46 @@
-import { useState, useEffect } from "react";
-import { Memory } from "@/Types/models";
+import { useEffect, useRef, useState } from 'react'
+import { Memory } from '@/Types/models'
 
-type LikeEvent = {
-    id: number;
-    likesCount: number;
-};
+type LikeEvent = { id: number; likesCount: number }
 
 export function useMemoryRealtime(initialMemories: Memory[]) {
-    const [memories, setMemories] = useState<Memory[]>(initialMemories);
+  const [memories, setMemories] = useState<Memory[]>(initialMemories)
 
-    // Efeito para sincronizar o estado com as props que vêm do Inertia
-    useEffect(() => {
-        setMemories(initialMemories);
-    }, [initialMemories]);
+  /** Guarda pares {channelName, handler} para remover depois */
+  const subscriptions = useRef<{ channel: any; handler: (e: LikeEvent) => void }[]>([])
 
-    // Efeito para escutar eventos de broadcast do Echo
-    useEffect(() => {
-        // Não faz nada se não houver memórias para escutar
-        if (memories.length === 0) {
-            return;
-        }
+  // 1) Sempre que as memórias mudarem (entrada do Inertia), sobrescreve estado
+  useEffect(() => setMemories(initialMemories), [initialMemories])
 
-        memories.forEach((memory) => {
-            const channelName = `memories.${memory.id}`;
-            window.Echo.channel(channelName).listen(
-                ".memory.like.updated",
-                (event: LikeEvent) => {
-                    setMemories((currentMemories) =>
-                        currentMemories.map((m) =>
-                            m.id === event.id
-                                ? { ...m, likes: event.likesCount }
-                                : m
-                        )
-                    );
-                }
-            );
-        });
+  // 2) (Re)inscreve‑se só quando a lista de IDs muda
+  useEffect(() => {
+    const ids = memories.map(m => m.id)
 
-        // Função de limpeza para sair dos canais
-        return () => {
-            memories.forEach((memory) => {
-                window.Echo.leave(`memories.${memory.id}`);
-            });
-        };
-    }, [memories.map((m) => m.id).join(",")]); // Dependência otimizada
+    // evita repetir handlers: sai de todos os canais antigos
+    subscriptions.current.forEach(({ channel, handler }) =>
+      channel.stopListening('.memory.like.updated', handler)
+    )
+    subscriptions.current = []
 
-    return { memories, setMemories };
+    ids.forEach(id => {
+      const channel = window.Echo.channel(`memories.${id}`)
+      const handler = (e: LikeEvent) => {
+        setMemories(curr =>
+          curr.map(m => (m.id === e.id ? { ...m, likes: e.likesCount } : m))
+        )
+      }
+      channel.listen('.memory.like.updated', handler)
+      subscriptions.current.push({ channel, handler })
+    })
+
+    // cleanup ao desmontar
+    return () => {
+      subscriptions.current.forEach(({ channel, handler }) =>
+        channel.stopListening('.memory.like.updated', handler)
+      )
+      subscriptions.current = []
+    }
+  }, [memories.map(m => m.id).join(',')]) // só muda se aparecer ou sumir um ID
+
+  return { memories, setMemories }
 }

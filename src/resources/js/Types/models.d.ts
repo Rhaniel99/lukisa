@@ -17,8 +17,15 @@ export interface Memory {
     image: string | null;
     is_owner: boolean;
     author: User;
-    comments: Comment[]; // A coleção de comentários já virá aqui
+    // ✅ Atualize aqui para usar o novo nome
+    comments: MemoryComment[];
     comments_count: number;
+    // ✅ Adicione a prop de metadados da paginação
+    commentsMeta?: {
+        current_page: number;
+        last_page: number;
+        has_more_pages: boolean;
+    } | null;
 }
 
 // O Place que vem do ViewModel é mais simples

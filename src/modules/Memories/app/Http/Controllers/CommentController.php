@@ -5,6 +5,7 @@ namespace Modules\Memories\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Modules\Memories\Events\CommentPosted;
 use Modules\Memories\Models\Memorie;
 
 class CommentController extends Controller
@@ -32,11 +33,16 @@ class CommentController extends Controller
             'content' => ['required', 'string', 'max:1000'],
         ]);
 
-        // 2. Cria o comentário associado à memória e ao usuário logado
-        $memory->comments()->create([
+        $comment = $memory->comments()->create([ // Salve o novo comentário em uma variável
             'content' => $validated['content'],
             'user_id' => auth()->id(),
         ]);
+
+        // 2. Dispare o evento e use toOthers() para não enviá-lo de volta a quem comentou
+        broadcast(new CommentPosted($comment));
+
+        // broadcast(new CommentPosted($comment))->toOthers();
+
 
         // 3. Redireciona de volta para a página anterior
         return redirect()->back()->with('success', 'Comentário adicionado!');

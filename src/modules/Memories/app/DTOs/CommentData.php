@@ -11,6 +11,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class CommentData extends Data
 {
     public function __construct(
+         public readonly int $memory_id,
         public readonly int $id,
         public readonly string $text, // 'text' no frontend
         public readonly string $created,
@@ -25,6 +26,7 @@ class CommentData extends Data
     public static function fromModel(Comment $comment): self
     {
         return new self(
+            memory_id: $comment->memory_id,
             id: $comment->id,
             text: $comment->content, // Mapeia a coluna 'content' para 'text'
             created: $comment->created_at->diffForHumans(), // Formata a data
