@@ -34,7 +34,7 @@ export const MemoryCard: React.FC<MemoryCardProps> = React.memo(
                 <CardHeader className="pb-3">
                     <div className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={memory.author.avatar || ""} />
+                            <AvatarImage src={memory.author.avatar_url || ""} />
                             <AvatarFallback>
                                 {memory.author.name[0]}
                             </AvatarFallback>

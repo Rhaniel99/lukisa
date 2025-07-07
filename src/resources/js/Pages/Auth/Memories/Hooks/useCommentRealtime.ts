@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Memory, Comment } from '@/Types/models';
+import { useState, useEffect } from "react";
+import { Memory, Comment } from "@/Types/models";
 
 export const useCommentRealtime = (memory: Memory | null) => {
     const [comments, setComments] = useState<Comment[]>([]);
@@ -18,12 +18,17 @@ export const useCommentRealtime = (memory: Memory | null) => {
 
         const channelName = `memories.${memory.id}`;
 
-        window.Echo.private(channelName)
-            .listen('.comment.posted', (event: { comment: Comment }) => {
+        window.Echo.private(channelName).listen(
+            ".comment.posted",
+            (event: { comment: Comment }) => {
                 // Atualiza a lista E a contagem ao receber um novo comentário
-                setComments(currentComments => [...currentComments, event.comment]);
-                setCount(currentCount => currentCount + 1);
-            });
+                setComments((currentComments) => [
+                    ...currentComments,
+                    event.comment,
+                ]);
+                setCount((currentCount) => currentCount + 1);
+            }
+        );
 
         return () => {
             window.Echo.leave(channelName);

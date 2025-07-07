@@ -4,6 +4,7 @@ namespace Modules\Memories\ViewModels;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Modules\Memories\DTOs\MemoryDataResponse;
+use Modules\Memories\DTOs\MemorySummaryData;
 use Modules\Memories\Models\Memorie;
 use Modules\Memories\Models\Place;
 use Spatie\LaravelData\Data;
@@ -33,7 +34,7 @@ class MemoriesIndexViewModel extends Data
                     ->withCount(['likes', 'comments'])
                     ->latest()
                     ->get();
-                return MemoryDataResponse::collect($m);
+                return MemorySummaryData::collect($m);
             }
         );
 
@@ -41,10 +42,21 @@ class MemoriesIndexViewModel extends Data
         $selectedMemoryDetails = Lazy::when(
             fn() => $request->has('memory_id'),
             function () use ($request) {
-                $memory = Memorie::with(['user', 'comments.user'])
+                $page = $request->input('comments_page', 1);
+                $memory = Memorie::with('user')
                     ->withCount(['likes', 'comments'])
                     ->findOrFail($request->input('memory_id'));
-                return MemoryDataResponse::fromModel($memory);
+
+                // Paginar comentários (3 por página, ordenados do mais novo)
+                $paginated = $memory->comments()
+                    ->with('user')
+                    ->latest()
+                    ->paginate(3, ['*'], 'comments_page', $page);
+
+                // Anexar comentários paginados (DTO)
+                $dto = MemoryDataResponse::fromModel($memory, $paginated);
+
+                return $dto;
             }
         );
 

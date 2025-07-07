@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Memory } from "@/Types/models";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Heart, MessageCircle, X } from "lucide-react";
 import { AddCommentForm } from "./AddCommentForm";
 import { useCommentRealtime } from "../Hooks/useCommentRealtime";
+import { useCommentPagination } from "../Hooks/useCommentPagination";
 
 // Definindo a interface de props que o componente recebe
 interface MemoryDetailModalProps {
@@ -27,12 +28,27 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
     onClose,
     onLike,
 }) => {
-    const { comments, count } = useCommentRealtime(memory);
-
     // Se não houver memória selecionada, o componente não renderiza nada
     if (!memory) {
         return null;
     }
+
+    const { count } = useCommentRealtime(memory);
+
+    // extrair initial props de comentários vindos do servidor
+    const {
+        comments: initialComments,
+        commentsCurrentPage,
+        commentsLastPage,
+    } = memory as any; // tipar adequadamente
+
+    const { comments, loadMore, hasMore } = useCommentPagination({
+        memory,
+        initialComments,
+        initialPage: commentsCurrentPage,
+        lastPage: commentsLastPage,
+    });
+
 
     return (
         // Fundo com overlay escuro que cobre a tela toda
@@ -54,7 +70,10 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                             <div className="flex items-center space-x-3">
                                 <Avatar>
                                     <AvatarImage
-                                        src={memory.author.avatar || undefined}
+                                        src={
+                                            memory.author.avatar_url ||
+                                            undefined
+                                        }
                                     />
                                     <AvatarFallback>
                                         {memory.author.name[0]}
@@ -80,7 +99,13 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                     </CardHeader>
 
                     {/* Área de rolagem para o conteúdo e comentários */}
-                    <ScrollArea className="flex-grow min-h-0">
+                    <ScrollArea
+                        className="flex-grow min-h-0"
+                        // onScrollViewport={onScroll}
+
+                        // onScroll={onScroll}
+                        // ref={scrollRef}
+                    >
                         <CardContent className="space-y-4 px-6 pb-6">
                             <p className="text-slate-700 dark:text-slate-300">
                                 {memory.description}
@@ -150,6 +175,16 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                                     <div className="py-4 text-center text-sm text-slate-500">
                                         Nenhum comentário ainda. Seja o
                                         primeiro!
+                                    </div>
+                                )}
+                                {hasMore && (
+                                    <div className="flex justify-center pt-4">
+                                        <Button
+                                            onClick={() => loadMore()}
+                                            variant="outline"
+                                        >
+                                            Carregar mais
+                                        </Button>
                                     </div>
                                 )}
                             </div>
