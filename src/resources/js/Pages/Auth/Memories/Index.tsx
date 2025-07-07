@@ -46,7 +46,6 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
         <>
             <Head title="Maps" />
             <div className="relative h-screen w-screen">
-
                 <MemoriesMap
                     places={places}
                     onPlaceClick={sidebar.open}
@@ -66,11 +65,13 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
                     onMemorySelect={detailModal.open}
                 />
 
-                <MemoryDetailModal
-                    memory={detailModal.memory}
-                    onClose={detailModal.close}
-                    onLike={handleLikeToggle}
-                />
+                {detailModal.memory && (
+                    <MemoryDetailModal
+                        memory={detailModal.memory}
+                        onClose={detailModal.close}
+                        onLike={handleLikeToggle}
+                    />
+                )}
 
                 {addDialog.isOpen && addDialog.coordinates && (
                     <AddMemoryDialog

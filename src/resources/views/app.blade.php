@@ -5,9 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title inertia>{{ config('app.name', 'Lukisa') }}</title>
         <!-- Scripts -->
+        @vite('resources/css/app.css')
         @routes
         @viteReactRefresh
-            @vite(['resources/js/app.tsx', 'resources/css/app.css'])
+            @vite(['resources/js/app.tsx'])
         @inertiaHead
     </head>
     <body>
