@@ -68,7 +68,7 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
             className={`fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm ${animationClass}`}
             onAnimationEnd={handleAnimationEnd}
         >
-            <Card className="grid h-[90vh] w-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] overflow-hidden bg-white dark:bg-slate-950 md:grid-cols-2 md:grid-rows-1">
+            <Card className="grid h-[65vh] w-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] overflow-hidden bg-white dark:bg-slate-950 md:grid-cols-2 md:grid-rows-1">
                 {/* Coluna da Imagem */}
                 <div className="relative h-80 overflow-hidden bg-slate-100 dark:bg-slate-900 md:h-auto">
                     <img

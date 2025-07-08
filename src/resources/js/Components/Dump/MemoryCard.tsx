@@ -75,7 +75,10 @@ export const MemoryCard: React.FC<MemoryCardProps> = React.memo(
                                 />
                                 {memory.likes}
                             </div>
-                            <div className="flex items-center text-xs text-slate-500">
+                            <div
+                                className="flex cursor-pointer items-center text-xs text-slate-500"
+                                onClick={() => onSelect(memory)}
+                            >
                                 <MessageCircle className="mr-1 h-4 w-4 text-slate-500" />
                                 {memory.comments_count ?? memory.comments.length}
                             </div>
