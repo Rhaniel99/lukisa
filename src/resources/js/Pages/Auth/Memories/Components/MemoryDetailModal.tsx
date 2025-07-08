@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Memory } from "@/Types/models";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Heart, MessageCircle, X } from "lucide-react";
 import { AddCommentForm } from "./AddCommentForm";
-import { useCommentRealtime } from "../Hooks/useCommentRealtime";
-import { useCommentPagination } from "../Hooks/useCommentPagination";
+import { useComments } from "../Hooks/useComments";
 
-// Definindo a interface de props que o componente recebe
 interface MemoryDetailModalProps {
     memory: Memory | null;
     onClose: () => void;
@@ -28,30 +26,29 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
     onClose,
     onLike,
 }) => {
-    // Se não houver memória selecionada, o componente não renderiza nada
     if (!memory) {
         return null;
     }
 
-    const { count } = useCommentRealtime(memory);
-
-    // extrair initial props de comentários vindos do servidor
+    // Extrair initial props de comentários vindos do servidor
     const {
         comments: initialComments,
         commentsCurrentPage,
         commentsLastPage,
-    } = memory as any; // tipar adequadamente
+    } = memory as any;
 
-    const { comments, loadMore, hasMore } = useCommentPagination({
+    // Hook unificado - uma única chamada para todas as funcionalidades
+    const { comments, count, loadMore, hasMore, loading } = useComments({
         memory,
         initialComments,
         initialPage: commentsCurrentPage,
         lastPage: commentsLastPage,
     });
 
+    console.log(count);
+    console.log(hasMore);
 
     return (
-        // Fundo com overlay escuro que cobre a tela toda
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm animate-fade-in">
             <Card className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 max-h-[90vh] overflow-hidden bg-white dark:bg-slate-950">
                 {/* Coluna da Imagem */}
@@ -98,10 +95,7 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                         </div>
                     </CardHeader>
 
-                    {/* Área de rolagem para o conteúdo e comentários */}
-                    <ScrollArea
-                        className="flex-grow min-h-0"
-                    >
+                    <ScrollArea className="flex-grow min-h-0">
                         <CardContent className="space-y-4 px-6 pb-6">
                             <p className="text-slate-700 dark:text-slate-300">
                                 {memory.description}
@@ -125,10 +119,7 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                                 </Button>
                                 <div className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
                                     <MessageCircle className="w-4 h-4 mr-2" />
-                                    <span>
-                                        {/* ✅ Use a contagem reativa do hook */}
-                                        {count} comentários
-                                    </span>
+                                    <span>{count} comentários</span>
                                 </div>
                             </div>
 
@@ -173,13 +164,17 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                                         primeiro!
                                     </div>
                                 )}
+
                                 {hasMore && (
                                     <div className="flex justify-center pt-4">
                                         <Button
-                                            onClick={() => loadMore()}
+                                            onClick={loadMore}
                                             variant="outline"
+                                            disabled={loading}
                                         >
-                                            Carregar mais
+                                            {loading
+                                                ? "Carregando..."
+                                                : "Carregar mais"}
                                         </Button>
                                     </div>
                                 )}
@@ -187,7 +182,6 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                         </CardContent>
                     </ScrollArea>
 
-                    {/* Formulário de novo comentário no rodapé */}
                     <CardFooter className="flex-shrink-0 border-t pt-4">
                         <AddCommentForm memory={memory} />
                     </CardFooter>
