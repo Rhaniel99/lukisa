@@ -101,10 +101,6 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                     {/* Área de rolagem para o conteúdo e comentários */}
                     <ScrollArea
                         className="flex-grow min-h-0"
-                        // onScrollViewport={onScroll}
-
-                        // onScroll={onScroll}
-                        // ref={scrollRef}
                     >
                         <CardContent className="space-y-4 px-6 pb-6">
                             <p className="text-slate-700 dark:text-slate-300">
