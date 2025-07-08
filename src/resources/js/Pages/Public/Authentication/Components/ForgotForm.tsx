@@ -2,11 +2,11 @@ import React, { useEffect } from "react";
 import { useForm, usePage } from "@inertiajs/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Form } from "@/Components/UI/Form";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/Components/ui/label";
 import { Calendar, Loader2, Lock, Mail } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
+import { CardHeader, CardTitle, CardDescription } from "@/Components/ui/card";
 import type { PageProps as InertiaPageProps } from "@inertiajs/core";
 
 interface ForgotPageSpecificProps {

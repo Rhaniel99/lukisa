@@ -1,11 +1,11 @@
 import React, { FormEvent } from "react";
 import { Link, useForm } from "@inertiajs/react";
 import { Form } from "@/Components/UI/Form";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/Components/ui/label";
 import { Loader2, Lock, Mail } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Checkbox } from "@/Components/ui/checkbox";
+import { Button } from "@/Components/ui/button";
 import type { CheckedState } from "@radix-ui/react-checkbox";
 
 export const LoginForm: React.FC = () => {

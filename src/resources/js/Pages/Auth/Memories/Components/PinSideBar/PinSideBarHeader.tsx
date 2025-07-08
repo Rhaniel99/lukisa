@@ -1,6 +1,6 @@
 import React from 'react';
 import { Place } from '@/Types/models';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/Components/ui/button';
 import { X, MapPin, Plus } from 'lucide-react';
 
 // Props que o cabeçalho precisa para funcionar

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/Components/ui/button';
 import { Loader2, LocateFixed } from 'lucide-react';
 import { Map } from 'leaflet';
 

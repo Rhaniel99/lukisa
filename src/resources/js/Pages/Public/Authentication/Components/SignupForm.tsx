@@ -1,10 +1,10 @@
 import React, { FormEvent } from "react";
 import { useForm } from "@inertiajs/react";
 import { Form } from "@/Components/UI/Form";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/Components/ui/label";
 import { Calendar, Loader2, Lock, Mail, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
 
 export const SignupForm: React.FC = () => {
     const { data, setData, post, processing, errors, reset } = useForm({

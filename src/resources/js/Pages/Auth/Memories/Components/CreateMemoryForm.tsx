@@ -2,9 +2,9 @@
 import React from "react";
 import { useForm } from "@inertiajs/react";
 import { LatLng } from "leaflet";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
 import { Form } from "@/Components/UI/Form";
 
 interface CreateMemoryFormProps {

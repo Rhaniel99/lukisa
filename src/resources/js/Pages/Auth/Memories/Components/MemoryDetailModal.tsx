@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Memory } from "@/Types/models";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
+import { Button } from "@/Components/ui/button";
 import {
     Card,
     CardContent,
@@ -9,8 +9,8 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/Components/ui/card";
+import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Heart, MessageCircle, X } from "lucide-react";
 import { AddCommentForm } from "./AddCommentForm";
 import { useComments } from "../Hooks/useComments";

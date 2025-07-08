@@ -9,9 +9,9 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+} from "@/Components/ui/card";
+import { Separator } from "@/Components/ui/separator";
+import { Button } from "@/Components/ui/button";
 
 const Login: React.FC = () => {
     return (

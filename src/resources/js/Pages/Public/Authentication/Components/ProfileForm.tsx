@@ -1,9 +1,9 @@
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
 import { useRef, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Camera, Loader2, Upload, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Components/ui/button";
 import { Form } from "@/Components/UI/Form";
 import { useForm } from "@inertiajs/react";
 

@@ -1,9 +1,9 @@
 import React from "react";
 import { useForm } from "@inertiajs/react";
 import { Memory, PageProps } from "@/Types/models";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
+import { Textarea } from "@/Components/ui/textarea";
+import { Button } from "@/Components/ui/button";
 import { usePage } from "@inertiajs/react";
 import { Form } from "@/Components/UI/Form";
 

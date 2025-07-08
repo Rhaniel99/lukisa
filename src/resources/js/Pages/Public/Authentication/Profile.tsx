@@ -4,9 +4,9 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
+} from "@/Components/ui/card";
 import logo from "/public/img/logo.svg";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Components/ui/button";
 import { Head } from "@inertiajs/react";
 import ProfileForm from './Components/ProfileForm';
 

@@ -6,8 +6,8 @@ import {
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from "@/Components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Heart, MessageCircle, X } from "lucide-react";
 
 interface MemoryCardProps {

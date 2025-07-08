@@ -6,7 +6,7 @@ import {
     DialogOverlay,
     DialogPortal,
     DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/Components/ui/dialog';
 import CreateMemoryForm from './CreateMemoryForm';
 import { LatLng } from 'leaflet';
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { Link, Head } from "@inertiajs/react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Components/ui/button";
 import { Shield, Users, Zap } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/Components/ui/card";
 import { Header } from "@/Components/Shared/Header";
 
 const Home: React.FC = () => {

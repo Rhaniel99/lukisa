@@ -1,6 +1,6 @@
 import React from 'react';
 import { Memory, Place } from '@/Types/models';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/Components/ui/scroll-area';
 
 // Importando os componentes filhos
 import { SidebarHeader } from './PinSideBarHeader';
