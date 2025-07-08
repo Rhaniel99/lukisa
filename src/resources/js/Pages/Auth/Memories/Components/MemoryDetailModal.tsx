@@ -33,16 +33,16 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
     // Extrair initial props de comentários vindos do servidor
     const {
         comments: initialComments,
-        commentsCurrentPage,
-        commentsLastPage,
+        comments_current_page, // <-- CORRIGIDO
+        comments_last_page,    // <-- CORRIGIDO
     } = memory as any;
 
     // Hook unificado - uma única chamada para todas as funcionalidades
     const { comments, count, loadMore, hasMore, loading } = useComments({
         memory,
         initialComments,
-        initialPage: commentsCurrentPage,
-        lastPage: commentsLastPage,
+        initialPage: comments_current_page, // <-- CORRIGIDO
+        lastPage: comments_last_page,       // <-- CORRIGIDO
     });
 
     console.log(count);

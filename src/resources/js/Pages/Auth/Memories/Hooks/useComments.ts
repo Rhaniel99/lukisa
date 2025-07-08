@@ -25,17 +25,27 @@ export function useComments({
     // Efeito para inicializar e sincronizar o estado quando a 'memory' prop muda
     useEffect(() => {
         if (memory) {
-            setComments(memory.comments || initialComments);
+            const props = memory as any;
+            const currentPage = props.comments_current_page || initialPage;
+            const finalLastPage = props.comments_last_page || lastPage;
+
+            setComments(props.comments || initialComments);
             setCount(
-                memory.comments_count ??
-                    memory.comments?.length ??
+                props.comments_count ??
+                    props.comments?.length ??
                     initialComments.length
             );
+            setPage(currentPage);
+            setHasMore(currentPage < finalLastPage);
+
         } else {
             setComments([]);
             setCount(0);
+            setPage(1);
+            setHasMore(false);
         }
-    }, [memory, initialComments]);
+    }, [memory, initialComments, initialPage, lastPage]);
+
 
     // Efeito para WebSocket real-time
     useEffect(() => {
@@ -78,9 +88,9 @@ export function useComments({
 
                 // Mesclar novos comentários no fim
                 setComments((old) => [...old, ...detail.comments]);
-                setPage(detail.commentsCurrentPage);
+                setPage(detail.comments_current_page); // <-- CORRIGIDO
                 setHasMore(
-                    detail.commentsCurrentPage < detail.commentsLastPage
+                    detail.comments_current_page < detail.comments_last_page // <-- CORRIGIDO
                 );
                 setLoading(false);
             },
