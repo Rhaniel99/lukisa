@@ -1,51 +1,45 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { router } from "@inertiajs/react";
 import { Memory, Comment } from "@/Types/models";
 
 type Props = {
     memory: Memory | null;
-    initialComments?: Comment[];
-    initialPage?: number;
-    lastPage?: number;
 };
 
-export function useComments({
-    memory,
-    initialComments = [],
-    initialPage = 1,
-    lastPage = 1,
-}: Props) {
-    // Estados unificados
-    const [comments, setComments] = useState<Comment[]>(initialComments);
+export function useComments({ memory }: Props) {
+    const [comments, setComments] = useState<Comment[]>([]);
     const [count, setCount] = useState<number>(0);
-    const [page, setPage] = useState(initialPage);
-    const [hasMore, setHasMore] = useState(initialPage < lastPage);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // Efeito para inicializar e sincronizar o estado quando a 'memory' prop muda
+    // Ref para rastrear o ID da memória atualmente visível.
+    // Isso é crucial para evitar race conditions.
+    const currentMemoryIdRef = useRef<number | null>(null);
+
+    // Efeito para inicializar ou limpar o estado quando a memória muda.
     useEffect(() => {
         if (memory) {
             const props = memory as any;
-            const currentPage = props.comments_current_page || initialPage;
-            const finalLastPage = props.comments_last_page || lastPage;
+            const currentPage = props.comments_current_page || 1;
+            const finalLastPage = props.comments_last_page || 1;
 
-            setComments(props.comments || initialComments);
-            setCount(
-                props.comments_count ??
-                    props.comments?.length ??
-                    initialComments.length
-            );
+            setComments(props.comments || []);
+            setCount(props.comments_count ?? props.comments?.length ?? 0);
             setPage(currentPage);
             setHasMore(currentPage < finalLastPage);
 
+            // Atualiza a ref com o ID da memória atual
+            currentMemoryIdRef.current = memory.id;
         } else {
+            // Limpa o estado e a ref se o modal for fechado
             setComments([]);
             setCount(0);
             setPage(1);
             setHasMore(false);
+            currentMemoryIdRef.current = null;
         }
-    }, [memory, initialComments, initialPage, lastPage]);
-
+    }, [memory]);
 
     // Efeito para WebSocket real-time
     useEffect(() => {
@@ -55,17 +49,18 @@ export function useComments({
 
         const channelName = `memories.${memory.id}`;
 
-        window.Echo.private(channelName).listen(
-            ".comment.posted",
-            (event: { comment: Comment }) => {
-                // Atualiza a lista E a contagem ao receber um novo comentário
+        const handler = (event: { comment: Comment }) => {
+            // Só atualiza se o comentário pertencer à memória atual
+            if (currentMemoryIdRef.current === memory.id) {
                 setComments((currentComments) => [
                     ...currentComments,
                     event.comment,
                 ]);
                 setCount((currentCount) => currentCount + 1);
             }
-        );
+        };
+
+        window.Echo.private(channelName).listen(".comment.posted", handler);
 
         return () => {
             window.Echo.leave(channelName);
@@ -77,40 +72,31 @@ export function useComments({
         if (!hasMore || loading || !memory) return;
 
         setLoading(true);
+        const memoryIdAtRequestTime = memory.id; // Captura o ID no momento da chamada
 
         router.reload({
             only: ["selectedMemoryDetails"],
-            data: { memory_id: memory.id, comments_page: page + 1 },
+            data: { memory_id: memoryIdAtRequestTime, comments_page: page + 1 },
             onSuccess: (pageProps) => {
-                console.log("Resposta do Inertia:", pageProps);
                 const props = pageProps.props as any;
                 const detail = props.selectedMemoryDetails as any;
 
-                // Mesclar novos comentários no fim
-                setComments((old) => [...old, ...detail.comments]);
-                setPage(detail.comments_current_page); // <-- CORRIGIDO
-                setHasMore(
-                    detail.comments_current_page < detail.comments_last_page // <-- CORRIGIDO
-                );
-                setLoading(false);
+                // **A VERIFICAÇÃO CRÍTICA**
+                // Só atualiza o estado se a resposta for da memória que ainda está aberta.
+                if (detail && currentMemoryIdRef.current === detail.id) {
+                    setComments((old) => [...old, ...detail.comments]);
+                    setPage(detail.comments_current_page);
+                    setHasMore(
+                        detail.comments_current_page < detail.comments_last_page
+                    );
+                }
             },
-            onError: () => {
+            onFinish: () => {
+                // Garante que o loading seja desativado independentemente do sucesso
                 setLoading(false);
             },
         });
     }, [hasMore, loading, page, memory]);
-
-    // Função para adicionar comentário localmente (útil para otimistic updates)
-    const addComment = useCallback((comment: Comment) => {
-        setComments((current) => [...current, comment]);
-        setCount((current) => current + 1);
-    }, []);
-
-    // Função para remover comentário localmente
-    const removeComment = useCallback((commentId: number) => {
-        setComments((current) => current.filter((c) => c.id !== commentId));
-        setCount((current) => Math.max(0, current - 1));
-    }, []);
 
     return {
         comments,
@@ -118,7 +104,5 @@ export function useComments({
         loadMore,
         hasMore,
         loading,
-        addComment,
-        removeComment,
     };
 }

@@ -67,6 +67,7 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
 
                 {detailModal.memory && (
                     <MemoryDetailModal
+                        key={detailModal.memory.id} // <-- Força a recriação do componente
                         memory={detailModal.memory}
                         onClose={detailModal.close}
                         onLike={handleLikeToggle}

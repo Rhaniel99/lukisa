@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Memory } from "@/Types/models";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -26,42 +26,60 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
     onClose,
     onLike,
 }) => {
+    const { comments, count, loadMore, hasMore, loading } = useComments({
+        memory,
+    });
+
+    // Estado para controlar a animação de saída
+    const [isClosing, setIsClosing] = useState(false);
+
+    // Efeito para lidar com a tecla 'Escape'
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                handleClose();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
+
+    // Função que inicia a animação de fechamento
+    const handleClose = () => {
+        setIsClosing(true);
+    };
+
+    // Função chamada no final da animação para realmente fechar o modal
+    const handleAnimationEnd = () => {
+        if (isClosing) {
+            onClose();
+        }
+    };
+
     if (!memory) {
         return null;
     }
 
-    // Extrair initial props de comentários vindos do servidor
-    const {
-        comments: initialComments,
-        comments_current_page, // <-- CORRIGIDO
-        comments_last_page,    // <-- CORRIGIDO
-    } = memory as any;
-
-    // Hook unificado - uma única chamada para todas as funcionalidades
-    const { comments, count, loadMore, hasMore, loading } = useComments({
-        memory,
-        initialComments,
-        initialPage: comments_current_page, // <-- CORRIGIDO
-        lastPage: comments_last_page,       // <-- CORRIGIDO
-    });
-
-    console.log(count);
-    console.log(hasMore);
+    // Determina as classes de animação com base no estado
+    const animationClass = isClosing ? "animate-fade-out" : "animate-fade-in";
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm animate-fade-in">
-            <Card className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 max-h-[90vh] overflow-hidden bg-white dark:bg-slate-950">
+        <div
+            className={`fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm ${animationClass}`}
+            onAnimationEnd={handleAnimationEnd}
+        >
+            <Card className="grid h-[90vh] w-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] overflow-hidden bg-white dark:bg-slate-950 md:grid-cols-2 md:grid-rows-1">
                 {/* Coluna da Imagem */}
-                <div className="relative flex items-center justify-center bg-slate-100 dark:bg-slate-900 md:max-h-[90vh] overflow-hidden">
+                <div className="relative h-80 overflow-hidden bg-slate-100 dark:bg-slate-900 md:h-auto">
                     <img
                         src={memory.image || "/placeholder.svg"}
                         alt={memory.title}
-                        className="w-full h-full object-cover"
+                        className="absolute inset-0 h-full w-full object-cover"
                     />
                 </div>
 
                 {/* Coluna de Conteúdo */}
-                <div className="flex flex-col h-full max-h-[90vh]">
+                <div className="flex flex-col min-h-0">
                     <CardHeader className="flex-shrink-0">
                         <div className="flex items-start justify-between">
                             <div className="flex items-center space-x-3">
@@ -87,7 +105,7 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={onClose}
+                                onClick={handleClose} // <-- Usa a nova função
                                 className="-mt-2 -mr-2"
                             >
                                 <X className="w-5 h-5" />

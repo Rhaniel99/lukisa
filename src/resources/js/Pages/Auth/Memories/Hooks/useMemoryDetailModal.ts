@@ -10,15 +10,27 @@ export const useMemoryDetailModal = () => {
     const [memory, setMemory] = useState<Memory | null>(null);
 
     const open = (memoryToOpen: Memory) => {
-        // Usamos um partial reload para buscar os detalhes completos da memória
-        router.reload({
-            only: ['selectedMemoryDetails'],
-            data: { memory_id: memoryToOpen.id },
-            onSuccess: (page) => {
-                // CORREÇÃO: Usamos a dupla asserção para resolver o erro de tipo.
-                const props = page.props as unknown as MemoriesIndexPageProps;
+        // Obtém os parâmetros atuais da URL para preservar o `place_id`.
+        const params = new URLSearchParams(window.location.search);
+        const placeId = params.get("place_id");
 
-                // Verificamos se a prop realmente veio antes de usá-la.
+        // Monta os novos parâmetros de forma explícita, garantindo que a página de comentários seja 1.
+        const newParams: { [key: string]: any } = {
+            memory_id: memoryToOpen.id,
+            comments_page: 1, // <-- Reseta a paginação
+        };
+        if (placeId) {
+            newParams.place_id = placeId;
+        }
+
+        // Usa `router.get` para ter controle total sobre os parâmetros enviados.
+        router.get(route("memo.maps.index"), newParams, {
+            only: ["selectedMemoryDetails"],
+            preserveState: true,
+            preserveScroll: true,
+            replace: true, // Evita adicionar entradas desnecessárias ao histórico do navegador.
+            onSuccess: (page) => {
+                const props = page.props as unknown as MemoriesIndexPageProps;
                 if (props.selectedMemoryDetails) {
                     setMemory(props.selectedMemoryDetails);
                 }
@@ -27,6 +39,7 @@ export const useMemoryDetailModal = () => {
     };
 
     const close = () => {
+        // A limpeza da URL não é mais necessária aqui, simplificando a função.
         setMemory(null);
     };
 

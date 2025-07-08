@@ -48,10 +48,26 @@ class MemoriesIndexViewModel extends Data
                     ->findOrFail($request->input('memory_id'));
 
                 // Paginar comentários (3 por página, ordenados do mais novo)
-                $paginated = $memory->comments()
-                    ->with('user')
-                    ->latest()
-                    ->paginate(3, ['*'], 'comments_page', $page);
+                $commentsQuery = $memory->comments()->with('user')->latest();
+
+                // Clonamos a query para obter a contagem total ANTES de aplicar o offset/limit da paginação.
+                $totalComments = (clone $commentsQuery)->count();
+                $perPage = 3;
+
+                // Buscamos os comentários da página atual.
+                $commentsForCurrentPage = $commentsQuery->forPage($page, $perPage)->get();
+
+                // Criamos um paginador manual para ter controle total sobre os dados.
+                $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+                    $commentsForCurrentPage,
+                    $totalComments,
+                    $perPage,
+                    $page,
+                    [
+                        'path' => $request->url(),
+                        'pageName' => 'comments_page',
+                    ]
+                );
 
                 // Anexar comentários paginados (DTO)
                 $dto = MemoryDataResponse::fromModel($memory, $paginated);
