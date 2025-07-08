@@ -12,7 +12,7 @@ import AddMemoryDialog from "./Components/AddMemoryDialog";
 
 // * Import hooks
 import { usePinSidebar } from "./Hooks/usePinSidebar";
-import { useMemoryDetailModal } from "./Hooks/useMemoryDetailModal";
+import { useMemory } from "./Hooks/useMemory";
 import { useAddMemoryDialog } from "./Hooks/useAddMemoryDialog";
 
 // * Import CSS
@@ -23,7 +23,7 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
 
     // ? Consumindo os hooks para gerenciar o estado e a lógica
     const sidebar = usePinSidebar();
-    const detailModal = useMemoryDetailModal();
+    const { memories, selectedMemory, openMemoryDetailModal, closeMemoryDetailModal } = useMemory(sidebar.memories);
     const addDialog = useAddMemoryDialog();
 
     const handleLikeToggle = (memoryToUpdate: Memory) => {
@@ -62,14 +62,14 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
                     place={sidebar.place}
                     onClose={sidebar.close}
                     onAddMemoryClick={handleAddMemoryFromPlace}
-                    onMemorySelect={detailModal.open}
+                    onMemorySelect={openMemoryDetailModal}
                 />
 
-                {detailModal.memory && (
+                {selectedMemory && (
                     <MemoryDetailModal
-                        key={detailModal.memory.id} // <-- Força a recriação do componente
-                        memory={detailModal.memory}
-                        onClose={detailModal.close}
+                        key={selectedMemory.id} // <-- Força a recriação do componente
+                        memory={selectedMemory}
+                        onClose={closeMemoryDetailModal}
                         onLike={handleLikeToggle}
                     />
                 )}

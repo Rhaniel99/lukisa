@@ -1,8 +1,8 @@
 import React from "react";
 import { router } from "@inertiajs/react";
 import { Memory } from "@/Types/models";
-import { useMemoryRealtime } from "@/Hooks/useMemoryRealtime";
-import { MemoryCard } from "@/Components/Dump/MemoryCard";
+import { useMemory } from "@/Pages/Auth/Memories/Hooks/useMemory";
+import { MemoryCard } from "@/Pages/Auth/Memories/Components/MemoryCard";
 
 interface MemoryListProps {
     isLoading: boolean;
@@ -30,9 +30,9 @@ export const MemoryList: React.FC<MemoryListProps> = ({
     initialMemories,
     onMemorySelect,
 }) => {
-    const { memories, setMemories } = useMemoryRealtime(initialMemories);
+    const { memories, setMemories } = useMemory(initialMemories);
 
-    const handleOptimisticLike = (memoryToUpdate: Memory) => {
+    const handleOptimisticLike = React.useCallback((memoryToUpdate: Memory) => {
         setMemories((currentMemories) =>
             currentMemories.map((mem) =>
                 mem.id === memoryToUpdate.id
@@ -45,7 +45,7 @@ export const MemoryList: React.FC<MemoryListProps> = ({
             )
         );
         handleLikeRequest(memoryToUpdate);
-    };
+    }, [setMemories]);
 
     if (isLoading) {
         return (

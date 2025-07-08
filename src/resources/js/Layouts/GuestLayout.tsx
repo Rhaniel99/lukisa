@@ -1,5 +1,5 @@
 import type React from "react";
-import Notification from "@/Components/Notifications/Toast";
+import NotificationHandler from "@/Components/Notifications/NotificationHandler";
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -8,7 +8,7 @@ interface LayoutProps {
 export default function GuestLayout({ children }: LayoutProps) {
     return (
         <>
-            <Notification />
+            <NotificationHandler />
             <div className="min-h-screen bg-gradient-to-br from-lukisa-light via-lukisa-cream to-lukisa-sage">
                 {children}
             </div>
