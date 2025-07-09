@@ -111,7 +111,7 @@ export function useMemory(initialMemories: Memory[]) {
         const routeName = memoryToUpdate.liked ? "memories.unlike" : "memories.like";
         const method = memoryToUpdate.liked ? "delete" : "post";
 
-        router[method](route(routeName, memoryToUpdate.id), {
+        router[method](route(routeName, memoryToUpdate.id), {}, {
             preserveScroll: true,
             preserveState: true,
             onError: () => {
