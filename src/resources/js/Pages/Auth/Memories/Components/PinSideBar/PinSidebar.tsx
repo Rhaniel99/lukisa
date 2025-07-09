@@ -1,12 +1,11 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Memory, Place } from '@/Types/models';
 import { ScrollArea } from '@/Components/ui/scroll-area';
 
-// Importando os componentes filhos
 import { SidebarHeader } from './PinSideBarHeader';
 import { MemoryList } from './MemoryList';
 
-// As props do componente principal não mudam
 interface PinSidebarProps {
     isOpen: boolean;
     isLoading: boolean;
@@ -15,7 +14,14 @@ interface PinSidebarProps {
     onClose: () => void;
     onMemorySelect: (memory: Memory) => void;
     onAddMemoryClick: (place: Place) => void;
+    onLike: (memory: Memory) => void; // Adiciona a prop onLike
 }
+
+const contentVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 },
+};
 
 export const PinSidebar: React.FC<PinSidebarProps> = ({
     isOpen,
@@ -25,32 +31,43 @@ export const PinSidebar: React.FC<PinSidebarProps> = ({
     onClose,
     onMemorySelect,
     onAddMemoryClick,
+    onLike,
 }) => {
-    // A lógica para não renderizar continua a mesma
-    if (!isOpen || !place) {
-        return null;
-    }
-
     return (
-        <div
-            className="absolute top-0 right-0 z-[1000] h-full w-full transform-gpu bg-white shadow-lg transition-transform duration-300 ease-in-out data-[state=closed]:translate-x-full data-[state=open]:translate-x-0 md:w-96"
-            data-state={isOpen ? 'open' : 'closed'}
-        >
-            <ScrollArea className="h-full">
-                {/* 1. Usa o componente de cabeçalho importado */}
-                <SidebarHeader
-                    place={place}
-                    onClose={onClose}
-                    onAddMemoryClick={onAddMemoryClick}
-                />
-
-                {/* 2. Usa o componente de lista de memórias */}
-                <MemoryList
-                    isLoading={isLoading}
-                    initialMemories={memories}
-                    onMemorySelect={onMemorySelect}
-                />
-            </ScrollArea>
-        </div>
+        <AnimatePresence>
+            {isOpen && place && (
+                <motion.div
+                    key={place.id} // Garante a animação de saída da sidebar inteira se o place mudar
+                    initial={{ x: '100%' }}
+                    animate={{ x: 0 }}
+                    exit={{ x: '100%' }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className="absolute top-0 right-0 z-[1000] h-full w-full bg-white shadow-lg md:w-96"
+                >
+                    <ScrollArea className="h-full">
+                        <motion.div
+                            key={place.id} // Chave para animar a troca de conteúdo
+                            variants={contentVariants}
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            transition={{ duration: 0.5, ease: 'easeInOut' }}
+                        >
+                            <SidebarHeader
+                                place={place}
+                                onClose={onClose}
+                                onAddMemoryClick={onAddMemoryClick}
+                            />
+                            <MemoryList
+                                isLoading={isLoading}
+                                memories={memories} // Passa a lista de memórias
+                                onMemorySelect={onMemorySelect}
+                                onLike={onLike} // Passa a função de like
+                            />
+                        </motion.div>
+                    </ScrollArea>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };

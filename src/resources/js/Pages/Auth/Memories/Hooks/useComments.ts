@@ -53,8 +53,8 @@ export function useComments({ memory }: Props) {
             // Só atualiza se o comentário pertencer à memória atual
             if (currentMemoryIdRef.current === memory.id) {
                 setComments((currentComments) => [
-                    ...currentComments,
                     event.comment,
+                    ...currentComments,
                 ]);
                 setCount((currentCount) => currentCount + 1);
             }

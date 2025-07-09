@@ -23,19 +23,14 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
 
     // ? Consumindo os hooks para gerenciar o estado e a lógica
     const sidebar = usePinSidebar();
-    const { memories, selectedMemory, openMemoryDetailModal, closeMemoryDetailModal } = useMemory(sidebar.memories);
+    const {
+        memories,
+        selectedMemory,
+        openMemoryDetailModal,
+        closeMemoryDetailModal,
+        toggleLike, // Pega a função do hook
+    } = useMemory(sidebar.memories);
     const addDialog = useAddMemoryDialog();
-
-    const handleLikeToggle = (memoryToUpdate: Memory) => {
-        const routeName = memoryToUpdate.liked
-            ? "memories.unlike"
-            : "memories.like";
-        const method = memoryToUpdate.liked ? "delete" : "post";
-        router[method](route(routeName, memoryToUpdate.id), {
-            preserveScroll: true,
-            preserveState: true,
-        });
-    };
 
     // Handler para abrir o dialog de adição a partir da sidebar
     const handleAddMemoryFromPlace = (place: Place) => {
@@ -45,6 +40,7 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
     return (
         <>
             <Head title="Maps" />
+
             <div className="relative h-screen w-screen">
                 <MemoriesMap
                     places={places}
@@ -58,11 +54,12 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
                 <PinSidebar
                     isOpen={sidebar.isOpen}
                     isLoading={sidebar.isLoading}
-                    memories={sidebar.memories}
+                    memories={memories} // Passa as memórias do hook principal
                     place={sidebar.place}
                     onClose={sidebar.close}
                     onAddMemoryClick={handleAddMemoryFromPlace}
                     onMemorySelect={openMemoryDetailModal}
+                    onLike={toggleLike} // Passa a função de like
                 />
 
                 {selectedMemory && (
@@ -70,7 +67,7 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
                         key={selectedMemory.id} // <-- Força a recriação do componente
                         memory={selectedMemory}
                         onClose={closeMemoryDetailModal}
-                        onLike={handleLikeToggle}
+                        onLike={toggleLike} // Reutiliza a mesma função de like
                     />
                 )}
 

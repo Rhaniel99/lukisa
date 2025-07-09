@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Memory } from "@/Types/models";
+import { Memory, PageProps } from "@/Types/models";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Button } from "@/Components/ui/button";
 import {
@@ -14,6 +14,7 @@ import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Heart, MessageCircle, X } from "lucide-react";
 import { AddCommentForm } from "./AddCommentForm";
 import { useComments } from "../Hooks/useComments";
+import { usePage } from "@inertiajs/react";
 
 interface MemoryDetailModalProps {
     memory: Memory | null;
@@ -29,6 +30,8 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
     const { comments, count, loadMore, hasMore, loading } = useComments({
         memory,
     });
+
+    const { auth } = usePage<PageProps>().props;
 
     // Estado para controlar a animação de saída
     const [isClosing, setIsClosing] = useState(false);
@@ -201,10 +204,14 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                     </ScrollArea>
 
                     <CardFooter className="flex-shrink-0 border-t pt-4">
-                        <AddCommentForm memory={memory} />
+                        <AddCommentForm
+                            memoryId={memory.id}
+                            avatarUrl={auth.user.avatar_url}
+                            userName={auth.user.name}
+                        />
                     </CardFooter>
                 </div>
             </Card>
         </div>
     );
-};
+}

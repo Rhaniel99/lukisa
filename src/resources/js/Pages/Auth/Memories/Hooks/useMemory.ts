@@ -1,13 +1,17 @@
+import { usePage } from "@inertiajs/react";
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import { Memory, PageProps } from '@/Types/models';
 
-type LikeEvent = { id: number; likesCount: number };
+type LikeEvent = { id: number; likesCount: number; likers: number[] };
 type MemoriesIndexPageProps = PageProps & {
     selectedMemoryDetails?: Memory;
 };
 
 export function useMemory(initialMemories: Memory[]) {
+    const { props } = usePage<PageProps>();
+    const authUserId = props.auth.user.id;
+
     // --- useMemoryRealtime logic ---
     const [memories, setMemories] = useState<Memory[]>(initialMemories);
     const subscriptions = useRef<{ channel: any; handler: (e: LikeEvent) => void }[]>([]);
@@ -26,7 +30,6 @@ export function useMemory(initialMemories: Memory[]) {
     useEffect(() => {
         const ids = memories.map(m => m.id);
 
-        // evita repetir handlers: sai de todos os canais antigos
         subscriptions.current.forEach(({ channel, handler }) =>
             channel.stopListening('.memory.like.updated', handler)
         );
@@ -36,21 +39,24 @@ export function useMemory(initialMemories: Memory[]) {
             const channel = window.Echo.channel(`memories.${id}`);
             const handler = (e: LikeEvent) => {
                 setMemories(curr =>
-                    curr.map(m => (m.id === e.id ? { ...m, likes: e.likesCount } : m))
+                    curr.map(m =>
+                        m.id === e.id
+                            ? { ...m, likes: e.likesCount, liked: e.likers.includes(authUserId) }
+                            : m
+                    )
                 );
             };
             channel.listen('.memory.like.updated', handler);
             subscriptions.current.push({ channel, handler });
         });
 
-        // cleanup ao desmontar
         return () => {
             subscriptions.current.forEach(({ channel, handler }) =>
                 channel.stopListening('.memory.like.updated', handler)
             );
             subscriptions.current = [];
         };
-    }, [memories.map(m => m.id).join(',')]);
+    }, [memories.map(m => m.id).join(','), authUserId]);
 
     // --- useMemoryDetailModal logic ---
     const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
@@ -85,11 +91,44 @@ export function useMemory(initialMemories: Memory[]) {
         setSelectedMemory(null);
     }, []);
 
+    const toggleLike = useCallback((memoryToUpdate: Memory) => {
+        const originalMemories = [...memories];
+        const originalSelectedMemory = selectedMemory ? { ...selectedMemory } : null;
+
+        // Atualiza a lista principal de memórias
+        const updatedMemories = memories.map((m) =>
+            m.id === memoryToUpdate.id
+                ? { ...m, liked: !m.liked, likes: m.liked ? m.likes - 1 : m.likes + 1 }
+                : m
+        );
+        setMemories(updatedMemories);
+
+        // Se a memória no modal for a mesma, atualiza o estado dela também
+        if (selectedMemory && selectedMemory.id === memoryToUpdate.id) {
+            setSelectedMemory(prev => prev ? { ...prev, liked: !prev.liked, likes: prev.liked ? prev.likes - 1 : prev.likes + 1 } : null);
+        }
+
+        const routeName = memoryToUpdate.liked ? "memories.unlike" : "memories.like";
+        const method = memoryToUpdate.liked ? "delete" : "post";
+
+        router[method](route(routeName, memoryToUpdate.id), {
+            preserveScroll: true,
+            preserveState: true,
+            onError: () => {
+                // Reverte ambos os estados em caso de erro
+                setMemories(originalMemories);
+                if (originalSelectedMemory) {
+                    setSelectedMemory(originalSelectedMemory);
+                }
+            },
+        });
+    }, [memories, selectedMemory]);
+
     return {
         memories,
-        setMemories, // Export setMemories for optimistic updates
         selectedMemory,
         openMemoryDetailModal,
         closeMemoryDetailModal,
+        toggleLike, // Exporta a nova função
     };
 }

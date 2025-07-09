@@ -1,13 +1,13 @@
 import React from "react";
 import { router } from "@inertiajs/react";
 import { Memory } from "@/Types/models";
-import { useMemory } from "@/Pages/Auth/Memories/Hooks/useMemory";
 import { MemoryCard } from "@/Pages/Auth/Memories/Components/MemoryCard";
 
 interface MemoryListProps {
     isLoading: boolean;
-    initialMemories: Memory[];
+    memories: Memory[]; // Recebe as memórias diretamente
     onMemorySelect: (memory: Memory) => void;
+    onLike: (memory: Memory) => void; // Recebe a função de like
 }
 
 const handleDelete = (e: React.MouseEvent, memoryId: number) => {
@@ -19,34 +19,12 @@ const handleDelete = (e: React.MouseEvent, memoryId: number) => {
     }
 };
 
-const handleLikeRequest = (memory: Memory) => {
-    const routeName = memory.liked ? "memories.unlike" : "memories.like";
-    const method = memory.liked ? "delete" : "post";
-    router[method](route(routeName, memory.id), { preserveScroll: true });
-};
-
 export const MemoryList: React.FC<MemoryListProps> = ({
     isLoading,
-    initialMemories,
+    memories, // Usa as memórias recebidas
     onMemorySelect,
+    onLike, // Usa a função de like recebida
 }) => {
-    const { memories, setMemories } = useMemory(initialMemories);
-
-    const handleOptimisticLike = React.useCallback((memoryToUpdate: Memory) => {
-        setMemories((currentMemories) =>
-            currentMemories.map((mem) =>
-                mem.id === memoryToUpdate.id
-                    ? {
-                          ...mem,
-                          liked: !mem.liked,
-                          likes: mem.liked ? mem.likes - 1 : mem.likes + 1,
-                      }
-                    : mem
-            )
-        );
-        handleLikeRequest(memoryToUpdate);
-    }, [setMemories]);
-
     if (isLoading) {
         return (
             <div className="p-8 text-center text-slate-500">
@@ -71,7 +49,7 @@ export const MemoryList: React.FC<MemoryListProps> = ({
                     key={memory.id}
                     memory={memory}
                     onSelect={onMemorySelect}
-                    onLike={handleOptimisticLike}
+                    onLike={onLike} // Passa a função de like para o card
                     onDelete={handleDelete}
                 />
             ))}

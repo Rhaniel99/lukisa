@@ -78,6 +78,7 @@ export default function NotificationHandler() {
             pauseOnHover
             theme="colored"
             transition={Flip}
+            style={{ zIndex: 10000 }} // Garante que a notificação fique sobre o modal
         />
     );
 }
