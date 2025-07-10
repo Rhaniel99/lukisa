@@ -13,12 +13,6 @@ const MapSearchField: React.FC = () => {
     const map = useMap();
 
     useEffect(() => {
-        // Verificação se a API key existe
-        if (!apiKey) {
-            console.error("HERE API Key não fornecida para o MapSearchField");
-            return;
-        }
-
         let searchControl: any = null;
 
         try {
