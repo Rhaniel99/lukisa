@@ -1,8 +1,6 @@
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
-import logo from "/public/img/logo.svg";
 import { LoginForm } from "./Components/LoginForm";
-import { ArrowLeft } from "lucide-react";
 import {
     Card,
     CardContent,
@@ -12,6 +10,7 @@ import {
 } from "@/Components/ui/card";
 import { Separator } from "@/Components/ui/separator";
 import { Button } from "@/Components/ui/button";
+import { Header } from "./Components/Header";
 
 const Login: React.FC = () => {
     return (
@@ -20,28 +19,7 @@ const Login: React.FC = () => {
 
             <div className="min-h-screen flex items-center justify-center p-4">
                 <div className="w-full max-w-md animate-fade-in">
-                    <div className="text-center mb-8">
-                        <Link
-                            href={route("home")}
-                            className="inline-flex items-center space-x-2 text-lukisa-brown hover:text-lukisa-dark transition-colors mb-6"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            <span>Voltar para home</span>
-                        </Link>
-
-                        <div className="flex items-center justify-center space-x-3 mb-4">
-                            <img
-                                src={logo}
-                                alt="Lukisa Logo"
-                                width={40}
-                                height={40}
-                                className="w-10 h-10"
-                            />
-                            <h1 className="text-2xl font-bold text-lukisa-dark">
-                                Lukisa
-                            </h1>
-                        </div>
-                    </div>
+                    <Header />
 
                     <Card className="bg-white/80 backdrop-blur-sm border-lukisa-cream shadow-xl">
                         <CardHeader className="text-center">
@@ -54,7 +32,6 @@ const Login: React.FC = () => {
                         </CardHeader>
 
                         <CardContent className="space-y-6">
-
                             <LoginForm />
 
                             <div className="relative">
@@ -110,7 +87,7 @@ const Login: React.FC = () => {
 
                             <div className="text-center">
                                 <span className="text-lukisa-brown">
-                                    Não tem uma conta? {" "}
+                                    Não tem uma conta?{" "}
                                 </span>
                                 <Link
                                     href={route("form.signup")}
