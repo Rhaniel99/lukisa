@@ -44,37 +44,6 @@
   .lukisa-gradient {
     background: linear-gradient(135deg, #d9d7c5 0%, #bfbaa8 50%, #737065 100%);
   }
-
-  /* Card padrão */
-  .lukisa-card {
-    @apply bg-white/80 backdrop-blur-sm border border-lukisa-cream shadow-xl rounded-lg p-6;
-  }
-
-  /* Input padrão */
-  .lukisa-input {
-    @apply w-full px-3 py-2 rounded-md border border-lukisa-cream bg-white focus:border-lukisa-sage focus:ring-1 focus:ring-lukisa-sage/20 outline-none;
-  }
-
-  /* Botão primário */
-  .lukisa-button-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-lukisa-sage text-white font-medium transition-colors duration-200 hover:bg-lukisa-brown;
-  }
-
-  /* Botão secundário */
-  .lukisa-button-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md border border-lukisa-cream bg-transparent text-lukisa-brown font-medium transition-colors duration-200 hover:bg-lukisa-light;
-  }
-
-  /* Textos */
-  .lukisa-text-primary {
-    @apply text-lukisa-dark;
-  }
-  .lukisa-text-secondary {
-    @apply text-lukisa-brown;
-  }
-  .lukisa-text-accent {
-    @apply text-lukisa-sage;
-  }
 }
 
 /* 8) Utilitários extras */

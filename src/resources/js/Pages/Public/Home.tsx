@@ -11,7 +11,15 @@ const Home: React.FC = () => {
             <Head title="Bem-vindo" />
 
             <div className="min-h-screen">
-                <Header />
+
+                <Header>
+                    <Button variant="ghost" asChild>
+                        <Link href={route("form.login")}>Entrar</Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href={route("form.signup")}>Crie sua conta</Link>
+                    </Button>
+                </Header>
 
                 <main className="container mx-auto px-4 py-16">
                     {/* Seção de Heróis */}
@@ -27,21 +35,12 @@ const Home: React.FC = () => {
                             digital.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button
-                                asChild
-                                size="lg"
-                                className="bg-lukisa-sage hover:bg-lukisa-brown text-white"
-                            >
+                            <Button asChild size="lg">
                                 <Link href={route("form.signup")}>
                                     Comece Gratis
                                 </Link>
                             </Button>
-                            <Button
-                                asChild
-                                variant="outline"
-                                size="lg"
-                                className="border-lukisa-sage text-lukisa-sage hover:bg-lukisa-sage hover:text-white"
-                            >
+                            <Button asChild variant="outline" size="lg">
                                 <Link href={route("form.login")}>Entrar</Link>
                             </Button>
                         </div>
@@ -49,7 +48,7 @@ const Home: React.FC = () => {
 
                     {/* Seção de Recursos */}
                     <div className="grid md:grid-cols-3 gap-8 mb-16">
-                        <Card className="bg-white/60 backdrop-blur-sm border-lukisa-cream hover:shadow-lg transition-all duration-300 animate-slide-in-left">
+                        <Card className="transition-all duration-300 animate-slide-in-left hover:shadow-lg">
                             <CardContent className="p-6 text-center">
                                 <Shield className="w-12 h-12 text-lukisa-sage mx-auto mb-4" />
                                 <h3 className="text-xl font-semibold text-lukisa-dark mb-2">
@@ -62,7 +61,7 @@ const Home: React.FC = () => {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-white/60 backdrop-blur-sm border-lukisa-cream hover:shadow-lg transition-all duration-300 animate-fade-in">
+                        <Card className="transition-all duration-300 animate-fade-in hover:shadow-lg">
                             <CardContent className="p-6 text-center">
                                 <Users className="w-12 h-12 text-lukisa-sage mx-auto mb-4" />
                                 <h3 className="text-xl font-semibold text-lukisa-dark mb-2">
@@ -76,7 +75,7 @@ const Home: React.FC = () => {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-white/60 backdrop-blur-sm border-lukisa-cream hover:shadow-lg transition-all duration-300 animate-slide-in-right">
+                        <Card className="transition-all duration-300 animate-slide-in-right hover:shadow-lg">
                             <CardContent className="p-6 text-center">
                                 <Zap className="w-12 h-12 text-lukisa-sage mx-auto mb-4" />
                                 <h3 className="text-xl font-semibold text-lukisa-dark mb-2">
@@ -99,11 +98,7 @@ const Home: React.FC = () => {
                             Junte-se ao Lukisa hoje e experimente a autenticacao
                             segura e sem emenda.
                         </p>
-                        <Button
-                            asChild
-                            size="lg"
-                            className="bg-lukisa-sage hover:bg-lukisa-brown text-white"
-                        >
+                        <Button asChild size="lg">
                             <Link href="/register">Crie Sua Conta</Link>
                         </Button>
                     </div>
