@@ -23,7 +23,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
         <>
             <NotificationHandler />
             <div
-                className="min-h-screen"
+                className="flex flex-col h-screen"
                 style={{ backgroundColor: "#D9D7C5" }}
             >
                 <Header>
@@ -50,10 +50,10 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                                 <Avatar className="h-9 w-9 border-2 border-lukisa-sage">
                                     <AvatarImage
                                         src={user.avatar_url || ""}
-                                        alt={user.name}
+                                        alt={user.username}
                                     />
                                     <AvatarFallback className="bg-lukisa-sage text-white font-semibold">
-                                        {user.name.charAt(0).toUpperCase()}
+                                        {user.username.charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>
@@ -63,7 +63,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                             align="end"
                         >
                             <DropdownMenuLabel className="font-semibold text-lukisa-dark">
-                                {user.name}
+                                {user.username}
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-lukisa-cream/50" />
                             <DropdownMenuItem className="cursor-pointer hover:bg-lukisa-light/70 focus:bg-lukisa-light/70">
@@ -89,7 +89,9 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                     </DropdownMenu>
                 </Header>
 
-                <main className="px-6 py-12">{children}</main>
+                <main className="flex-grow relative z-0">
+                    {children}
+                </main>
             </div>
         </>
     );

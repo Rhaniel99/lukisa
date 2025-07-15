@@ -19,8 +19,6 @@ import { useAddMemoryDialog } from "./Hooks/useAddMemoryDialog";
 import "leaflet/dist/leaflet.css";
 
 const Index: React.FC<{ places: Place[] }> = ({ places }) => {
-    const [map] = useState<LeafletMap | null>(null);
-
     // ? Consumindo os hooks para gerenciar o estado e a lógica
     const sidebar = usePinSidebar();
     const {
@@ -41,15 +39,16 @@ const Index: React.FC<{ places: Place[] }> = ({ places }) => {
         <>
             <Head title="Maps" />
 
-            <div className="relative h-screen w-screen">
+            <div className="relative h-full w-full">
                 <MemoriesMap
                     places={places}
                     onPlaceClick={sidebar.open}
                     initialPosition={[-3.119, -60.0217]}
                     onMapClick={addDialog.open}
-                />
-
-                <FlyToLocationButton map={map} />
+                >
+                    {/* Importante manter */}
+                    <FlyToLocationButton />
+                </MemoriesMap>
 
                 <PinSidebar
                     isOpen={sidebar.isOpen}

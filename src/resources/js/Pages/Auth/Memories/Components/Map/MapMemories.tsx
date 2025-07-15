@@ -1,14 +1,19 @@
+// Em: resources/js/Pages/Auth/Memories/Components/Map/MapMemories.tsx
+
 import React from "react";
-import { LatLng, LatLngExpression } from "leaflet"; // Importe LatLng
+import { LatLng, LatLngExpression } from "leaflet";
 import { Place } from "@/Types/models";
 import { HereMap } from "./HereMap";
-import { MapLayers } from "./MapLayers";
+import MapSearchField from "./MapSearchField";
+import MapPlaceMarker from "./MapPlaceMarker";
+import { MapClick } from "./MapClick";
 
 interface MapMemoriesProps {
     places: Place[];
     initialPosition: LatLngExpression;
     onMapClick: (latlng: LatLng) => void;
     onPlaceClick: (place: Place) => void;
+    children?: React.ReactNode;
 }
 
 const MapMemories: React.FC<MapMemoriesProps> = ({
@@ -16,14 +21,22 @@ const MapMemories: React.FC<MapMemoriesProps> = ({
     onPlaceClick,
     initialPosition,
     onMapClick,
+    children,
 }) => (
-    <div className="h-screen w-screen">
+    <div className="h-full w-full">
         <HereMap center={initialPosition}>
-            <MapLayers
-                places={places}
-                onPlaceClick={onPlaceClick}
-                onMapClick={onMapClick}
-            />
+            {/* Layers do mapa */}
+            <MapSearchField />
+            {places.map((place) => (
+                <MapPlaceMarker
+                    key={place.id}
+                    place={place}
+                    onPlaceClick={onPlaceClick}
+                />
+            ))}
+            <MapClick onMapClick={onMapClick} />
+
+            {children}
         </HereMap>
     </div>
 );

@@ -1,53 +1,43 @@
-import React, { useState } from 'react';
-import { Button } from '@/Components/ui/button';
-import { Loader2, LocateFixed } from 'lucide-react';
-import { Map } from 'leaflet';
+import React, { useState } from "react";
+import { Button } from "@/Components/ui/button";
+import { Loader2, LocateFixed } from "lucide-react";
+import { useMap } from "react-leaflet";
 
-interface FlyToLocationButtonProps {
-    map: Map | null;
-}
-
-const FlyToLocationButton: React.FC<FlyToLocationButtonProps> = ({ map }) => {
+const FlyToLocationButton: React.FC = () => {
+    const map = useMap();
     const [isLocating, setIsLocating] = useState(false);
 
     const handleFlyTo = () => {
-        if (!map || isLocating) return;
+        if (isLocating) return;
 
         setIsLocating(true);
-        const startTime = Date.now();
-
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
                 map.flyTo([latitude, longitude], 15);
-                finishLocating();
+                setIsLocating(false);
             },
             (error) => {
-                console.error('Erro ao obter localização:', error);
+                console.error("Erro ao obter localização:", error);
                 alert(`Erro: ${error.message}`);
-                finishLocating();
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-
-        const finishLocating = () => {
-            const elapsedTime = Date.now() - startTime;
-            const minTime = 500; // ms
-            if (elapsedTime < minTime) {
-                setTimeout(() => setIsLocating(false), minTime - elapsedTime);
-            } else {
                 setIsLocating(false);
-            }
-        };
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+        );
     };
 
     return (
-        <div className="absolute top-2 right-14 z-[1000]">
-            <Button onClick={handleFlyTo} size="icon" disabled={isLocating || !map}>
+        <div className="absolute top-4 right-4 z-[1000]">
+            <Button
+                onClick={handleFlyTo}
+                size="icon"
+                disabled={isLocating}
+                title="Ir para sua localização"
+            >
                 {isLocating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                    <LocateFixed className="h-4 w-4" />
+                    <LocateFixed className="h-5 w-5" />
                 )}
             </Button>
         </div>
