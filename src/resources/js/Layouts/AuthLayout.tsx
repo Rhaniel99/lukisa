@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import NotificationHandler from "@/Components/Notifications/NotificationHandler";
 import { Button } from "@/Components/ui/button";
-import { Bell, LogOut, Search, Settings, Users } from "lucide-react";
+import { Bell, LogOut, Settings, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import {
     DropdownMenu,

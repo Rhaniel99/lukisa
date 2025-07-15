@@ -6,13 +6,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $appends = ['avatar_url']; 
+    protected $appends = ['avatar_url'];
 
     /**
      * The attributes that are mass assignable.
@@ -53,18 +55,22 @@ class User extends Authenticatable
         ];
     }
 
-     public function getAvatarUrlAttribute(): ?string // ✅ Nome do Accessor
+    public function getAvatarUrlAttribute(): ?string
     {
-        // Se o usuário não tiver um avatar definido, retorna null.
         if (empty($this->avatar)) {
             return null;
         }
 
-        // Gera uma URL temporária para o arquivo no disco 's3' (seu MinIO)
-        // que expira em 15 minutos.
-        return \Storage::disk('s3')->temporaryUrl(
-            $this->avatar,
-            now()->addMinutes(15)
-        );
+        // Define a chave de cache única para a URL do avatar deste usuário.
+        $cache_key = "user.{$this->id}.avatar_url";
+
+        // Armazena a URL em cache por 10 minutos para evitar a regeneração a cada request.
+        // A URL em si é válida por 15 minutos.
+        return Cache::remember($cache_key, now()->addMinutes(10), function () {
+            return Storage::disk('s3')->temporaryUrl(
+                $this->avatar,
+                now()->addMinutes(15)
+            );
+        });
     }
 }
