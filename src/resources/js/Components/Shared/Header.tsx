@@ -1,4 +1,4 @@
-import type React from "react";
+import React from "react";
 import { Link } from "@inertiajs/react";
 import logo from "/public/img/cat-l.svg";
 
@@ -7,17 +7,19 @@ interface LayoutProps {
 }
 
 export function Header({ children }: LayoutProps) {
-  return (
-    <header className="w-full bg-white/80 backdrop-blur-sm border-b border-lukisa-cream shadow-sm">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-          <img src={logo} alt="Lukisa Logo" width={120} height={40} className="h-8 w-auto" />
-        </Link>
-
-        <nav className="hidden md:flex items-center space-x-2">
+    return (
+        <header className="px-6 py-3 flex items-center justify-between border-b border-lukisa-cream/50 bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+            <div className="flex items-center space-x-6">
+                <Link
+                    href={route("home")}
+                    className="transition-transform duration-200 hover:scale-105"
+                >
+                    <img src={logo} alt="Lukisa Logo" className="h-8 w-auto" />
+                </Link>
+            </div>
+            <div className="flex items-center space-x-2 md:space-x-4">
                 {children}
-        </nav>
-      </div>
-    </header>
-  )
+            </div>
+        </header>
+    );
 }

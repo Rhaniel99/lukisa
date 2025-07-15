@@ -12,22 +12,61 @@
 @custom-variant dark (&:is(.dark *));
 
 /* 5) Tokens de design e paleta de cores como CSS variables */
-@theme inline {
-  /* raios */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+@theme {
+    /* Cores Lukisa */
+    --color-lukisa-dark: #0D0000;
+    --color-lukisa-cream: #BFBAA8;
+    --color-lukisa-sage: #737065;
+    --color-lukisa-brown: #403E34;
+    --color-lukisa-light: #D9D7C5;
 
-  /* cores Lukisa */
-  --color-lukisa-dark:   #0D0000;
-  --color-lukisa-cream:  #BFBAA8;
-  --color-lukisa-sage:   #737065;
-  --color-lukisa-brown:  #403E34;
-  --color-lukisa-light:  #D9D7C5;
+    --background: 240 10% 3.9%; /* Fundo escuro como padrão, ajuste se preferir claro */
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.5rem;
 }
 
 /* 6) Estilos base (base layer) */
 @layer base {
+  :root {
+    /* Define as cores Lukisa para o tema claro */
+    --background: 48 33% 94%; /* lukisa-light */
+    --foreground: 45 10% 25%; /* lukisa-brown */
+    --card: 0 0% 100%;
+    --card-foreground: 45 10% 25%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 45 10% 25%;
+    --primary: 44 11% 41%; /* lukisa-sage */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 48 33% 94%;
+    --secondary-foreground: 44 11% 41%;
+    --muted: 50 12% 85%;
+    --muted-foreground: 45 10% 25%;
+    --accent: 50 12% 85%;
+    --accent-foreground: 44 11% 41%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 49 14% 72%; /* lukisa-cream */
+    --input: 49 14% 72%;
+    --ring: 44 11% 41%;
+  }
+
   * {
     border-color: var(--color-lukisa-cream);
   }
@@ -161,4 +200,14 @@
   50%  { opacity: 0.9; transform: scale(1.05); }
   70%  { opacity: 1; transform: scale(0.9); }
   100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
 }
