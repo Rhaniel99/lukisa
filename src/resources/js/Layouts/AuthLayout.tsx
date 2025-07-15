@@ -66,9 +66,17 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                                 {user.username}
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-lukisa-cream/50" />
-                            <DropdownMenuItem className="cursor-pointer hover:bg-lukisa-light/70 focus:bg-lukisa-light/70">
-                                <Settings className="mr-2 h-4 w-4 text-lukisa-brown" />
-                                <span>Configurações</span>
+                            <DropdownMenuItem
+                                asChild
+                                className="cursor-pointer hover:bg-lukisa-light/70 focus:bg-lukisa-light/70"
+                            >
+                                <Link
+                                    href={route("account.settings")}
+                                    className="flex items-center" // Garante o alinhamento do ícone e texto
+                                >
+                                    <Settings className="mr-2 h-4 w-4 text-lukisa-brown" />
+                                    <span>Configurações</span>
+                                </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-lukisa-cream/50" />
                             <DropdownMenuItem
@@ -89,9 +97,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                     </DropdownMenu>
                 </Header>
 
-                <main className="flex-grow relative z-0">
-                    {children}
-                </main>
+                <main className="flex-grow relative z-0">{children}</main>
             </div>
         </>
     );

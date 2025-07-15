@@ -19,6 +19,16 @@ const handleDelete = (e: React.MouseEvent, memoryId: number) => {
     }
 };
 
+const handleEditMemory = (e: React.MouseEvent, memoryId: number) => {
+    e.stopPropagation();
+    console.log('clicou em editar');
+    // if (window.confirm("Tem certeza de que deseja remover esta memória?")) {
+    //     router.delete(route("memo.maps.destroy", memoryId), {
+    //         preserveScroll: true,
+    //     });
+    // }
+};
+
 export const MemoryList: React.FC<MemoryListProps> = ({
     isLoading,
     memories, // Usa as memórias recebidas
@@ -51,6 +61,7 @@ export const MemoryList: React.FC<MemoryListProps> = ({
                     onSelect={onMemorySelect}
                     onLike={onLike} // Passa a função de like para o card
                     onDelete={handleDelete}
+                    onEdit={handleEditMemory}   // <-- sua nova função de edit
                 />
             ))}
         </div>

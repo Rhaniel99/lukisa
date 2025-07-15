@@ -23,6 +23,11 @@ class AuthenticationController extends Controller
         $this->authService = $authService;
     }
 
+    public function accountSettings()
+    {
+        return inertia('Auth/Authentication/Settings');
+    }
+
     public function regProfile(UpdateProfileData $r): RedirectResponse
     {
         $userId = Auth::id();
@@ -72,7 +77,7 @@ class AuthenticationController extends Controller
         return back()->withErrors(['errors' => "Os dados informados não correspondem a nenhuma conta."]);
     }
 
-    public function forgotPassword(ResetPasswordData $r) : RedirectResponse
+    public function forgotPassword(ResetPasswordData $r): RedirectResponse
     {
         $success = $this->authService->resetPassword($r);
 

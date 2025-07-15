@@ -8,27 +8,69 @@ import {
     CardTitle,
 } from "@/Components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
-import { Heart, MessageCircle, X } from "lucide-react";
+import {
+    FilePenLine,
+    Heart,
+    MessageCircle,
+    MoreHorizontal,
+    Trash2,
+    X,
+} from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
 
 interface MemoryCardProps {
     memory: Memory;
     onSelect: (memory: Memory) => void;
     onLike: (memory: Memory) => void;
     onDelete: (e: React.MouseEvent, memoryId: number) => void;
+    onEdit: (e: React.MouseEvent, memoryId: number) => void;
 }
 
 export const MemoryCard: React.FC<MemoryCardProps> = React.memo(
-    ({ memory, onSelect, onLike, onDelete }) => {
+    ({ memory, onSelect, onLike, onDelete, onEdit }) => {
+        const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+
         return (
             <Card className="relative transition-shadow hover:shadow-md">
                 {memory.is_owner && (
-                    <button
-                        onClick={(e) => onDelete(e, memory.id)}
-                        className="absolute top-2 right-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-gray-800 text-gray-200 opacity-75 transition-all hover:bg-red-600 hover:opacity-100 hover:scale-110"
-                        aria-label="Remover memória"
-                    >
-                        <X size={16} />
-                    </button>
+                    <div className="absolute top-2 right-2 z-20">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    onClick={stopPropagation}
+                                    className="flex h-8 w-8 items-center justify-center border border-transparent text-lukisa-sage hover:bg-lukisa-cream/50 hover:text-lukisa-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lukisa-sage"
+                                    aria-label="Opções da memória"
+                                >
+                                    <MoreHorizontal size={20} />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                className="w-40 bg-white"
+                                onClick={stopPropagation}
+                            >
+                                <DropdownMenuItem
+                                    onClick={(e) => onEdit(e, memory.id)}
+                                    className="cursor-pointer"
+                                >
+                                    <FilePenLine className="mr-2 h-4 w-4" />
+                                    <span>Editar</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={(e) => onDelete(e, memory.id)}
+                                    className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                                >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    <span>Excluir</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 )}
 
                 <CardHeader className="pb-3">
@@ -80,7 +122,8 @@ export const MemoryCard: React.FC<MemoryCardProps> = React.memo(
                                 onClick={() => onSelect(memory)}
                             >
                                 <MessageCircle className="mr-1 h-4 w-4 text-slate-500" />
-                                {memory.comments_count ?? memory.comments.length}
+                                {memory.comments_count ??
+                                    memory.comments.length}
                             </div>
                         </div>
                         <span className="rounded-full bg-gray-200 px-2.5 py-1 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200">

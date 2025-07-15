@@ -1,7 +1,7 @@
 import React from 'react';
 import { Place } from '@/Types/models';
 import { Button } from '@/Components/ui/button';
-import { X, MapPin, Plus } from 'lucide-react';
+import { ArrowRight, MapPin, Plus } from 'lucide-react';
 
 // Props que o cabeçalho precisa para funcionar
 interface SidebarHeaderProps {
@@ -28,7 +28,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
                 <Plus className="mr-2 h-4 w-4" /> Adicionar
             </Button>
             <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="h-5 w-5" />
+                <ArrowRight className="h-5 w-5" />
             </Button>
         </div>
     </div>

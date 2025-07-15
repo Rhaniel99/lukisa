@@ -21,3 +21,7 @@ Route::middleware('auth')->group(function() {
     Route::inertia('/complete-profile', 'Public/Authentication/Profile')->name('profile.complete');
     Route::post('/complete-profile', [AuthenticationController::class, 'regProfile'])->name('profile.register');
 });
+
+Route::middleware(['auth', 'check.profile'])->group(function () {
+    Route::get('/account/settings', [AuthenticationController::class, 'accountSettings'])->name('account.settings');
+});

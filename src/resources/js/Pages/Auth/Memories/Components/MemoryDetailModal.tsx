@@ -71,9 +71,9 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
             className={`fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4 backdrop-blur-sm ${animationClass}`}
             onAnimationEnd={handleAnimationEnd}
         >
-            <Card className="grid h-[65vh] w-full max-w-4xl grid-cols-1 grid-rows-[auto_1fr] overflow-hidden bg-white dark:bg-slate-950 md:grid-cols-2 md:grid-rows-1">
+            <Card className="flex flex-col w-full max-w-4xl h-[85vh] overflow-hidden bg-white dark:bg-slate-950 md:grid md:h-[65vh] md:grid-cols-2">
                 {/* Coluna da Imagem */}
-                <div className="relative h-80 overflow-hidden bg-slate-100 dark:bg-slate-900 md:h-auto">
+                <div className="relative h-60 flex-shrink-0 overflow-hidden bg-slate-100 dark:bg-slate-900 md:h-auto">
                     <img
                         src={memory.image || "/placeholder.svg"}
                         alt={memory.title}
@@ -82,7 +82,7 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                 </div>
 
                 {/* Coluna de Conteúdo */}
-                <div className="flex flex-col min-h-0">
+                <div className="flex flex-col flex-grow min-h-0">
                     <CardHeader className="flex-shrink-0">
                         <div className="flex items-start justify-between">
                             <div className="flex items-center space-x-3">
@@ -214,4 +214,4 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
             </Card>
         </div>
     );
-}
+};
