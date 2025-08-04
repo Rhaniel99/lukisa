@@ -42,7 +42,7 @@ export interface MemoriesIndexProps {
 
 export type User = {
     id: number;
-    name: string;
+    fullname: string;
     username: string;
     email: string;
     avatar: string | null;

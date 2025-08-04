@@ -23,3 +23,6 @@ Route::middleware('auth')->group(function() {
 });
 
 
+Route::middleware(['auth', 'check.profile'])->group(function() {
+    Route::patch('/update-profile/{id}', [AuthenticationController::class, 'updateProfile'])->name('profile.update');
+});

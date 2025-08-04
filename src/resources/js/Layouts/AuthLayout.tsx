@@ -18,13 +18,15 @@ import { SettingsModal } from "@/Components/Modal/SettingsModal";
 
 export default function AuthLayout({ children }: PropsWithChildren) {
     // const { auth } = usePage<PageProps>().props;
-    const { auth, settingsUser } = usePage<PageProps & { settingsUser: User }>().props;
+    const { auth, settings_user } = usePage<
+        PageProps & { settings_user: User }
+    >().props;
     const user = auth.user;
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
     const openSettingsModal = () => {
         router.reload({
-            only: ["settingsUser"],
+            only: ["settings_user"],
             onSuccess: () => {
                 setIsSettingsModalOpen(true);
             },
@@ -34,12 +36,6 @@ export default function AuthLayout({ children }: PropsWithChildren) {
     return (
         <>
             <NotificationHandler />
-            <SettingsModal
-                isOpen={isSettingsModalOpen}
-                onOpenChange={setIsSettingsModalOpen}
-                user={settingsUser}
-            />
-
             <div
                 className="flex flex-col h-screen"
                 style={{ backgroundColor: "#D9D7C5" }}
@@ -68,10 +64,10 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                                 <Avatar className="h-9 w-9 border-2 border-lukisa-sage">
                                     <AvatarImage
                                         src={user.avatar_url || ""}
-                                        alt={user.name}
+                                        alt={user.username}
                                     />
                                     <AvatarFallback className="bg-lukisa-sage text-white font-semibold">
-                                        {user.name.charAt(0).toUpperCase()}
+                                        {user.username.charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>
@@ -81,7 +77,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                             align="end"
                         >
                             <DropdownMenuLabel className="font-semibold text-lukisa-dark">
-                                {user.name}
+                                {user.username}
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-lukisa-cream/50" />
                             <DropdownMenuItem
@@ -113,6 +109,14 @@ export default function AuthLayout({ children }: PropsWithChildren) {
 
                 <main className="flex-grow relative z-0">{children}</main>
             </div>
+
+            {isSettingsModalOpen && (
+                <SettingsModal
+                    isOpen={isSettingsModalOpen}
+                    onOpenChange={setIsSettingsModalOpen}
+                    user={settings_user}
+                />
+            )}
         </>
     );
 }

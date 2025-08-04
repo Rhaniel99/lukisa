@@ -13,7 +13,10 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
 } from "@/Components/ui/dialog";
+import { useForm } from "@inertiajs/react";
+import { Form } from "../UI/Form";
 
 interface NavItemProps {
     tab: string;
@@ -23,7 +26,13 @@ interface NavItemProps {
     setActiveTab: (tab: string) => void;
 }
 
-const NavItem = ({ tab, icon: Icon, label, activeTab, setActiveTab }: NavItemProps) => (
+const NavItem = ({
+    tab,
+    icon: Icon,
+    label,
+    activeTab,
+    setActiveTab,
+}: NavItemProps) => (
     <button
         onClick={() => setActiveTab(tab)}
         className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-left w-full transition-colors ${
@@ -39,9 +48,45 @@ const NavItem = ({ tab, icon: Icon, label, activeTab, setActiveTab }: NavItemPro
     </button>
 );
 
-export function SettingsModal({ isOpen, onOpenChange, user }: { isOpen: boolean; onOpenChange: (isOpen: boolean) => void; user: UserData;}) {
+export function SettingsModal({
+    isOpen,
+    onOpenChange,
+    user,
+}: {
+    isOpen: boolean;
+    onOpenChange: (isOpen: boolean) => void;
+    user: UserData;
+}) {
     const [activeTab, setActiveTab] = useState("profile");
-    console.log(user);
+    // const { data, setData, post, processing, errors, reset } = useForm({
+    //         content: "",
+    // });
+
+    const {
+        data,
+        setData,
+        patch,
+        errors,
+        processing,
+        reset,
+        recentlySuccessful,
+        isDirty,
+    } = useForm({
+        fullname: user.fullname || "",
+        username: user.username || "",
+        // username: "",
+    });
+
+    const submit = () => {
+        // if (processing || !data.content.trim()) return;
+
+        patch(route("profile.update", user.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                // reset("content");
+            },
+        });
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -52,15 +97,46 @@ export function SettingsModal({ isOpen, onOpenChange, user }: { isOpen: boolean;
                         style={{ backgroundColor: "#BFBAA8" }}
                     >
                         <DialogHeader className="px-4 pt-4 pb-2">
-                            <DialogTitle className="text-lg font-semibold" style={{ color: "#0D0000" }}>
+                            <DialogTitle
+                                className="text-lg font-semibold"
+                                style={{ color: "#0D0000" }}
+                            >
                                 Configurações
                             </DialogTitle>
+
+                            <DialogDescription className="text-lukisa-brown">
+                                {/* Ajuste as configurações do seu perfil e da sua conta. */}
+                            </DialogDescription>
                         </DialogHeader>
                         <nav className="space-y-2">
-                            <NavItem tab="profile" icon={User} label="Perfil" activeTab={activeTab} setActiveTab={setActiveTab} />
-                            <NavItem tab="account" icon={Settings} label="Conta" activeTab={activeTab} setActiveTab={setActiveTab} />
-                            <NavItem tab="privacy" icon={Lock} label="Privacidade" activeTab={activeTab} setActiveTab={setActiveTab} />
-                            <NavItem tab="notifications" icon={Bell} label="Notificações" activeTab={activeTab} setActiveTab={setActiveTab} />
+                            <NavItem
+                                tab="profile"
+                                icon={User}
+                                label="Perfil"
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                            />
+                            <NavItem
+                                tab="account"
+                                icon={Settings}
+                                label="Conta"
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                            />
+                            <NavItem
+                                tab="privacy"
+                                icon={Lock}
+                                label="Privacidade"
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                            />
+                            <NavItem
+                                tab="notifications"
+                                icon={Bell}
+                                label="Notificações"
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                            />
                         </nav>
                     </aside>
 
@@ -69,77 +145,119 @@ export function SettingsModal({ isOpen, onOpenChange, user }: { isOpen: boolean;
                         style={{ backgroundColor: "#D9D7C5" }}
                     >
                         {activeTab === "profile" && (
-                            <div className="space-y-6">
-                                <h3
-                                    className="text-xl font-bold"
-                                    style={{ color: "#0D0000" }}
-                                >
-                                    Meu Perfil
-                                </h3>
-                                <div className="flex items-center space-x-6">
-                                    <Avatar className="w-24 h-24">
-                                        <AvatarImage src="/placeholder.svg?height=96&width=96" />
-                                        <AvatarFallback
+                            <Form onSubmit={submit} className="space-y-6">
+                                <div className="space-y-6">
+                                    <h3
+                                        className="text-xl font-bold"
+                                        style={{ color: "#0D0000" }}
+                                    >
+                                        Meu Perfil
+                                    </h3>
+                                    <div className="flex items-center space-x-6">
+                                        <Avatar className="w-24 h-24">
+                                            <AvatarImage
+                                                src={user.avatar_url || ""}
+                                            />
+                                            <AvatarFallback
+                                                style={{
+                                                    backgroundColor: "#403E34",
+                                                    color: "#D9D7C5",
+                                                }}
+                                            >
+                                                {user.username
+                                                    .charAt(0)
+                                                    .toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <Button
+                                            variant="outline"
+                                            className="border-2 bg-transparent"
                                             style={{
-                                                backgroundColor: "#403E34",
-                                                color: "#D9D7C5",
+                                                borderColor: "#403E34",
+                                                color: "#403E34",
                                             }}
                                         >
-                                            JS
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <Button
-                                        variant="outline"
-                                        className="border-2 bg-transparent"
-                                        style={{
-                                            borderColor: "#403E34",
-                                            color: "#403E34",
-                                        }}
-                                    >
-                                        Alterar Foto
-                                    </Button>
-                                </div>
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label
-                                            htmlFor="profile-fullName"
-                                            style={{ color: "#0D0000" }}
-                                        >
-                                            Nome Completo
-                                        </Label>
-                                        <Input
-                                            id="profile-fullName"
-                                            type="text"
-                                            defaultValue="João Silva"
-                                            className="border-2"
-                                            style={{ borderColor: "#737065" }}
-                                        />
+                                            Alterar Foto
+                                        </Button>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label
-                                            htmlFor="profile-username"
-                                            style={{ color: "#0D0000" }}
+
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label
+                                                htmlFor="profile-fullName"
+                                                style={{ color: "#0D0000" }}
+                                            >
+                                                Nome Completo
+                                            </Label>
+                                            <Input
+                                                id="profile-fullName"
+                                                type="text"
+                                                value={data.fullname}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "fullname",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="border-2"
+                                                style={{
+                                                    borderColor: "#737065",
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label
+                                                htmlFor="profile-username"
+                                                style={{ color: "#0D0000" }}
+                                            >
+                                                Nome de Usuário
+                                            </Label>
+                                            <Input
+                                                id="profile-username"
+                                                type="text"
+                                                value={data.username}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "username",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="border-2"
+                                                style={{
+                                                    borderColor: "#737065",
+                                                }}
+                                            />
+                                        </div>
+                                        <Button
+                                            type="submit"
+                                            // A MÁGICA ESTÁ AQUI:
+                                            // Desabilita se estiver processando OU se o formulário não mudou
+                                            disabled={processing || !isDirty}
+                                            style={{
+                                                // Muda a cor se estiver desabilitado
+                                                backgroundColor:
+                                                    processing || !isDirty
+                                                        ? "#737065"
+                                                        : "#403E34",
+                                                color: "#D9D7C5",
+                                                cursor:
+                                                    processing || !isDirty
+                                                        ? "not-allowed"
+                                                        : "pointer",
+                                            }}
                                         >
-                                            Nome de Usuário
-                                        </Label>
-                                        <Input
-                                            id="profile-username"
-                                            type="text"
-                                            defaultValue="joaosilva"
-                                            className="border-2"
-                                            style={{ borderColor: "#737065" }}
-                                        />
+                                            {processing
+                                                ? "Salvando..."
+                                                : "Salvar Alterações"}
+                                        </Button>
+                                        {recentlySuccessful && (
+                                            <span className="text-sm text-lukisa-sage ml-2">
+                                                Salvo!
+                                            </span>
+                                        )}
                                     </div>
-                                    <Button
-                                        style={{
-                                            backgroundColor: "#403E34",
-                                            color: "#D9D7C5",
-                                        }}
-                                    >
-                                        Salvar Alterações
-                                    </Button>
                                 </div>
-                            </div>
+                            </Form>
                         )}
 
                         {activeTab === "account" && (
@@ -161,7 +279,7 @@ export function SettingsModal({ isOpen, onOpenChange, user }: { isOpen: boolean;
                                         <Input
                                             id="account-email"
                                             type="email"
-                                            defaultValue="joao.silva@example.com"
+                                            defaultValue={user.email}
                                             className="border-2"
                                             style={{ borderColor: "#737065" }}
                                         />

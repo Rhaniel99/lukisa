@@ -33,7 +33,7 @@ class HandleInertiaRequests extends Middleware
             // SITUAÇÃO 1: Para todas as páginas (leve)
             'auth' => fn() => $request->user()
                 ? [
-                    'user' => UserData::from($request->user())->except('email') // <- Use .except() aqui!
+                    'user' => UserData::from($request->user())->except('email', 'fullname', 'birthDate')
                 ]
                 : null,
 

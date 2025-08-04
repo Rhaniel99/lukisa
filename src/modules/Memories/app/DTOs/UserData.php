@@ -3,6 +3,7 @@
 namespace Modules\Memories\DTOs;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
@@ -12,9 +13,11 @@ class UserData extends Data
 {
     public function __construct(
         public readonly int $id,
-        public readonly string $name,
+        public readonly ?string $username,
+        public readonly ?string $fullname,
         public readonly ?string $email,
         public readonly ?string $avatarUrl,
+        public readonly ?Carbon $birthDate,
     ) {
     }
 
@@ -22,9 +25,11 @@ class UserData extends Data
     {
         return new self(
             id: $user->id,
-            name: $user->username,
+            username: $user->username,
+            fullname: $user->name,
             email: $user->email,
             avatarUrl: $user->avatar_url,
+            birthDate: $user->birth_date
         );
     }
 }

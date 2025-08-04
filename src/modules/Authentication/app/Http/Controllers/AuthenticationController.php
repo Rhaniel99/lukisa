@@ -5,6 +5,7 @@ namespace Modules\Authentication\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Auth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Modules\Authentication\DTOs\CheckUserData;
 use Modules\Authentication\DTOs\LoginData;
@@ -23,7 +24,6 @@ class AuthenticationController extends Controller
         $this->authService = $authService;
     }
 
-    
 
     public function regProfile(UpdateProfileData $r): RedirectResponse
     {
@@ -84,7 +84,11 @@ class AuthenticationController extends Controller
 
         return to_route('home')->with('success', 'Sua senha foi redefinida com sucesso! Você já pode fazer o login.');
     }
-
+    public function updateProfile(Request $request, $id)
+    {
+        dd($id);
+        dd($request->all());
+    }
     public function logout()
     {
         Auth::logout();
