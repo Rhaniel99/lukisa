@@ -6,77 +6,67 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
-import { ArrowLeft, User, Settings, Lock, Bell } from "lucide-react";
-// import Image from "next/image"
-import { Head, Link } from "@inertiajs/react";
+import { User as UserData } from "@/Types/models";
+import { User, Settings, Lock, Bell } from "lucide-react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/Components/ui/dialog";
 
 interface NavItemProps {
     tab: string;
     icon: React.ComponentType<any>;
     label: string;
+    activeTab: string;
+    setActiveTab: (tab: string) => void;
 }
 
-export default function AccSettings() {
-    const [activeTab, setActiveTab] = useState("profile"); // 'profile', 'account', 'privacy', 'notifications'
+const NavItem = ({ tab, icon: Icon, label, activeTab, setActiveTab }: NavItemProps) => (
+    <button
+        onClick={() => setActiveTab(tab)}
+        className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-left w-full transition-colors ${
+            activeTab === tab ? "font-semibold" : "hover:bg-opacity-80"
+        }`}
+        style={{
+            backgroundColor: activeTab === tab ? "#403E34" : "transparent",
+            color: activeTab === tab ? "#D9D7C5" : "#0D0000",
+        }}
+    >
+        <Icon className="w-5 h-5" />
+        <span>{label}</span>
+    </button>
+);
 
-    const NavItem = ({ tab, icon: Icon, label }: NavItemProps) => (
-        <button
-            onClick={() => setActiveTab(tab)}
-            className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-left w-full transition-colors ${
-                activeTab === tab ? "font-semibold" : "hover:bg-opacity-80"
-            }`}
-            style={{
-                backgroundColor: activeTab === tab ? "#403E34" : "transparent",
-                color: activeTab === tab ? "#D9D7C5" : "#0D0000",
-            }}
-        >
-            <Icon className="w-5 h-5" />
-            <span>{label}</span>
-        </button>
-    );
+export function SettingsModal({ isOpen, onOpenChange, user }: { isOpen: boolean; onOpenChange: (isOpen: boolean) => void; user: UserData;}) {
+    const [activeTab, setActiveTab] = useState("profile");
+    console.log(user);
 
     return (
-        <>
-            <Head title="Configurações" />
-
-            {/* Main Content */}
-            <main className="flex-1 flex p-6">
-                <div className="w-full max-w-5xl mx-auto flex h-full">
-                    {/* Side Navigation */}
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="w-full sm:max-w-4xl h-[80vh] flex flex-col bg-[#BFBAA8] p-0">
+                <div className="flex flex-1">
                     <aside
-                        className="w-64 p-4 rounded-lg shadow-md mr-6"
+                        className="w-72 p-4 rounded-l-lg shadow-md mr-6"
                         style={{ backgroundColor: "#BFBAA8" }}
                     >
-                        <h2
-                            className="text-lg font-semibold mb-4"
-                            style={{ color: "#0D0000" }}
-                        >
-                            Configurações
-                        </h2>
+                        <DialogHeader className="px-4 pt-4 pb-2">
+                            <DialogTitle className="text-lg font-semibold" style={{ color: "#0D0000" }}>
+                                Configurações
+                            </DialogTitle>
+                        </DialogHeader>
                         <nav className="space-y-2">
-                            <NavItem tab="profile" icon={User} label="Perfil" />
-                            <NavItem
-                                tab="account"
-                                icon={Settings}
-                                label="Conta"
-                            />
-                            <NavItem
-                                tab="privacy"
-                                icon={Lock}
-                                label="Privacidade"
-                            />
-                            <NavItem
-                                tab="notifications"
-                                icon={Bell}
-                                label="Notificações"
-                            />
+                            <NavItem tab="profile" icon={User} label="Perfil" activeTab={activeTab} setActiveTab={setActiveTab} />
+                            <NavItem tab="account" icon={Settings} label="Conta" activeTab={activeTab} setActiveTab={setActiveTab} />
+                            <NavItem tab="privacy" icon={Lock} label="Privacidade" activeTab={activeTab} setActiveTab={setActiveTab} />
+                            <NavItem tab="notifications" icon={Bell} label="Notificações" activeTab={activeTab} setActiveTab={setActiveTab} />
                         </nav>
                     </aside>
 
-                    {/* Content Area */}
                     <div
-                        className="flex-1 p-6 rounded-lg shadow-md overflow-auto"
-                        style={{ backgroundColor: "#BFBAA8" }}
+                        className="flex-1 p-6 rounded-r-lg shadow-md overflow-auto min-w-0"
+                        style={{ backgroundColor: "#D9D7C5" }}
                     >
                         {activeTab === "profile" && (
                             <div className="space-y-6">
@@ -439,7 +429,7 @@ export default function AccSettings() {
                         )}
                     </div>
                 </div>
-            </main>
-        </>
+            </DialogContent>
+        </Dialog>
     );
 }

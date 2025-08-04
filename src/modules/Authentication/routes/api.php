@@ -3,6 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Authentication\Http\Controllers\AuthenticationController;
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('authentications', AuthenticationController::class)->names('authentication');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/settings', [AuthenticationController::class, 'getUserSettings']);
 });

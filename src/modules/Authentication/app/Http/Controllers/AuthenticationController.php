@@ -23,10 +23,7 @@ class AuthenticationController extends Controller
         $this->authService = $authService;
     }
 
-    public function accountSettings()
-    {
-        return inertia('Auth/Authentication/Settings');
-    }
+    
 
     public function regProfile(UpdateProfileData $r): RedirectResponse
     {

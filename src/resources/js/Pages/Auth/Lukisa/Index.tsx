@@ -34,7 +34,7 @@ const Index: React.FC = () => {
                             className="text-4xl font-bold mb-4"
                             style={{ color: "#0D0000" }}
                         >
-                            Bem-vindo ao Lukisa, {auth.user.username}!
+                            Bem-vindo ao Lukisa, {auth.user.name}!
                         </h1>
                         <p className="text-lg" style={{ color: "#737065" }}>
                             Escolha um serviço para começar

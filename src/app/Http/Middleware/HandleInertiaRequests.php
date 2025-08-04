@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Modules\Memories\DTOs\UserData;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -29,12 +30,21 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         return array_merge(parent::share($request), [
-            'auth' => [
-                'user' => fn() =>  $request->user()?->toArray()
-            ],
+            // SITUAÇÃO 1: Para todas as páginas (leve)
+            'auth' => fn() => $request->user()
+                ? [
+                    'user' => UserData::from($request->user())->except('email') // <- Use .except() aqui!
+                ]
+                : null,
+
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
             ],
+
+            // SITUAÇÃO 2: Apenas para o modal (completo e sob demanda)
+            'settings_user' => fn() => $request->user()
+                ? UserData::from($request->user()) // <- Aqui, envie o DTO completo
+                : null,
         ]);
     }
 }

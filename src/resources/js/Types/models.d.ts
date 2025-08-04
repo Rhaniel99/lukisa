@@ -52,9 +52,9 @@ export type User = {
 // ✅ Define e exporta o tipo base que todas as páginas terão
 export type PageProps = InertiaPageProps & {
     auth: {
-        user: User;
+        user: AuthUser;
     };
-    // Adicione outras props globais aqui, como 'flash'
+    settings_user?: SettingsUser;
     flash?: {
         success?: string;
         error?: string;
