@@ -3,33 +3,27 @@
 namespace Modules\Marvin\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Modules\Marvin\Services\OllamaService;
 
 class MarvinController extends Controller
 {
-    public function ask(Request $request, OllamaService $ollamaService): JsonResponse
+    public function ask(Request $request, OllamaService $ollamaService): RedirectResponse
     {
-        // 1. Validar a requisição para garantir que um prompt foi enviado
         $validated = $request->validate([
             'prompt' => ['required', 'string', 'max:1000'],
         ]);
 
         try {
-            // 2. Usar o serviço para gerar a resposta
-            // A injeção de dependência do Laravel nos dá o $ollamaService pronto para uso
             $response = $ollamaService->generate($validated['prompt']);
 
-            // 3. Retornar a resposta em formato JSON
-            return response()->json(['response' => $response]);
+            // Redireciona de volta para a página anterior com a resposta
+            return redirect()->back()->with('marvinResponse', $response);
 
         } catch (\Exception $e) {
-            // 4. Capturar qualquer erro (conexão, timeout, etc.) e retornar uma resposta de erro
-            return response()->json([
-                'error' => 'Marvin está muito deprimido para responder agora. Tente novamente mais tarde.',
-                'details' => $e->getMessage()
-            ], 500);
+            // Em caso de erro, redireciona de volta com uma mensagem de erro
+            return redirect()->back()->with('marvinError', 'Marvin está muito deprimido para responder agora.');
         }
     }
 }
