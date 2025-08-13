@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/marvin",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Marvin\\": "app/",
+            "Modules\\Marvin\\Database\\Factories\\": "database/factories/",
+            "Modules\\Marvin\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Marvin\\Tests\\": "tests/"
+        }
+    }
+}

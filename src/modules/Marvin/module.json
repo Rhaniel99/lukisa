@@ -1,0 +1,11 @@
+{
+    "name": "Marvin",
+    "alias": "marvin",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Marvin\\Providers\\MarvinServiceProvider"
+    ],
+    "files": []
+}
