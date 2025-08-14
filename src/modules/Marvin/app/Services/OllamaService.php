@@ -12,12 +12,15 @@ class OllamaService implements IOllamaService
     protected string $model;
     protected string $systemPrompt;
     protected int $timeout;
+    protected array $options;
+
     public function __construct()
     {
         $this->url = config('marvin.ollama.url');
         $this->model = config('marvin.ollama.model');
         $this->systemPrompt = config('marvin.personality');
         $this->timeout = config('marvin.ollama.timeout');
+        $this->options = config('marvin.ollama.options');
     }
 
     /**
@@ -27,17 +30,22 @@ class OllamaService implements IOllamaService
      * @return string
      * @throws ConnectionException
      */
-    public function generate(string $prompt): string
+    public function generate(string $prompt, ?string $systemPromptOverride = null, array $options = []): string
     {
-        $response = Http::timeout($this->timeout)
-            ->post($this->url . '/api/generate', [
-                'model' => $this->model,
-                'system' => $this->systemPrompt,
-                'prompt' => $prompt,
-                'stream' => false,
-            ]);
+        // Prepara o payload da requisição
+        $payload = [
+            'model' => $this->model,
+            'prompt' => $prompt,
+            'stream' => false,
+            'options' => array_merge(config('marvin.ollama.options', []), $options),
+        ];
 
-        // Lança uma exceção se a resposta não for bem-sucedida
+        // Usa o system prompt de override se for fornecido, senão, usa a personalidade padrão
+        $payload['system'] = $systemPromptOverride ?? $this->systemPrompt;
+
+        $response = Http::timeout($this->timeout)
+            ->post("{$this->url}/api/generate", $payload);
+
         $response->throw();
 
         return $response->json()['response'];

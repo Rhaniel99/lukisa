@@ -34,7 +34,6 @@ interface MemoryCardProps {
 export const MemoryCard: React.FC<MemoryCardProps> = React.memo(
     ({ memory, onSelect, onLike, onDelete, onEdit }) => {
         const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
-
         return (
             <Card className="relative transition-shadow hover:shadow-md">
                 {memory.is_owner && (
@@ -78,7 +77,7 @@ export const MemoryCard: React.FC<MemoryCardProps> = React.memo(
                         <Avatar className="h-8 w-8">
                             <AvatarImage src={memory.author.avatar_url || ""} />
                             <AvatarFallback>
-                                {memory.author.name[0]}
+                                {memory.author.username[0]}
                             </AvatarFallback>
                         </Avatar>
                         <div>
@@ -86,7 +85,7 @@ export const MemoryCard: React.FC<MemoryCardProps> = React.memo(
                                 {memory.title}
                             </CardTitle>
                             <CardDescription className="text-xs">
-                                por {memory.author.name}
+                                por {memory.author.username}
                             </CardDescription>
                         </div>
                     </div>

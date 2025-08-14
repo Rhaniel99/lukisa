@@ -8,5 +8,5 @@ namespace Modules\Marvin\Interfaces\Services;
  */
 interface IOllamaService
 {
-    public function generate(string $prompt): string;
+    public function generate(string $prompt, ?string $systemPromptOverride = null, array $options = []): string;
 }

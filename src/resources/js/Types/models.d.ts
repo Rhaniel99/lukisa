@@ -58,6 +58,8 @@ export type PageProps = InertiaPageProps & {
     flash?: {
         success?: string;
         error?: string;
+        marvinResponse?: string;
+        marvinError?: string;
     }
 };
 

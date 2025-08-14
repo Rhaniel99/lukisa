@@ -94,13 +94,13 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                                         }
                                     />
                                     <AvatarFallback>
-                                        {memory.author.name[0]}
+                                        {memory.author.username[0]}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <CardTitle>{memory.title}</CardTitle>
                                     <CardDescription>
-                                        por {memory.author.name} •{" "}
+                                        por {memory.author.username} •{" "}
                                         {memory.created}
                                     </CardDescription>
                                 </div>
@@ -161,13 +161,13 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                                                     }
                                                 />
                                                 <AvatarFallback>
-                                                    {comment.author.name[0]}
+                                                    {comment.author.username[0]}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1 rounded-lg bg-slate-50 dark:bg-slate-800 p-2">
                                                 <p className="text-sm">
                                                     <span className="font-semibold text-slate-800 dark:text-slate-100">
-                                                        {comment.author.name}
+                                                        {comment.author.username}
                                                     </span>
                                                     <span className="ml-2 text-slate-600 dark:text-slate-300">
                                                         {comment.text}
@@ -207,7 +207,7 @@ export const MemoryDetailModal: React.FC<MemoryDetailModalProps> = ({
                         <AddCommentForm
                             memoryId={memory.id}
                             avatarUrl={auth.user.avatar_url}
-                            userName={auth.user.name}
+                            userName={auth.user.username}
                         />
                     </CardFooter>
                 </div>

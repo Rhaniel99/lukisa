@@ -4,6 +4,7 @@ namespace Modules\Marvin\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
 use Modules\Marvin\Interfaces\Repositories\IMarvinRepository;
 use Modules\Marvin\Interfaces\Services\IMarvinService;
 use Modules\Marvin\Interfaces\Services\IOllamaService;
@@ -33,6 +34,13 @@ class MarvinServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+        Inertia::share('marvin', fn() => [
+            'flash' => [
+                'response' => session('marvin_response'),
+                'error' => session('marvin_error'),
+            ],
+        ]);
     }
 
     /**
