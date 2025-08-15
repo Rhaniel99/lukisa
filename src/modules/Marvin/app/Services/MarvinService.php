@@ -14,6 +14,49 @@ class MarvinService implements IMarvinService
     }
 
     /**
+     * Processa a pergunta do usuário usando o histórico da conversa.
+     *
+     * @param string $userPrompt A nova pergunta do usuário.
+     * @param string $sessionId O ID da sessão da conversa.
+     * @return string A resposta final da IA.
+     */
+    public function ask_chat(string $userPrompt, string $sessionId): string
+    {
+        // 1. (Recuperação) Busca as últimas 10 mensagens da conversa atual.
+        $history = DB::table('marvin_chat_messages')
+            ->where('session_id', $sessionId)
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->reverse(); // Revertemos para manter a ordem cronológica
+
+        // 2. (Formatação) Monta o payload para a API do Ollama.
+        $messages = [];
+
+        // Adiciona a personalidade como a primeira mensagem do sistema
+        $messages[] = ['role' => 'system', 'content' => config('marvin.personality')];
+
+        // Adiciona o histórico recuperado
+        foreach ($history as $message) {
+            $messages[] = ['role' => $message->role, 'content' => $message->content];
+        }
+
+        // Adiciona a nova pergunta do usuário
+        $messages[] = ['role' => 'user', 'content' => $userPrompt];
+
+        // 3. (Geração) Envia para o OllamaService usando o novo método chat()
+        $marvinResponse = $this->ollamaService->chat($messages);
+
+        // 4. (Salvamento) Salva a nova pergunta e a resposta no banco de dados
+        DB::table('marvin_chat_messages')->insert([
+            ['session_id' => $sessionId, 'role' => 'user', 'content' => $userPrompt, 'created_at' => now(), 'updated_at' => now()],
+            ['session_id' => $sessionId, 'role' => 'assistant', 'content' => $marvinResponse, 'created_at' => now(), 'updated_at' => now()],
+        ]);
+
+        return $marvinResponse;
+    }
+
+    /**
      * Orquestra a resposta para o usuário, começando pela classificação de intenção.
      */
     public function ask(string $userPrompt): string

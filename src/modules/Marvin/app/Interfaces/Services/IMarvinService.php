@@ -6,4 +6,8 @@ namespace Modules\Marvin\Interfaces\Services;
  * Interface IMarvinService
  * @package Modules\Marvin\Interfaces\Services
  */
-interface IMarvinService {}
+interface IMarvinService
+{
+    public function ask_chat(string $userPrompt, string $sessionId): string;
+    public function ask(string $userPrompt): string;
+}

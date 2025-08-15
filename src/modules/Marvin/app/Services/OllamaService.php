@@ -50,4 +50,26 @@ class OllamaService implements IOllamaService
 
         return $response->json()['response'];
     }
+
+    /**
+     * Envia um histórico de mensagens para o serviço Ollama e retorna a nova resposta.
+     *
+     * @param array $messages Histórico da conversa
+     * @return string A resposta do assistente
+     */
+    public function chat(array $messages): string
+    {
+        $response = Http::timeout($this->timeout)
+            ->post("{$this->url}/api/chat", [
+                'model' => $this->model,
+                'messages' => $messages,
+                'stream' => false,
+                'options' => config('marvin.ollama.options'),
+            ]);
+
+        $response->throw();
+
+        // A resposta do endpoint /api/chat vem dentro de 'message' -> 'content'
+        return $response->json()['message']['content'];
+    }
 }

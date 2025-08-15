@@ -15,9 +15,11 @@ class MarvinController extends Controller
             'prompt' => ['required', 'string', 'max:1000'],
         ]);
 
-        try {
+        $sessionId = $request->session()->getId();
 
-            $response = $marvinService->ask($validated['prompt']);
+        try {
+            $response = $marvinService->ask_chat($validated['prompt'], $sessionId);
+            // $response = $marvinService->ask($validated['prompt']);
 
             return redirect()->back()->with('marvin_response', $response);
         } catch (\Exception $e) {
