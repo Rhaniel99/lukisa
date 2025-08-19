@@ -28,7 +28,6 @@ class AuthenticationController extends Controller
     public function regProfile(UpdateProfileData $r): RedirectResponse
     {
         $userId = Auth::id();
-
         $success = $this->authService->updateUserProfile($userId, $r);
 
         if (!$success) {

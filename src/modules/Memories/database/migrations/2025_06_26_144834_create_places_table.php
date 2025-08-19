@@ -18,7 +18,7 @@ return new class extends Migration
         DB::statement("CREATE SCHEMA IF NOT EXISTS {$this->schema}");
 
         Schema::create("{$this->schema}.places", function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name')->nullable(); // Um nome opcional para o local, ex: "Torre Eiffel"
             $table->text('address')->nullable(); // Endereço textual, pode ser obtido via reverse geocoding
             $table->decimal('latitude', 10, 8);

@@ -28,5 +28,5 @@ interface IMemoriesRepository {
      * @param integer $userId O ID do User que criou.
      * @return Memorie
      */
-    public function createMemory(StoreMemoryData $data, int $placeId, int $userId): Memorie;
+    public function createMemory(StoreMemoryData $data, string $placeId, string $userId): Memorie;
 }

@@ -5,7 +5,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/Components/ui/card";
-import logo from "/public/img/logo.svg";
+import logo from "/public/img/cat-l.svg";
 import { Button } from "@/Components/ui/button";
 import { Head } from "@inertiajs/react";
 import ProfileForm from './Components/ProfileForm';

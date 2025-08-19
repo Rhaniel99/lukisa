@@ -4,6 +4,7 @@ namespace Modules\Memories\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Memories\Models\Memorie;
@@ -11,7 +12,7 @@ use Modules\Memories\Models\Memorie;
 
 class Comment extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     /**
      * 1. Nome da Tabela

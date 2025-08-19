@@ -18,18 +18,19 @@ return new class extends Migration
     {
         Schema::create("{$this->schema}.likes", function (Blueprint $table) {
             // A tabela 'users' geralmente fica no schema public/padrão
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
 
-            $table->unsignedBigInteger('memory_id');
-            $table->timestamp('created_at')->useCurrent(); // useCurrent() é uma boa prática aqui
-
-            $table->primary(['user_id', 'memory_id']);
-
-            // AQUI a mudança principal: referencie a tabela 'memories' dentro do seu schema
+            // Chave estrangeira para a tabela 'memories'
+            $table->uuid('memory_id');
             $table->foreign('memory_id')
-                ->references('id')
-                ->on("{$this->schema}.memories") // Aponta para 'memories.memories'
-                ->onDelete('cascade');
+                  ->references('id')
+                  ->on("{$this->schema}.memories")
+                  ->onDelete('cascade');
+
+            $table->timestamp('created_at')->useCurrent();
+
+            // Chave primária composta
+            $table->primary(['user_id', 'memory_id']);
         });
     }
 

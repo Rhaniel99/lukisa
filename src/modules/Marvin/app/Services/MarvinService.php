@@ -4,6 +4,7 @@ namespace Modules\Marvin\Services;
 
 use Illuminate\Support\Facades\DB;
 use Modules\Marvin\Interfaces\Services\IMarvinService;
+use Modules\Marvin\Models\ChatMessage;
 use Modules\Marvin\Services\OllamaService;
 
 class MarvinService implements IMarvinService
@@ -23,7 +24,7 @@ class MarvinService implements IMarvinService
     public function ask_chat(string $userPrompt, string $sessionId): string
     {
         // 1. (Recuperação) Busca as últimas 10 mensagens da conversa atual.
-        $history = DB::table('marvin_chat_messages')
+        $history = ChatMessage::query()
             ->where('session_id', $sessionId)
             ->orderBy('created_at', 'desc')
             ->limit(10)

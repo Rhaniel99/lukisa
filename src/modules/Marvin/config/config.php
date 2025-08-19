@@ -2,7 +2,9 @@
 
 return [
     'name' => 'Marvin',
-
+    'database' => [
+        'schema' => 'marvin'
+    ],
     'ollama' => [
         'url' => env('OLLAMA_URL', 'http://ollama_service:11434'),
         'model' => 'llama3:8b',

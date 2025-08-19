@@ -22,7 +22,7 @@ class MemoriesRepository implements IMemoriesRepository
     /**
      * {@inheritdoc}
      */
-    public function createMemory(StoreMemoryData $data, int $placeId, int $userId): Memorie
+    public function createMemory(StoreMemoryData $data, string $placeId, string $userId): Memorie
     {
         return Memorie::create([
             'title' => $data->title,

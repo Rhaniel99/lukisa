@@ -10,17 +10,18 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->schema = config('memories.database.schema');
+        $this->schema = config('marvin.database.schema');
     }
 
     public function up(): void
     {
-        Schema::create("{$this->schema}.comments", function (Blueprint $table) {
+        DB::statement("CREATE SCHEMA IF NOT EXISTS {$this->schema}");
+
+        Schema::create("{$this->schema}.chat_messages", function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignUuid('memory_id')
-                  ->constrained("{$this->schema}.memories")
-                  ->onDelete('cascade');
+            // $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignUuid('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('role');
             $table->text('content');
             $table->timestamps();
         });
@@ -31,7 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists("{$this->schema}.comments");
+        Schema::dropIfExists("{$this->schema}.chat_messages");
     }
 };
-

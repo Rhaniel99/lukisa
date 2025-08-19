@@ -17,11 +17,19 @@ RUN apk add --no-cache \
     libsodium-dev \
     ffmpeg-dev \
     libva-dev \
-    libjpeg-turbo-dev 
+    gd-dev \
+    freetype-dev \
+    libpng-dev \
+    libwebp-dev \
+    libjpeg-turbo-dev
 
 
 # Instala as extensões PHP, incluindo 'sodium' que estava faltando
 RUN docker-php-ext-install pdo pdo_pgsql bcmath zip pcntl intl sodium exif
+
+# Configura e instala a extensão GD com suporte a jpeg, webp, e freetype (para fontes)
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j$(nproc) gd
 
 # garante que o ini de exif exista e seja carregado no CLI
 RUN docker-php-ext-enable exif
@@ -57,6 +65,10 @@ RUN apk add --no-cache \
     libsodium \
     ffmpeg \
     libva \
+    freetype \
+    libpng \
+    libwebp \
+    gd \
     libjpeg-turbo
 
 # Adiciona usuário e grupo para rodar a aplicação sem ser root

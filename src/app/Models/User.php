@@ -2,32 +2,24 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasUuids, InteractsWithMedia;
 
-    protected $appends = ['avatar_url'];
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
         'birth_date',
         'username',
-        'avatar',
         'status'
     ];
 
@@ -55,22 +47,12 @@ class User extends Authenticatable
         ];
     }
 
-    public function getAvatarUrlAttribute(): ?string
+    public function registerMediaConversions(Media $media = null): void
     {
-        if (empty($this->avatar)) {
-            return null;
-        }
-
-        // Define a chave de cache única para a URL do avatar deste usuário.
-        $cache_key = "user.{$this->id}.avatar_url";
-
-        // Armazena a URL em cache por 10 minutos para evitar a regeneração a cada request.
-        // A URL em si é válida por 15 minutos.
-        return Cache::remember($cache_key, now()->addMinutes(10), function () {
-            return Storage::disk('s3')->temporaryUrl(
-                $this->avatar,
-                now()->addMinutes(15)
-            );
-        });
+        $this->addMediaConversion('thumb')
+            ->width(150)
+            ->height(150)
+            ->sharpen(10)
+            ->nonQueued();
     }
 }

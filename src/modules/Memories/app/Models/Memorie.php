@@ -12,12 +12,12 @@ use Modules\Memories\Models\Comment;
 use Modules\Memories\Models\Place;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-
-// use Modules\Memories\Database\Factories\MemoriesFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Memorie extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia; // Adiciona o trait da media-library
+    use HasFactory, InteractsWithMedia, HasUuids;
+
 
     protected $table = 'memories.memories';
 

@@ -16,13 +16,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create("{$this->schema}.memories", function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
 
-            $table->foreignId('user_id')
+            $table->foreignUuid('user_id')
                   ->constrained('users')
                   ->onDelete('cascade');
 
-            $table->foreignId('place_id')
+            $table->foreignUuid('place_id')
                   ->constrained("{$this->schema}.places")
                   ->onDelete('cascade');
 

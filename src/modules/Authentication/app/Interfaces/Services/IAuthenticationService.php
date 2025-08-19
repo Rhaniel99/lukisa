@@ -25,6 +25,6 @@ interface IAuthenticationService
 
     public function resetPassword(ResetPasswordData $data): bool;
 
-    public function updateUserProfile(int $userId, UpdateProfileData $data): bool;
+    public function updateUserProfile(string $userId, UpdateProfileData $r): bool;
 
 }

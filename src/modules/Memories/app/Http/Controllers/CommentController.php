@@ -41,9 +41,6 @@ class CommentController extends Controller
         // 2. Dispare o evento e use toOthers() para não enviá-lo de volta a quem comentou
         broadcast(new CommentPosted($comment));
 
-        // broadcast(new CommentPosted($comment))->toOthers();
-
-
         // 3. Redireciona de volta para a página anterior
         return redirect()->back()->with('success', 'Comentário adicionado!');
     }

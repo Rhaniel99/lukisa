@@ -12,7 +12,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class UserData extends Data
 {
     public function __construct(
-        public readonly int $id,
+        public readonly string $id,
         public readonly ?string $username,
         public readonly ?string $fullname,
         public readonly ?string $email,
@@ -28,7 +28,8 @@ class UserData extends Data
             username: $user->username,
             fullname: $user->name,
             email: $user->email,
-            avatarUrl: $user->avatar_url,
+            avatarUrl: $user->getFirstMediaUrl('avatars', 'thumb'),
+            // avatarUrl: $user->avatar_url,
             birthDate: $user->birth_date
         );
     }

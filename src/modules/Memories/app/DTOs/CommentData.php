@@ -11,8 +11,8 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class CommentData extends Data
 {
     public function __construct(
-         public readonly int $memory_id,
-        public readonly int $id,
+        public readonly string $memory_id,
+        public readonly string $id,
         public readonly string $text, // 'text' no frontend
         public readonly string $created,
         public readonly UserData $author, // 'author' no frontend
