@@ -2,6 +2,7 @@
 
 namespace Modules\Marvin\Services;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Modules\Marvin\Interfaces\Services\IMarvinService;
 use Modules\Marvin\Models\ChatMessage;
@@ -21,40 +22,59 @@ class MarvinService implements IMarvinService
      * @param string $sessionId O ID da sessão da conversa.
      * @return string A resposta final da IA.
      */
-    public function ask_chat(string $userPrompt, string $sessionId): string
+    public function ask_chat(string $userPrompt, string $userId): string
     {
         // 1. (Recuperação) Busca as últimas 10 mensagens da conversa atual.
         $history = ChatMessage::query()
-            ->where('session_id', $sessionId)
+            ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
             ->reverse(); // Revertemos para manter a ordem cronológica
 
-        // 2. (Formatação) Monta o payload para a API do Ollama.
+        ChatMessage::create([
+            'user_id' => $userId,
+            'role' => 'user',
+            'content' => $userPrompt,
+        ]);
+
+        $messages = $this->buildMessagesPayload($history, $userPrompt);
+
+        $marvinResponse = $this->ollamaService->chat($messages);
+
+        ChatMessage::create([
+            'user_id' => $userId,
+            'role' => 'assistant',
+            'content' => $marvinResponse,
+        ]);
+
+        return $marvinResponse;
+    }
+
+    /**
+     * Constrói o array de mensagens para enviar à API do Ollama.
+     *
+     * @param Collection $history
+     * @param string $userPrompt
+     * @return array
+     */
+    private function buildMessagesPayload(Collection $history, string $userPrompt): array
+    {
         $messages = [];
 
-        // Adiciona a personalidade como a primeira mensagem do sistema
+        // Adiciona a personalidade como a primeira mensagem do sistema.
         $messages[] = ['role' => 'system', 'content' => config('marvin.personality')];
 
-        // Adiciona o histórico recuperado
+        // Adiciona o histórico recuperado do banco de dados.
         foreach ($history as $message) {
             $messages[] = ['role' => $message->role, 'content' => $message->content];
         }
 
-        // Adiciona a nova pergunta do usuário
+        // Adiciona a nova pergunta do utilizador ao final do payload.
+        // É a forma mais limpa de garantir que o contexto mais recente está incluído.
         $messages[] = ['role' => 'user', 'content' => $userPrompt];
 
-        // 3. (Geração) Envia para o OllamaService usando o novo método chat()
-        $marvinResponse = $this->ollamaService->chat($messages);
-
-        // 4. (Salvamento) Salva a nova pergunta e a resposta no banco de dados
-        DB::table('marvin_chat_messages')->insert([
-            ['session_id' => $sessionId, 'role' => 'user', 'content' => $userPrompt, 'created_at' => now(), 'updated_at' => now()],
-            ['session_id' => $sessionId, 'role' => 'assistant', 'content' => $marvinResponse, 'created_at' => now(), 'updated_at' => now()],
-        ]);
-
-        return $marvinResponse;
+        return $messages;
     }
 
     /**

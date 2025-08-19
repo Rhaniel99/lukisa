@@ -3,6 +3,7 @@
 namespace Modules\Marvin\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Modules\Marvin\Services\MarvinService;
@@ -15,10 +16,11 @@ class MarvinController extends Controller
             'prompt' => ['required', 'string', 'max:1000'],
         ]);
 
-        $sessionId = $request->session()->getId();
+        // $sessionId = $request->session()->getId();
+        $userId = Auth::id();
 
         try {
-            $response = $marvinService->ask_chat($validated['prompt'], $sessionId);
+            $response = $marvinService->ask_chat($validated['prompt'], $userId);
             // $response = $marvinService->ask($validated['prompt']);
 
             return redirect()->back()->with('marvin_response', $response);
