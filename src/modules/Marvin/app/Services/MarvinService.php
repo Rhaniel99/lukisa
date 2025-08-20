@@ -12,36 +12,43 @@ class MarvinService implements IMarvinService
 {
     public function __construct(protected OllamaService $ollamaService)
     {
-
     }
 
     /**
-     * Processa a pergunta do usuário usando o histórico da conversa.
+     * Processa a pergunta do usuário, utilizando o histórico da conversa e o RAG para buscar contexto.
      *
      * @param string $userPrompt A nova pergunta do usuário.
-     * @param string $sessionId O ID da sessão da conversa.
+     * @param string $userId O ID do usuário da conversa.
      * @return string A resposta final da IA.
      */
-    public function ask_chat(string $userPrompt, string $userId): string
+    public function ask(string $userPrompt, string $userId): string
     {
-        // 1. (Recuperação) Busca as últimas 10 mensagens da conversa atual.
+        // 1. Recupera o histórico da conversa antes de adicionar a nova mensagem.
         $history = ChatMessage::query()
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get()
-            ->reverse(); // Revertemos para manter a ordem cronológica
+            ->reverse();
 
+        // 2. Salva a nova pergunta do usuário no banco de dados.
         ChatMessage::create([
             'user_id' => $userId,
             'role' => 'user',
             'content' => $userPrompt,
         ]);
 
-        $messages = $this->buildMessagesPayload($history, $userPrompt);
+        // 3. RAG: Detecta a intenção e busca o contexto necessário.
+        $intent = $this->getIntent($userPrompt);
+        $context = $this->getContextForIntent($intent);
 
+        // 4. Constrói o payload de mensagens para a IA, incluindo histórico e contexto RAG.
+        $messages = $this->buildMessagesPayload($history, $userPrompt, $context);
+
+        // 5. Envia para a IA.
         $marvinResponse = $this->ollamaService->chat($messages);
 
+        // 6. Salva a resposta da IA no banco de dados.
         ChatMessage::create([
             'user_id' => $userId,
             'role' => 'assistant',
@@ -54,11 +61,12 @@ class MarvinService implements IMarvinService
     /**
      * Constrói o array de mensagens para enviar à API do Ollama.
      *
-     * @param Collection $history
-     * @param string $userPrompt
+     * @param Collection $history Histórico de mensagens.
+     * @param string $userPrompt Pergunta atual do usuário.
+     * @param string|null $context Contexto obtido via RAG.
      * @return array
      */
-    private function buildMessagesPayload(Collection $history, string $userPrompt): array
+    private function buildMessagesPayload(Collection $history, string $userPrompt, ?string $context): array
     {
         $messages = [];
 
@@ -70,32 +78,32 @@ class MarvinService implements IMarvinService
             $messages[] = ['role' => $message->role, 'content' => $message->content];
         }
 
-        // Adiciona a nova pergunta do utilizador ao final do payload.
-        // É a forma mais limpa de garantir que o contexto mais recente está incluído.
+        // Adiciona o contexto RAG como uma mensagem de sistema separada, se existir.
+        if ($context) {
+            $messages[] = ['role' => 'system', 'content' => "Contexto para responder à pergunta a seguir: {$context}"];
+        }
+
+        // Adiciona a nova pergunta do usuário ao final do payload.
         $messages[] = ['role' => 'user', 'content' => $userPrompt];
 
         return $messages;
     }
 
     /**
-     * Orquestra a resposta para o usuário, começando pela classificação de intenção.
+     * Busca o contexto relevante com base na intenção classificada.
+     *
+     * @param string $intent A intenção do usuário.
+     * @return string|null O contexto encontrado ou null.
      */
-    public function ask(string $userPrompt): string
+    private function getContextForIntent(string $intent): ?string
     {
-        // PASSO 1: Descobrir a intenção do usuário
-        $intent = $this->getIntent($userPrompt);
-
-        // PASSO 2: Agir com base na intenção
         switch ($intent) {
             case 'get_user_count':
-                // Se a intenção é contar usuários, executamos a lógica RAG
                 $userCount = DB::table('users')->count();
-                $finalPrompt = "Contexto: O número exato de usuários cadastrados no sistema é {$userCount}. Pergunta do usuário: \"{$userPrompt}\". Por favor, responda à pergunta do usuário usando o contexto fornecido.";
-                return $this->ollamaService->generate($finalPrompt);
-
+                return "O número exato de usuários cadastrados no sistema é {$userCount}.";
             default:
-                // Para qualquer outra intenção, apenas conversamos
-                return $this->ollamaService->generate($userPrompt);
+                // Se a intenção for 'general_chat' ou outra não mapeada, não há contexto para buscar.
+                return null;
         }
     }
 
@@ -107,42 +115,31 @@ class MarvinService implements IMarvinService
      */
     private function getIntent(string $userPrompt): string
     {
-        // Definimos as possíveis intenções que a IA pode escolher
         $possibleIntents = [
             'get_user_count', // Para perguntas sobre o número de usuários
             'general_chat',   // Para todas as outras conversas
         ];
 
-        // Um prompt de sistema focado APENAS em classificação
-        $systemPromptForIntent = "
-            Sua única tarefa é classificar a intenção do usuário em uma das seguintes categorias: "
+        $systemPromptForIntent = "Sua única tarefa é classificar a intenção do usuário em uma das seguintes categorias: "
             . implode(', ', $possibleIntents) .
-            ". Responda APENAS com o nome da categoria e nada mais.
+            ". Responda APENAS com o nome da categoria e nada mais.\n\n"
+            . "Exemplos:\n"
+            . "- Se o usuário perguntar 'quantos usuários temos?', responda 'get_user_count'.\n"
+            . "- Se o usuário perguntar 'qual o número de pessoas cadastradas?', responda 'get_user_count'.\n"
+            . "- Se o usuário perguntar 'olá, tudo bem?', responda 'general_chat'.";
 
-            Exemplos:
-            - Se o usuário perguntar 'quantos usuários temos?', responda 'get_user_count'.
-            - Se o usuário perguntar 'qual o número de pessoas cadastradas?', responda 'get_user_count'.
-            - Se o usuário perguntar 'olá, tudo bem?', responda 'general_chat'.
-        ";
-
-        // Usamos o OllamaService, mas com um "system prompt" temporário para esta tarefa.
-        // O `generate` do OllamaService precisa ser um pouco mais flexível.
-        // (Veja a alteração no OllamaService abaixo)
         $intent = $this->ollamaService->generate(
             prompt: $userPrompt,
             systemPromptOverride: $systemPromptForIntent,
-            options: ['temperature' => 0] // Temperatura 0 para ser preciso na classificação
+            options: ['temperature' => 0]
         );
 
-        // Limpa a resposta para garantir que temos apenas a intenção
         $cleanedIntent = trim($intent);
 
-        // Se a IA responder com algo que não é uma intenção válida, assumimos 'general_chat'
         if (!in_array($cleanedIntent, $possibleIntents)) {
             return 'general_chat';
         }
 
         return $cleanedIntent;
     }
-
 }

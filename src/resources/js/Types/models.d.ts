@@ -1,5 +1,22 @@
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
 
+export type AuthUser = {
+    id: string;
+    fullname: string;
+    username: string;
+    email: string;
+    avatar_url: string | null;
+};
+
+export interface ChatMessage {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    user_id: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface Comment {
     id: number;
     text: string;
@@ -41,7 +58,7 @@ export interface MemoriesIndexProps {
 }
 
 export type User = {
-    id: number;
+    id: string;
     fullname: string;
     username: string;
     email: string;
@@ -58,12 +75,43 @@ export type PageProps = InertiaPageProps & {
     flash?: {
         success?: string;
         error?: string;
-        marvinResponse?: string;
-        marvinError?: string;
     }
 };
 
-// Mantém a declaração de módulo para o Inertia
 declare module '@inertiajs/core' {
-  interface PageProps extends PageProps {}
+  export interface PageProps extends InertiaPageProps {
+    auth: {
+      user: AuthUser;
+    };
+    flash?: {
+      success?: string;
+      error?: string;
+    };
+    // Adicione aqui outras props que são compartilhadas em TODAS as páginas
+  }
+}
+
+export interface PaginatedResponse<T> {
+    data: T[];
+    links: {
+        first: string;
+        last: string;
+        prev: string | null;
+        next: string | null;
+    };
+    meta: {
+        current_page: number;
+        from: number;
+        last_page: number;
+        links: {
+            url: string | null;
+            label: string;
+            active: boolean;
+        }[];
+        path: string;
+        per_page: number;
+        to: number;
+        total: number;
+        next_page_url?: string | null; // Adicione esta propriedade opcional
+    };
 }
