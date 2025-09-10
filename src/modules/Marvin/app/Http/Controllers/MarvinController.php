@@ -7,11 +7,13 @@ use Auth;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\CursorPaginator;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
+use Inertia\Response;
 use Modules\Marvin\DTOs\ChatMessageData;
 use Modules\Marvin\Models\ChatMessage;
 use Modules\Marvin\Services\MarvinService;
+use Modules\Marvin\Services\OllamaService;
 use Modules\Marvin\ViewModels\ConversationTurnViewModel;
 
 class MarvinController extends Controller
@@ -90,5 +92,26 @@ class MarvinController extends Controller
         // Apenas redireciona de volta. O Inertia vai recarregar as props
         // e obter o histórico de mensagens atualizado, mostrando a pergunta e a resposta.
         return redirect()->route('marvin.index');
+    }
+
+    /**
+     * Busca as últimas 6 mensagens para o modal de chat.
+     */
+    public function messages(OllamaService $ollamaService): Response
+    {
+        $messages = ChatMessage::query()
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->limit(6)
+            ->get()
+            ->map(fn (ChatMessage $message) => ChatMessageData::from($message));
+
+        $status = Cache::get('ollama_service_status', fn () => $ollamaService->isOnline() ? 'online' : 'offline');
+
+        return Inertia::render('Auth/Lukisa/Index', [
+            'marvinMessages' => $messages->reverse()->values(),
+            'ollamaStatus' => $status,
+        ]);
     }
 }

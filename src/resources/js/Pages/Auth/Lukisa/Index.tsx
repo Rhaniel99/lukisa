@@ -1,27 +1,44 @@
-import React, { useEffect } from "react";
-import { Link, Head, usePage } from "@inertiajs/react";
+import React, { useState, useEffect } from "react";
+import { Link, Head, usePage, router } from "@inertiajs/react";
 import { PageProps } from "@/Types/models";
 import { Card, CardContent } from "@/Components/ui/card";
 import { HardDrive, Map, Bot } from "lucide-react";
+import Chatbot from "@/Pages/Auth/Marvin/Components/Chatbot";
+import { ChatMessage } from "@/Pages/Auth/Marvin/Types/models";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Index: React.FC = () => {
     const { auth } = usePage<PageProps>().props;
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    const [ollamaStatus, setOllamaStatus] = useState('online'); // Default to online
 
-    // useEffect(() => {
-    //     // Escuta no canal 'canal-de-teste' pelo evento '.evento.teste'
-    //     const channel = window.Echo.channel("canal-de-teste");
+    useEffect(() => {
+        const channel = window.Echo.channel("marvin-status");
 
-    //     channel.listen(".evento.teste", (data: { message: string }) => {
-    //         console.log("Evento recebido do Reverb:", data);
-    //         alert(data.message);
-    //     });
+        channel.listen(".Modules\Marvin\Events\OllamaStatusUpdated", (data: { status: string }) => {
+            console.log("Ollama status updated:", data.status);
+            setOllamaStatus(data.status);
+        });
 
-    //     // Função de limpeza: para de escutar quando o componente é desmontado
-    //     return () => {
-    //         channel.stopListening(".evento.teste");
-    //         window.Echo.leave("canal-de-teste");
-    //     };
-    // }, []); // O array vazio garante que o efeito rode apenas uma vez
+        return () => {
+            channel.stopListening(".Modules\Marvin\Events\OllamaStatusUpdated");
+            window.Echo.leave("marvin-status");
+        };
+    }, []);
+
+    const handleOpenChat = () => {
+        router.get(route('marvin.messages'), {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: (page) => {
+                const props = page.props as any;
+                setChatMessages(props.marvinMessages as ChatMessage[]);
+                setOllamaStatus(props.ollamaStatus as string);
+                setIsChatOpen(true);
+            },
+        });
+    };
 
     return (
         <>
@@ -135,7 +152,7 @@ const Index: React.FC = () => {
                         </Card>
 
                         {/* Marvin Card */}
-                        <Link href={route("marvin.index")}>
+                        <div onClick={handleOpenChat}>
                             <Card
                                 className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group h-64 relative"
                                 style={{ backgroundColor: "#BFBAA8" }}
@@ -177,10 +194,28 @@ const Index: React.FC = () => {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </Link>
+                        </div>
                     </div>
                 </div>
             </main>
+
+            <AnimatePresence>
+                {isChatOpen && (
+                    <motion.div
+                        className="fixed bottom-4 right-4 z-50"
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 100 }}
+                        transition={{ ease: "easeInOut", duration: 0.3 }}
+                    >
+                        <Chatbot
+                            messages={chatMessages}
+                            onClose={() => setIsChatOpen(false)}
+                            status={ollamaStatus}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 };

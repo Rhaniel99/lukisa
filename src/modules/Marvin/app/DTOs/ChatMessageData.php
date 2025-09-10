@@ -14,7 +14,7 @@ class ChatMessageData extends Data
   public function __construct(
         public readonly string $id,
         public readonly string $content,
-        public readonly string $sender,
+        public readonly string $role,
         public readonly Carbon $created_at,
     ) {
     }
@@ -24,7 +24,7 @@ class ChatMessageData extends Data
         return new self(
             id: $message->id,
             content: $message->content,
-            sender: $message->role,
+            role: $message->role,
             created_at: $message->created_at,
         );
     }

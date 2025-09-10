@@ -110,6 +110,16 @@ services:
     devices:
       - /dev/dri:/dev/dri
 
+  scheduler:
+    <<: *php-common
+    container_name: scheduler_lukisa
+    depends_on:
+      - redis
+    volumes:
+      - ./src:/var/www/html:z
+      - .env:/var/www/html/.env
+    command: php artisan schedule:work
+
   node:
     build:
       context: ./docker/node

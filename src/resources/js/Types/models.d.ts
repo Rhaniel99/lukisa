@@ -8,15 +8,6 @@ export type AuthUser = {
     avatar_url: string | null;
 };
 
-export interface ChatMessage {
-    id: string;
-    role: 'user' | 'assistant';
-    content: string;
-    user_id: string;
-    created_at: string;
-    updated_at: string;
-}
-
 export interface Comment {
     id: number;
     text: string;

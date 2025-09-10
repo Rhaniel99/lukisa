@@ -72,4 +72,24 @@ class OllamaService implements IOllamaService
         // A resposta do endpoint /api/chat vem dentro de 'message' -> 'content'
         return $response->json()['message']['content'];
     }
+
+    /**
+     * Verifica se o serviço Ollama está online e respondendo.
+     *
+     * @return bool
+     */
+    public function isOnline(): bool
+    {
+        try {
+            // Faz uma requisição leve para a raiz da API.
+            // O timeout é curto para não prender o sistema.
+            $response = Http::timeout(3)->get($this->url);
+
+            // Consideramos online se a resposta for bem-sucedida (status 2xx).
+            return $response->successful();
+        } catch (ConnectionException $e) {
+            // Se a conexão falhar, o serviço está offline.
+            return false;
+        }
+    }
 }

@@ -79,109 +79,99 @@ return [
     'paths' => [
         /*
         |--------------------------------------------------------------------------
-        | Modules path
+        | Caminho dos Módulos
         |--------------------------------------------------------------------------
-        |
-        | This path is used to save the generated module.
-        | This path will also be added automatically to the list of scanned folders.
-        |
+        | Onde os módulos serão salvos.
         */
         'modules' => base_path('modules'),
 
         /*
         |--------------------------------------------------------------------------
-        | Modules assets path
+        | Caminho dos Assets dos Módulos
         |--------------------------------------------------------------------------
-        |
-        | Here you may update the modules' assets path.
-        |
+        | Onde os assets publicados dos módulos ficarão.
         */
         'assets' => public_path('modules'),
 
         /*
         |--------------------------------------------------------------------------
-        | The migrations' path
+        | Caminho das Migrations
         |--------------------------------------------------------------------------
-        |
-        | Where you run the 'module:publish-migration' command, where do you publish the
-        | the migration files?
-        |
+        | Para onde as migrations são publicadas.
         */
         'migration' => base_path('database/migrations'),
 
         /*
         |--------------------------------------------------------------------------
-        | The app path
+        | Nome da pasta da aplicação
         |--------------------------------------------------------------------------
-        |
-        | app folder name
-        | for example can change it to 'src' or 'App'
+        | O nome da pasta principal da lógica do módulo, geralmente 'app'.
         */
-        'app_folder' => 'app/',
+        'app_folder' => 'app',
 
         /*
         |--------------------------------------------------------------------------
-        | Generator path
+        | Caminhos do Gerador (Generator)
         |--------------------------------------------------------------------------
-        | Customise the paths where the folders will be generated.
-        | Setting the generate key to false will not generate that folder
+        | Defina os caminhos para a geração de arquivos.
+        | 'generate' => false desabilita a criação da pasta na geração do módulo.
         */
         'generator' => [
-            // app/
-            'actions' => ['path' => 'app/Actions', 'generate' => false],
-            'casts' => ['path' => 'app/Casts', 'generate' => false],
-            'channels' => ['path' => 'app/Broadcasting', 'generate' => false],
-            'class' => ['path' => 'app/Classes', 'generate' => false],
-            'command' => ['path' => 'app/Console', 'generate' => false],
-            'component-class' => ['path' => 'app/View/Components', 'generate' => false],
-            'emails' => ['path' => 'app/Emails', 'generate' => false],
-            'event' => ['path' => 'app/Events', 'generate' => false],
-            'enums' => ['path' => 'app/Enums', 'generate' => false],
-            'exceptions' => ['path' => 'app/Exceptions', 'generate' => false],
-            'jobs' => ['path' => 'app/Jobs', 'generate' => false],
-            'helpers' => ['path' => 'app/Helpers', 'generate' => false],
-            'interfaces' => ['path' => 'app/Interfaces', 'generate' => true], // ? Ok
-            'listener' => ['path' => 'app/Listeners', 'generate' => false],
-            'model' => ['path' => 'app/Models', 'generate' => true], // ? Ok
-            'notifications' => ['path' => 'app/Notifications', 'generate' => false],
-            'observer' => ['path' => 'app/Observers', 'generate' => false],
-            'policies' => ['path' => 'app/Policies', 'generate' => false],
-            'provider' => ['path' => 'app/Providers', 'generate' => true],
-            'repository' => ['path' => 'app/Repositories', 'generate' => true], // ? Ok
-            'resource' => ['path' => 'app/Transformers', 'generate' => false],
-            'route-provider' => ['path' => 'app/Providers', 'generate' => true],
-            'rules' => ['path' => 'app/Rules', 'generate' => false],
-            'services' => ['path' => 'app/Services', 'generate' => true], // ? Ok
-            'scopes' => ['path' => 'app/Models/Scopes', 'generate' => false],
-            'traits' => ['path' => 'app/Traits', 'generate' => false],
-            // extra
+            // Estrutura principal do 'app'
+            'actions' => ['path' => 'app/Actions', 'generate' => true],
+            'casts' => ['path' => 'app/Casts', 'generate' => true],
+            'channels' => ['path' => 'app/Broadcasting', 'generate' => true],
+            'command' => ['path' => 'app/Console/Commands', 'generate' => true],
+            'component-class' => ['path' => 'app/View/Components', 'generate' => true],
             'dtos' => ['path' => 'app/DTOs', 'generate' => true],
+            'emails' => ['path' => 'app/Mail', 'generate' => true],
+            'enums' => ['path' => 'app/Enums', 'generate' => true],
+            'event' => ['path' => 'app/Events', 'generate' => true],
+            'exceptions' => ['path' => 'app/Exceptions', 'generate' => true],
+            'jobs' => ['path' => 'app/Jobs', 'generate' => true],
+            'helpers' => ['path' => 'app/Helpers', 'generate' => false], // Geralmente Helpers são globais
+            'interfaces' => ['path' => 'app/Interfaces', 'generate' => true],
+            'listener' => ['path' => 'app/Listeners', 'generate' => true],
+            'model' => ['path' => 'app/Models', 'generate' => true],
+            'notifications' => ['path' => 'app/Notifications', 'generate' => true],
+            'observer' => ['path' => 'app/Observers', 'generate' => true],
+            'policies' => ['path' => 'app/Policies', 'generate' => true],
+            'provider' => ['path' => 'app/Providers', 'generate' => true],
+            'repository' => ['path' => 'app/Repositories', 'generate' => true],
+            'rules' => ['path' => 'app/Rules', 'generate' => true],
+            'scopes' => ['path' => 'app/Models/Scopes', 'generate' => true],
+            'services' => ['path' => 'app/Services', 'generate' => true],
+            'support' => ['path' => 'app/Support', 'generate' => true],
+            'traits' => ['path' => 'app/Traits', 'generate' => true],
 
-            // app/Http/
+            // Estrutura de 'app/Http'
             'controller' => ['path' => 'app/Http/Controllers', 'generate' => true],
-            'filter' => ['path' => 'app/Http/Middleware', 'generate' => false],
-            'request' => ['path' => 'app/Http/Requests', 'generate' => true], // ? Ok
+            'middleware' => ['path' => 'app/Http/Middleware', 'generate' => true],
+            'request' => ['path' => 'app/Http/Requests', 'generate' => true],
+            'resource' => ['path' => 'app/Http/Resources', 'generate' => true],
 
-            // config/
+            // Estrutura de 'config'
             'config' => ['path' => 'config', 'generate' => true],
 
-            // database/
+            // Estrutura de 'database'
             'factory' => ['path' => 'database/factories', 'generate' => true],
             'migration' => ['path' => 'database/migrations', 'generate' => true],
             'seeder' => ['path' => 'database/seeders', 'generate' => true],
 
-            // lang/
-            'lang' => ['path' => 'lang', 'generate' => false],
-
-            // resource/
-            'assets' => ['path' => 'resources/assets', 'generate' => false],
+            // Estrutura de 'resources' (essencial para Inertia)
+            'assets' => ['path' => 'resources/assets', 'generate' => false], // Obsoleto, use 'js'/'css'
+            'js' => ['path' => 'resources/js', 'generate' => true],
+            'css' => ['path' => 'resources/css', 'generate' => false],
+            'page' => ['path' => 'resources/js/Pages', 'generate' => true], // Para páginas Inertia
             'component-view' => ['path' => 'resources/views/components', 'generate' => false],
-            'views' => ['path' => 'resources/views', 'generate' => false],
+            'views' => ['path' => 'resources/views', 'generate' => true],
 
-            // routes/
+            // Estrutura de 'routes'
             'routes' => ['path' => 'routes', 'generate' => true],
+            'route-provider' => ['path' => 'app/Providers', 'generate' => true],
 
-            // tests/
+            // Estrutura de 'lang' e 'tests'
+            'lang' => ['path' => 'lang', 'generate' => false],
             'test-feature' => ['path' => 'tests/Feature', 'generate' => true],
             'test-unit' => ['path' => 'tests/Unit', 'generate' => true],
         ],
