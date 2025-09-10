@@ -3,6 +3,9 @@ import "./bootstrap";
 import './echo';
 import "leaflet/dist/leaflet.css";
 import { createInertiaApp } from "@inertiajs/react";
+import { setupLeafletIcons } from "./config/leaflet";
+
+setupLeafletIcons();
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createRoot } from "react-dom/client";
 import GuestLayout from "@/Layouts/GuestLayout";
