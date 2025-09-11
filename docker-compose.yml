@@ -47,6 +47,7 @@ services:
       - reverb
       - redis
       - horizon
+      - scheduler
     networks:
       - laravel
       - shared_network
