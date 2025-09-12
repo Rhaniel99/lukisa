@@ -11,7 +11,7 @@ import { useMarvinChat } from "@/Pages/Auth/Lukisa/Hooks/useMarvinChat";
 
 const Index: React.FC = () => {
     const { auth } = usePage<PageProps>().props;
-    const { isChatOpen, chatMessages, ollamaStatus, openChat, closeChat } = useMarvinChat();
+    const { isChatOpen, chatMessages, ollamaStatus, openChat, closeChat, sendMessage } = useMarvinChat();
 
     return (
         <>
@@ -42,6 +42,7 @@ const Index: React.FC = () => {
                             messages={chatMessages}
                             onClose={closeChat}
                             status={ollamaStatus}
+                            onSendMessage={sendMessage}
                         />
                     </motion.div>
                 )}

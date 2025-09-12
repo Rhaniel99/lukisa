@@ -1,9 +1,19 @@
-import React from "react";
-import { X } from "lucide-react";
+import React, { useState } from 'react';
+import { X } from 'lucide-react';
 import { ChatbotProps } from "@/Pages/Auth/Marvin/Types/models";
 import clsx from "clsx";
+import ThinkingIndicator from './ThinkingIndicator';
 
-const Chatbot: React.FC<ChatbotProps> = ({ onClose, messages = [], status }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ onClose, messages = [], status, onSendMessage }) => {
+    const [prompt, setPrompt] = useState('');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!prompt.trim()) return;
+        onSendMessage(prompt);
+        setPrompt('');
+    };
+
     return (
         <div className="max-w-md mx-auto bg-white dark:bg-zinc-800 shadow-md rounded-lg overflow-hidden">
             <div className="flex flex-col h-[500px] w-[350px]">
@@ -35,36 +45,45 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, messages = [], status }) => 
                     className="flex-1 p-3 overflow-y-auto flex flex-col space-y-2"
                     id="chatDisplay"
                 >
-                    {messages.map((message) => (
-                        <div
-                            key={message.id}
-                            className={`chat-message max-w-xs rounded-lg px-3 py-1.5 text-sm ${
-                                message.role === "user"
-                                    ? "self-end bg-blue-500 text-white"
-                                    : "self-start bg-zinc-500 text-white"
-                            }`}
-                        >
-                            {message.content}
-                        </div>
-                    ))}
+                    {messages.map((message) => {
+                        if (message.role === 'assistant-thinking') {
+                            return (
+                                <div key={message.id} className="chat-message self-start">
+                                    <ThinkingIndicator />
+                                </div>
+                            );
+                        }
+                        return (
+                            <div
+                                key={message.id}
+                                className={`chat-message max-w-xs rounded-lg px-3 py-1.5 text-sm ${
+                                    message.role === "user"
+                                        ? "self-end bg-blue-500 text-white"
+                                        : "self-start bg-zinc-500 text-white"
+                                }`}
+                            >
+                                {message.content}
+                            </div>
+                        );
+                    })}
                 </div>
 
-                <div className="px-3 py-2 border-t dark:border-zinc-700">
+                <form onSubmit={handleSubmit} className="px-3 py-2 border-t dark:border-zinc-700">
                     <div className="flex gap-2">
                         <input
                             placeholder="Digite sua mensagem..."
                             className="flex-1 p-2 border rounded-lg dark:bg-zinc-700 dark:text-white dark:border-zinc-600 text-sm"
-                            id="chatInput"
-                            type="text"
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
                         />
                         <button
+                            type="submit"
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1.5 px-3 rounded-lg transition duration-300 ease-in-out text-sm"
-                            id="sendButton"
                         >
                             Enviar
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     );

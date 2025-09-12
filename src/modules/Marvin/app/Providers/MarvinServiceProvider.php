@@ -50,6 +50,7 @@ class MarvinServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(BroadcastServiceProvider::class);
 
         $this->app->bind(
             IMarvinService::class,
@@ -85,7 +86,7 @@ class MarvinServiceProvider extends ServiceProvider
     {
         $this->app->booted(function () {
             $schedule = $this->app->make(\Illuminate\Console\Scheduling\Schedule::class);
-            $schedule->command('marvin:check-status')->everyMinute();
+            $schedule->command('marvin:check-status')->everyTenSeconds()->appendOutputTo(storage_path('logs/schedule.log'));
         });
     }
 

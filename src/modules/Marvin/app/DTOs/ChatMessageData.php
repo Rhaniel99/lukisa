@@ -4,6 +4,7 @@ namespace Modules\Marvin\DTOs;
 
 use Carbon\Carbon;
 use Modules\Marvin\Models\ChatMessage;
+use Spatie\LaravelData\Concerns\WireableData;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
@@ -11,6 +12,8 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 #[MapName(SnakeCaseMapper::class)]
 class ChatMessageData extends Data
 {
+    use WireableData;
+
   public function __construct(
         public readonly string $id,
         public readonly string $content,

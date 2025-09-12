@@ -1,6 +1,6 @@
 export interface ChatMessage {
     id: string;
-    role: 'user' | 'assistant';
+    role: 'user' | 'assistant' | 'assistant-thinking';
     content: string;
     user_id: string;
     created_at: string;
@@ -11,4 +11,5 @@ export interface ChatbotProps {
     onClose: () => void;
     messages: ChatMessage[];
     status: 'online' | 'offline' | string;
+    onSendMessage: (prompt: string) => void;
 }

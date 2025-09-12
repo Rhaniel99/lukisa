@@ -4,6 +4,8 @@ namespace Modules\Marvin\Services;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Modules\Marvin\DTOs\ChatMessageData;
 use Modules\Marvin\Interfaces\Services\IMarvinService;
 use Modules\Marvin\Models\ChatMessage;
 use Modules\Marvin\Services\OllamaService;
@@ -19,9 +21,9 @@ class MarvinService implements IMarvinService
      *
      * @param string $userPrompt A nova pergunta do usuário.
      * @param string $userId O ID do usuário da conversa.
-     * @return string A resposta final da IA.
+     * @return ChatMessageData O DTO da mensagem de resposta da IA.
      */
-    public function ask(string $userPrompt, string $userId): string
+    public function ask(string $userPrompt, string $userId): ChatMessageData
     {
         // 1. Recupera o histórico da conversa antes de adicionar a nova mensagem.
         $history = ChatMessage::query()
@@ -31,16 +33,12 @@ class MarvinService implements IMarvinService
             ->get()
             ->reverse();
 
-        // 2. Salva a nova pergunta do usuário no banco de dados.
-        ChatMessage::create([
-            'user_id' => $userId,
-            'role' => 'user',
-            'content' => $userPrompt,
-        ]);
-
-        // 3. RAG: Detecta a intenção e busca o contexto necessário.
+        // 2. RAG: Detecta a intenção e busca o contexto necessário.
         $intent = $this->getIntent($userPrompt);
+        Log::info('MarvinService: Intent detected', ['intent' => $intent]);
+
         $context = $this->getContextForIntent($intent);
+        Log::info('MarvinService: Context generated', ['context' => $context]);
 
         // 4. Constrói o payload de mensagens para a IA, incluindo histórico e contexto RAG.
         $messages = $this->buildMessagesPayload($history, $userPrompt, $context);
@@ -49,13 +47,14 @@ class MarvinService implements IMarvinService
         $marvinResponse = $this->ollamaService->chat($messages);
 
         // 6. Salva a resposta da IA no banco de dados.
-        ChatMessage::create([
+        $assistantMessage = ChatMessage::create([
             'user_id' => $userId,
             'role' => 'assistant',
             'content' => $marvinResponse,
         ]);
 
-        return $marvinResponse;
+        // 7. Retorna o DTO da mensagem criada.
+        return ChatMessageData::from($assistantMessage);
     }
 
     /**
