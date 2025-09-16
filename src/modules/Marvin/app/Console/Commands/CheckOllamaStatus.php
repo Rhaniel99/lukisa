@@ -42,7 +42,9 @@ class CheckOllamaStatus extends Command
             $this->info("Status do Ollama mudou de {$previousStatus} para {$currentStatus}. Disparando evento...");
 
             // Dispara o evento para ser transmitido pelo Reverb (será criado a seguir)
-            OllamaStatusUpdated::dispatch($currentStatus);
+            // TODO: Iterar sobre todos os usuários online ou relevantes.
+            // Por enquanto, vamos usar um ID de usuário fixo para teste.
+            OllamaStatusUpdated::dispatch($currentStatus, '0198c39d-ec33-7369-bb5d-3e0260c57958');
 
             // Armazena o novo status no cache
             Cache::put(self::CACHE_KEY, $currentStatus);

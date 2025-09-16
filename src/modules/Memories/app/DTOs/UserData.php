@@ -23,12 +23,21 @@ class UserData extends Data
 
     public static function fromModel(User $user): self
     {
+        // 1. Primeiro, pegamos o objeto de mídia (o "crachá")
+        // $avatarMedia = $user->getFirstMedia('avatars');
+
+        // // 2. Verificamos se o crachá existe. Se sim, geramos a URL a partir DELE.
+        // $temporaryAvatarUrl = $avatarMedia
+        //     ? $avatarMedia->getTemporaryUrl(now()->addMinutes(5), 'thumb')
+        //     : null;
+
+        // dd($temporaryAvatarUrl);
         return new self(
             id: $user->id,
             username: $user->username,
             fullname: $user->name,
             email: $user->email,
-            avatarUrl: $user->getFirstMediaUrl('avatars', 'thumb'),
+            avatarUrl: null,
             // avatarUrl: $user->avatar_url,
             birthDate: $user->birth_date
         );

@@ -43,11 +43,12 @@ services:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
     depends_on:
-      - php
-      - reverb
-      - redis
-      - horizon
-      - scheduler
+      php:
+        condition: service_started
+      reverb:
+        condition: service_started
+      redis:
+        condition: service_healthy
     networks:
       - laravel
       - shared_network
@@ -56,7 +57,8 @@ services:
     <<: *php-common # Herda a configuração comum
     container_name: php_lukisa
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     ports:
       - "9000:9000"
     volumes:
@@ -70,6 +72,9 @@ services:
     <<: *php-common
     container_name: artisan_lukisa
     profiles: ["artisan"]
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
@@ -95,15 +100,18 @@ services:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
     depends_on:
-      - php
-      - redis
+      php:
+        condition: service_started
+      redis:
+        condition: service_healthy
     command: php artisan reverb:start --host=0.0.0.0 --port=8080
 
   horizon:
     <<: *php-common
     container_name: horizon_lukisa
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     volumes:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
@@ -115,7 +123,8 @@ services:
     <<: *php-common
     container_name: scheduler_lukisa
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     volumes:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
@@ -154,6 +163,11 @@ services:
     networks:
       - laravel
       - shared_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   redis_data:

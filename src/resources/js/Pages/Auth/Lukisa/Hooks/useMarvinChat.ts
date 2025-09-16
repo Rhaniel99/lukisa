@@ -11,35 +11,36 @@ export function useMarvinChat() {
         typeof initialOllamaStatus === 'string' ? initialOllamaStatus : 'online'
     );
 
-    // Listener para o status global do Ollama
-    useEffect(() => {
-        const channel = window.Echo.channel("marvin-status");
-        channel.listen(".Modules\Marvin\Events\OllamaStatusUpdated", (data: { status: string }) => {
-            setOllamaStatus(data.status);
-        });
-
-        return () => {
-            channel.stopListening(".Modules\Marvin\Events\OllamaStatusUpdated");
-            window.Echo.leave("marvin-status");
-        };
-    }, []);
-
-    // Listener para novas mensagens do Marvin para o usuário atual
+    // Listener para todos os eventos do Marvin no canal privado do usuário
     useEffect(() => {
         if (!auth.user) return;
 
+        console.log(`Subscribing to private channel: marvin.user.${auth.user.id}`)
         const privateChannel = window.Echo.private(`marvin.user.${auth.user.id}`);
-        privateChannel.listen('.marvin.new-message', (data: { message: ChatMessage }) => {
-            setChatMessages(currentMessages => {
-                // Remove o placeholder "thinking"
-                const filteredMessages = currentMessages.filter(m => m.role !== 'assistant-thinking');
-                // Adiciona a nova mensagem real
-                return [...filteredMessages, data.message];
+
+        privateChannel
+            .on('subscription_succeeded', () => {
+                console.log('Successfully subscribed to private channel!');
+            })
+            .on('subscription_error', (error: any) => {
+                console.error('Private channel subscription failed:', error);
+            })
+            .listen('.marvin.new-message', (data: { message: ChatMessage }) => {
+                console.log('%c[REVERB] Received marvin.new-message:', 'color: #007ACC; font-weight: bold;', data);
+                setChatMessages(currentMessages => {
+                    const filteredMessages = currentMessages.filter(m => m.role !== 'assistant-thinking');
+                    return [...filteredMessages, data.message];
+                });
+            })
+            .listen('.marvin.status-updated', (data: { status: string }) => {
+                console.log('%c[REVERB] Received marvin.status-updated:', 'color: #881391; font-weight: bold;', data);
+                setOllamaStatus(data.status);
             });
-        });
 
         return () => {
-            privateChannel.stopListening('.Modules\Marvin\Events\NewMarvinMessageReceived');
+            console.log('Leaving private channel');
+            privateChannel.stopListening('.marvin.new-message');
+            privateChannel.stopListening('.marvin.status-updated');
             window.Echo.leave(`marvin.user.${auth.user.id}`);
         };
     }, [auth.user]);

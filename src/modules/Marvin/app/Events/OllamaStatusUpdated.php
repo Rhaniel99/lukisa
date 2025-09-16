@@ -2,41 +2,45 @@
 
 namespace Modules\Marvin\Events;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast; // Mude para ShouldBroadcastNow se preferir não usar a fila para este evento
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OllamaStatusUpdated implements ShouldBroadcastNow
+class OllamaStatusUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    /**
-     * O status atual do serviço Ollama ('online' ou 'offline').
-     *
-     * @var string
-     */
-    public $status;
 
     /**
      * Create a new event instance.
      *
      * @param string $status
+     * @param string $userId
      */
-    public function __construct(string $status)
+    public function __construct(public string $status, private string $userId)
     {
-        $this->status = $status;
     }
 
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
-        // Este será um canal público, pois o status não é informação sensível.
-        return new Channel('marvin-status');
+        return [
+            new PrivateChannel('marvin.user.'.$this->userId),
+        ];
+    }
+
+    /**
+     * The name of the event to broadcast.
+     *
+     * @return string
+     */
+    public function broadcastAs(): string 
+    {
+        return 'marvin.status-updated';
     }
 }

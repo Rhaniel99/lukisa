@@ -17,3 +17,7 @@ Broadcast::channel('marvin.user.{userId}', function ($user, $userId) {
     // Ensures that a user can only listen to their own channel.
     return (int) $user->id === (int) $userId;
 });
+
+Broadcast::channel('marvin-status', function ($user) {
+    return $user !== null;
+});
