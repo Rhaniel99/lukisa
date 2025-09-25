@@ -39,7 +39,9 @@ class MemoriesController extends Controller
 
     public function destroy(Memorie $memory)
     {
-        if ($memory->user_id !== auth()->id()) { abort(403); }
+        if ($memory->user_id !== auth()->id()) {
+            abort(403);
+        }
 
         $memory->delete();
 
@@ -51,13 +53,12 @@ class MemoriesController extends Controller
     public function show(Memorie $memory)
     {
         // Carrega as relações necessárias que talvez não estivessem na carga inicial
-        // Carrega as relações necessárias
         $memory->load(['user', 'comments.user']);
 
-   return Inertia::render('Auth/Memories/Index', [
-        // aqui você devolve explicitamente o que o front precisa
-        'selectedMemoryDetails' => MemoryDataResponse::from($memory),
-    ]);
+        return Inertia::render('Auth/Memories/Index', [
+            // aqui você devolve explicitamente o que o front precisa
+            'selectedMemoryDetails' => MemoryDataResponse::from($memory),
+        ]);
     }
     /**
      * Show the form for editing the specified resource.

@@ -43,7 +43,8 @@ class MemoryDataResponse extends Data
             likes: $memory->likes_count ?? 0,
             commentsCount: $memory->comments_count ?? 0,
             liked: $memory->isLikedBy(auth()->user()),
-            image: $memory->getFirstMediaUrl('memories_media'),
+            image: $memory->getFirstMedia('memories_media')
+                      ?->getTemporaryUrl(now()->addMinutes(5)),
             author: UserData::fromModel($memory->user),
             is_owner: $memory->user_id === auth()->id(),
             comments: new DataCollection(CommentData::class, $comments->items()),

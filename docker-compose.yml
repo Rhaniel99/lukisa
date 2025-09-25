@@ -1,5 +1,7 @@
 networks:
-  shared_network:
+  shared_net:
+    name: shared_network
+    driver: bridge
     external: true
   laravel:
     driver: bridge
@@ -23,7 +25,7 @@ x-php-common: &php-common
   working_dir: /var/www/html
   networks:
     - laravel
-    - shared_network
+    - shared_net
   restart: always
 
 services:
@@ -38,7 +40,7 @@ services:
     restart: always
     container_name: nginx_lukisa
     ports:
-      - "8000:8000"
+      - "8585:8000"
     volumes:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
@@ -51,7 +53,6 @@ services:
         condition: service_healthy
     networks:
       - laravel
-      - shared_network
 
   php:
     <<: *php-common # Herda a configuração comum
@@ -59,8 +60,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    ports:
-      - "9000:9000"
     volumes:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
@@ -147,14 +146,11 @@ services:
     profiles: ["node"]
     networks:
       - laravel
-      - shared_network
 
   redis:
     image: redis:7.2-alpine
     container_name: redis_lukisa
     restart: unless-stopped
-    ports:
-      - "6378:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD}
     sysctls:
       - net.core.somaxconn=1024
@@ -162,7 +158,7 @@ services:
       - redis_data:/data
     networks:
       - laravel
-      - shared_network
+      - shared_net
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
