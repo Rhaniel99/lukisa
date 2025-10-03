@@ -16,5 +16,6 @@
             "ziggy-js": ["./vendor/tightenco/ziggy"]
         }
     },
-    "include": ["resources/js","resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.d.ts",  "vite-env.d.ts", "global.d.ts",]
+    "include": ["resources/js","resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.d.ts",  "vite-env.d.ts", "global.d.ts",],
+    "exclude": ["node_modules", "vendor"]
 }

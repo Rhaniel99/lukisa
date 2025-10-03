@@ -16,5 +16,7 @@ declare global {
     }
 }
 
+declare module 'leaflet-geosearch';
+
 // Mantém o arquivo como um módulo TypeScript
 export {};
