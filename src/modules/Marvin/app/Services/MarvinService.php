@@ -35,10 +35,10 @@ class MarvinService implements IMarvinService
 
         // 2. RAG: Detecta a intenção e busca o contexto necessário.
         $intent = $this->getIntent($userPrompt);
-        Log::info('MarvinService: Intent detected', ['intent' => $intent]);
+        // Log::info('MarvinService: Intent detected', ['intent' => $intent]);
 
         $context = $this->getContextForIntent($intent);
-        Log::info('MarvinService: Context generated', ['context' => $context]);
+        // Log::info('MarvinService: Context generated', ['context' => $context]);
 
         // 4. Constrói o payload de mensagens para a IA, incluindo histórico e contexto RAG.
         $messages = $this->buildMessagesPayload($history, $userPrompt, $context);
@@ -69,17 +69,20 @@ class MarvinService implements IMarvinService
     {
         $messages = [];
 
-        // Adiciona a personalidade como a primeira mensagem do sistema.
-        $messages[] = ['role' => 'system', 'content' => config('marvin.personality')];
+        $systemContent = config('marvin.personality');
+
+        // Isso cria um único prompt de sistema, mais coeso.
+        if ($context) {
+            $systemContent .= "\n\nINFORMAÇÃO ADICIONAL: Para a pergunta a seguir, use estritamente esta informação: $context";
+        }
+
+        // Adiciona a personalidade e o contexto (se houver) como a primeira e única mensagem do sistema.
+        $messages[] = ['role' => 'system', 'content' => $systemContent];
+
 
         // Adiciona o histórico recuperado do banco de dados.
         foreach ($history as $message) {
             $messages[] = ['role' => $message->role, 'content' => $message->content];
-        }
-
-        // Adiciona o contexto RAG como uma mensagem de sistema separada, se existir.
-        if ($context) {
-            $messages[] = ['role' => 'system', 'content' => "Contexto para responder à pergunta a seguir: {$context}"];
         }
 
         // Adiciona a nova pergunta do usuário ao final do payload.
