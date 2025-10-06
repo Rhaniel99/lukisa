@@ -3,7 +3,7 @@ networks:
     name: shared_network
     driver: bridge
     external: true
-  laravel:
+  default:
     driver: bridge
     ipam:
       config:
@@ -24,7 +24,7 @@ x-php-common: &php-common
     - .env:/var/www/html/.env
   working_dir: /var/www/html
   networks:
-    - laravel
+    - default
     - shared_net
   restart: always
 
@@ -52,7 +52,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - laravel
+      - default
 
   php:
     <<: *php-common # Herda a configuração comum
@@ -145,7 +145,7 @@ services:
     working_dir: /var/www/html
     profiles: ["node"]
     networks:
-      - laravel
+      - default
 
   redis:
     image: redis:7.2-alpine
@@ -157,8 +157,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - laravel
-      - shared_net
+      - default
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
