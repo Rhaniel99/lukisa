@@ -9,21 +9,21 @@ use Artisan;
 class IRepositoryMakeCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * O nome e a assinatura do console command.
      *
      * @var string
      */
     protected $signature = 'module:make-irepository {name} {module}';
 
     /**
-     * The console command description.
+     * A descrição do console command.
      *
      * @var string
      */
-    protected $description = 'Create a new repository class and its interface for a module.';
+    protected $description = 'Cria uma classe de repositório (estendendo CoreRepository) e sua interface (estendendo ICoreRepository) para um módulo.';
 
     /**
-     * Execute the console command.
+     * Execute o console command.
      *
      * @return int
      */
@@ -31,48 +31,80 @@ class IRepositoryMakeCommand extends Command
     {
         $name = $this->argument('name');
         $module = $this->argument('module');
-        
-        // Garante que o nome do repositório termine com "Repository"
+
         if (!Str::endsWith($name, 'Repository')) {
             $name .= 'Repository';
         }
 
         $interfaceName = 'I' . $name;
 
-        // 1. Cria a interface na pasta correta
+        // =================================================================
+        // PASSO 1: Cria e Modifica a INTERFACE
+        // =================================================================
         Artisan::call('module:make-interface', [
             'name' => "Repositories/{$interfaceName}",
             'module' => $module
         ]);
-        $this->info("Interface created: app/Interfaces/Repositories/{$interfaceName}.php");
 
-        // 2. Cria o repository (usando o gerador padrão)
+        $interfacePath = module_path($module, "app/Interfaces/Repositories/{$interfaceName}.php");
+        $interfaceNamespace = "Modules\\{$module}\\Interfaces\\Repositories";
+        
+        $interfaceContent = <<<PHP
+                <?php
+
+                namespace $interfaceNamespace;
+
+                use App\Interfaces\Repositories\ICoreRepository;
+
+                interface $interfaceName extends ICoreRepository
+                {
+                    // Adicione aqui as assinaturas de métodos específicos para o {$name}...
+                }
+                PHP;
+                
+        file_put_contents($interfacePath, $interfaceContent);
+        $this->info("Interface criada e modificada: {$interfacePath}");
+
+
+        // =================================================================
+        // PASSO 2: Cria e Modifica o REPOSITORY
+        // =================================================================
         Artisan::call('module:make-repository', [
             'name' => $name,
             'module' => $module
         ]);
 
-        // 3. Sobrescreve o conteúdo do repository para garantir a implementação
         $filePath = module_path($module, "app/Repositories/{$name}.php");
-
+        $modelName = str_replace('Repository', '', $name);
         $classNamespace = "Modules\\{$module}\\Repositories";
-        $useStatement = "use Modules\\{$module}\\Interfaces\\Repositories\\{$interfaceName};";
+        $modelNamespace = "Modules\\{$module}\\Models\\{$modelName}";
 
-        $content = <<<PHP
-            <?php
+        $repositoryContent = <<<PHP
+<?php
 
-            namespace $classNamespace;
+namespace $classNamespace;
 
-            $useStatement
+use App\Repositories\Base\CoreRepository;
+use $interfaceNamespace\\$interfaceName;
+use $modelNamespace;
 
-            class $name implements $interfaceName
-            {
-                //
-            }
-            PHP;
+class $name extends CoreRepository implements $interfaceName
+{
+    /**
+     * @var {$modelName}
+     */
+    protected \$model;
 
-        file_put_contents($filePath, $content);
-        $this->info("Repository class created and fixed: app/Repositories/{$name}.php");
+    public function __construct({$modelName} \$model)
+    {
+        parent::__construct(\$model);
+    }
+
+    // Adicione aqui métodos específicos para o {$name}...
+}
+PHP;
+        file_put_contents($filePath, $repositoryContent);
+        $this->info("Classe de repositório criada e modificada: {$filePath}");
 
         return parent::SUCCESS;
     }

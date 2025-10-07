@@ -28,25 +28,30 @@ class CreateFullModule extends Command
 
         // 1. Cria a estrutura base do módulo
         Artisan::call('module:make', ['name' => [$moduleName]]);
+        $this->info("Estrutura base do módulo '{$moduleName}' criada.");
 
-        // 2. Cria os componentes internos
-        $modelName = $moduleName; // Por convenção, o model tem o mesmo nome do módulo
-        Artisan::call('module:make-model', ['model' => $modelName, 'module' => $moduleName]);
-        Artisan::call('module:make-service', ['name' => "{$moduleName}Service", 'module' => $moduleName]);
-        Artisan::call('module:make-repository', ['name' => "{$moduleName}Repository", 'module' => $moduleName]);
-
-        // Para a interface, especificamos o caminho completo para ela ir para a pasta certa
-        Artisan::call('module:make-interface', [
-            'name' => "Repositories/I{$moduleName}Repository",
+        // 3. USA SEU NOVO COMANDO para criar o Service + Interface já acoplada
+        Artisan::call('module:make-iservice', [
+            'name' => "{$moduleName}", // O comando já adiciona o sufixo "Service"
             'module' => $moduleName
         ]);
+        $this->info("Service e Interface 'I{$moduleName}Service' criados e acoplados.");
 
-        Artisan::call('module:make-interface', [
-            'name' => "Services/I{$moduleName}Service",
+        // 4. USA SEU NOVO COMANDO para criar o Repository + Interface já acoplada
+        Artisan::call('module:make-irepository', [
+            'name' => "{$moduleName}", // O comando já adiciona o sufixo "Repository"
             'module' => $moduleName
         ]);
+        $this->info("Repository e Interface 'I{$moduleName}Repository' criados e acoplados.");
 
-        $this->info("✅ Módulo '{$moduleName}' criado com sucesso com todas as camadas!");
+        $this->info("---------------------------------------------------------");
+        $this->info("✅ Módulo '{$moduleName}' criado com sucesso!");
+        $this->warn("Lembre-se de registrar as interfaces no Service Provider:");
+        $this->line("   - Arquivo: modules/{$moduleName}/app/Providers/{$moduleName}ServiceProvider.php");
+        $this->line("   - Ligue I{$moduleName}Service a {$moduleName}Service.");
+        $this->line("   - Ligue I{$moduleName}Repository a {$moduleName}Repository.");
+        $this->info("---------------------------------------------------------");
+
 
         return parent::SUCCESS;
     }

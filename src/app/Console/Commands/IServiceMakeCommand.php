@@ -20,7 +20,7 @@ class IServiceMakeCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Create a new service class and its interface for a module.';
+    protected $description = 'Cria uma nova classe de servi o e sua interface para um m dulo.';
 
     /**
      * Execute the console command.
@@ -59,17 +59,17 @@ class IServiceMakeCommand extends Command
         $useStatement = "use Modules\\{$module}\\Interfaces\\Services\\{$interfaceName};";
 
         $content = <<<PHP
-<?php
+            <?php
 
-namespace $classNamespace;
+            namespace $classNamespace;
 
-$useStatement
+            $useStatement
 
-class $name implements $interfaceName
-{
-    //
-}
-PHP;
+            class $name implements $interfaceName
+            {
+                //
+            }
+            PHP;
 
         file_put_contents($filePath, $content);
         $this->info("Service class created and fixed: app/Services/{$name}.php");
