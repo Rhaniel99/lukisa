@@ -1,0 +1,9 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+/**
+ * Interface $CLASS$
+ * @package $CLASS_NAMESPACE$
+ */
+interface $CLASS$ {}

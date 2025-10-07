@@ -1,0 +1,39 @@
+<?php
+
+namespace Modules\$MODULE$\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\$MODULE$\Database\Factories\$CLASS$Factory;
+
+class $CLASS$ extends Model
+{
+    use HasFactory;
+
+    /**
+     * O nome da tabela associado ao modelo.
+     * É uma boa prática definir explicitamente, especialmente em módulos.
+     *
+     * @var string
+     */
+    protected $table = '$LOWER_NAME$s';
+
+    /**
+     * Os atributos que são preenchíveis em massa.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        // Adicione seus campos aqui
+    ];
+
+    /**
+     * Cria uma nova instância da factory para o modelo.
+     *
+     * @return \Modules\$MODULE$\Database\Factories\$CLASS$Factory
+     */
+    protected static function newFactory(): $CLASS$Factory
+    {
+        return $CLASS$Factory::new();
+    }
+}
