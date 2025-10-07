@@ -25,10 +25,10 @@ class AuthenticationController extends Controller
     }
 
 
-    public function regProfile(UpdateProfileData $r): RedirectResponse
+    public function profileRegister(UpdateProfileData $r): RedirectResponse
     {
         $userId = Auth::id();
-        $success = $this->authService->updateUserProfile($userId, $r);
+        $success = $this->authService->updateProfile($userId, $r);
 
         if (!$success) {
             return back()->with('error', 'Ocorreu um erro ao atualizar seu perfil. Por favor, tente novamente.');
@@ -51,7 +51,7 @@ class AuthenticationController extends Controller
         return to_route('lukisa.index')->with(['success' => "Seja bem vindo novamente!"]);
     }
 
-    public function regSignup(RegisterData $r)
+    public function userRegister(RegisterData $r)
     {
         $user = $this->authService->register($r);
         Auth::login($user);

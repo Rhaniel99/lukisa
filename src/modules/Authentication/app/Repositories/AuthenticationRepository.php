@@ -3,39 +3,40 @@
 namespace Modules\Authentication\Repositories;
 
 use App\Models\User;
+use App\Repositories\Base\CoreRepository;
 use Carbon\Carbon;
 use Modules\Authentication\Interfaces\Repositories\IAuthenticationRepository;
 
-class AuthenticationRepository implements IAuthenticationRepository
+class AuthenticationRepository extends CoreRepository implements IAuthenticationRepository
 {
-    public function create(array $data): User
+    public function __construct(User $model)
     {
-        return User::create($data);
+        parent::__construct($model);
     }
 
+    public function findUserByUsernameAndDiscriminator(string $username, string $discriminator): ?User
+    {
+        return $this->model
+            ->where('username', $username)
+            ->where('discriminator', $discriminator)
+            ->first();
+    }
+
+    public function create(array $data): User
+    {
+        return $this->model->create($data);
+    }
 
     public function findByEmailAndBirthDate(string $email, Carbon $birthDate): ?User
     {
-        return User::where('email', $email)
+        return $this->model->where('email', $email)
             ->whereDate('birth_date', $birthDate->toDateString())
             ->first();
     }
 
     public function updatePasswordByEmail(string $email, string $hashedPassword): bool
     {
-        // Se for > 0, a atualização foi bem-sucedida.
-        return User::where('email', $email)->update(['password' => $hashedPassword]) > 0;
+        return $this->model->where('email', $email)->update(['password' => $hashedPassword]) > 0;
     }
 
-    public function update(string $userId, array $data): bool
-    {
-        // O método update do Eloquent retorna o número de linhas afetadas.
-        // Se for > 0, a atualização foi bem-sucedida.
-        return User::where('id', $userId)->update($data) > 0;
-    }
-
-    public function find(string|int $userId): ?User
-    {
-        return User::find($userId);
-    }
 }

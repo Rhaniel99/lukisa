@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use DB;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -71,20 +73,29 @@ class User extends Authenticatable implements HasMedia
      * Retorna os amigos do usuário (relacionamentos aceitos).
      * Este método é complexo porque a amizade é bidirecional.
      */
-    public function friends()
+    public function friends(): Collection
     {
-        // Amigos que o usuário adicionou
-        $friendsOfMine = $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
-            ->wherePivot('status', 'accepted')
-            ->withTimestamps();
+        // Pega os IDs de amizades aceitas onde o usuário é o remetente (user_id)
+        $friendIdsSent = DB::table('friendships')
+            ->where('user_id', $this->id)
+            ->where('status', 'accepted')
+            ->pluck('friend_id');
 
-        // Amigos que adicionaram o usuário
-        $friendOf = $this->belongsToMany(User::class, 'friendships', 'friend_id', 'user_id')
-            ->wherePivot('status', 'accepted')
-            ->withTimestamps();
+        // Pega os IDs de amizades aceitas onde o usuário é o destinatário (friend_id)
+        $friendIdsReceived = DB::table('friendships')
+            ->where('friend_id', $this->id)
+            ->where('status', 'accepted')
+            ->pluck('user_id');
 
-        // Une as duas coleções
-        return $friendsOfMine->get()->merge($friendOf->get());
+        // Une todos os IDs e remove duplicados
+        $allFriendIds = $friendIdsSent->merge($friendIdsReceived)->unique();
+
+        if ($allFriendIds->isEmpty()) {
+            return new Collection();
+        }
+
+        // Retorna uma coleção de Usuários com base nos IDs encontrados em uma única query
+        return User::whereIn('id', $allFriendIds)->get();
     }
 
     public function friendRequestsSent(): BelongsToMany

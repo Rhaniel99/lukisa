@@ -2,6 +2,7 @@
 
 namespace Modules\Authentication\Providers;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Authentication\Interfaces\Repositories\IAuthenticationRepository;
@@ -48,7 +49,7 @@ class AuthenticationServiceProvider extends ServiceProvider
 
         $this->app->bind(
             IAuthenticationRepository::class,
-            AuthenticationRepository::class
+            fn($app) => new AuthenticationRepository(new User())
         );
     }
 

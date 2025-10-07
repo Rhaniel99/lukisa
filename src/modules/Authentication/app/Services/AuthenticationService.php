@@ -40,10 +40,7 @@ class AuthenticationService implements IAuthenticationService
 
     public function register(RegisterData $data): User
     {
-        // Pega os dados validados do DTO
         $userData = $data->toArray();
-
-        // Hasheia a senha antes de salvar - NUNCA salve senhas em texto plano
         $userData['password'] = Hash::make($userData['password']);
 
         // Chama o repositório para criar o usuário no banco
@@ -68,7 +65,7 @@ class AuthenticationService implements IAuthenticationService
         );
     }
 
-    public function updateUserProfile(string $userId, UpdateProfileData $r): bool
+    public function updateProfile(string $userId, UpdateProfileData $data): bool
     {
         $user = $this->authRepository->find($userId);
 
@@ -76,16 +73,40 @@ class AuthenticationService implements IAuthenticationService
             return false;
         }
 
+        $discriminator = $this->genUniqueDiscriminator($data->username);
+
         $this->authRepository->update($userId, [
-            'username' => $r->username,
+            'username' => $data->username,
+            'discriminator' => $discriminator,
             'status' => 0
         ]);
 
-        if ($r->avatar) {
-            $user->addMedia($r->avatar)
+        if ($data->avatar) {
+            /** @var \App\Models\User $user */ //
+            $user->addMedia($data->avatar)
                 ->toMediaCollection('avatars');
         }
         return true;
     }
 
+
+    /**
+     * Gera um discriminator único de 4 dígitos para um determinado username.
+     *
+     * @param string $username
+     * @return string
+     */
+    private function genUniqueDiscriminator(string $username): string
+    {
+        do {
+            // Gera um número aleatório de 4 dígitos, preenchendo com zeros à esquerda
+            $discriminator = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+            // Verifica no banco se a combinação já existe
+            $exists = $this->authRepository->findUserByUsernameAndDiscriminator($username, $discriminator);
+
+        } while ($exists);
+
+        return $discriminator;
+    }
 }
