@@ -4,6 +4,7 @@ export type AuthUser = {
     id: string;
     fullname: string;
     username: string;
+    discriminator: string;
     email: string;
     avatar_url: string | null;
 };
@@ -48,14 +49,15 @@ export interface MemoriesIndexProps {
     places: Place[];
 }
 
-export type User = {
-    id: string;
-    fullname: string;
-    username: string;
-    email: string;
-    avatar: string | null;
-    avatar_url: string | null;
-};
+// export type User = {
+//     id: string;
+//     fullname: string;
+//     discriminator: string;
+//     username: string;
+//     email: string;
+//     avatar: string | null;
+//     avatar_url: string | null;
+// };
 
 // ✅ Define e exporta o tipo base que todas as páginas terão
 export type PageProps = InertiaPageProps & {

@@ -15,6 +15,7 @@ class UserData extends Data
         public readonly string $id,
         public readonly ?string $username,
         public readonly ?string $fullname,
+        public readonly ?string $discriminator,
         public readonly ?string $email,
         public readonly ?string $avatarUrl,
         public readonly ?Carbon $birthDate,
@@ -23,20 +24,13 @@ class UserData extends Data
 
     public static function fromModel(User $user): self
     {
-        // 1. Primeiro, pegamos o objeto de mídia (o "crachá")
-        $avatarMedia = $user->getFirstMedia('avatars');
-
-        // // 2. Verificamos se o crachá existe. Se sim, geramos a URL a partir DELE.
-        $temporaryAvatarUrl = $avatarMedia
-            ? $avatarMedia->getTemporaryUrl(now()->addMinutes(5), 'thumb')
-            : null;
-
         return new self(
             id: $user->id,
             username: $user->username,
             fullname: $user->name,
+            discriminator: $user->discriminator,
             email: $user->email,
-            avatarUrl: $temporaryAvatarUrl,
+            avatarUrl: $user->getFirstMedia('avatars')?->getTemporaryUrl(now()->addMinutes(5), 'thumb'),
             birthDate: $user->birth_date
         );
     }

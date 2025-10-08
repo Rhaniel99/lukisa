@@ -8,8 +8,8 @@ interface LayoutProps {
 
 export function Header({ children }: LayoutProps) {
     return (
-        <header className="px-6 py-3 flex items-center justify-between border-b border-lukisa-cream/50 bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50">
-            <div className="flex items-center space-x-6">
+        <header className="flex items-center justify-between px-6 py-3 bg-white/80 backdrop-blur-sm border-b border-[#C5C3B1]">
+            <div className="flex items-center gap-2">
                 <Link
                     href={route("home")}
                     className="transition-transform duration-200 hover:scale-105"
@@ -17,7 +17,7 @@ export function Header({ children }: LayoutProps) {
                     <img src={logo} alt="Lukisa Logo" className="h-8 w-auto" />
                 </Link>
             </div>
-            <div className="flex items-center space-x-2 md:space-x-4">
+            <div className="flex items-center gap-2">
                 {children}
             </div>
         </header>

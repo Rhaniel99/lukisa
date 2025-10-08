@@ -6,7 +6,7 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
-import { User as UserData } from "@/Types/models";
+import { AuthUser as UserData } from "@/Types/models";
 import { User, Settings, Lock, Bell } from "lucide-react";
 import {
     Dialog,
@@ -16,6 +16,7 @@ import {
     DialogDescription,
 } from "@/Components/ui/dialog";
 import { useForm } from "@inertiajs/react";
+import { cn } from "@/Lib/Utils";
 import { Form } from "../UI/Form";
 
 interface NavItemProps {
@@ -55,12 +56,13 @@ export function SettingsModal({
 }: {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
-    user: UserData;
+    user?: UserData;
 }) {
     const [activeTab, setActiveTab] = useState("profile");
-    // const { data, setData, post, processing, errors, reset } = useForm({
-    //         content: "",
-    // });
+
+    if (!user) {
+        return null;
+    }
 
     const {
         data,
@@ -74,12 +76,9 @@ export function SettingsModal({
     } = useForm({
         fullname: user.fullname || "",
         username: user.username || "",
-        // username: "",
     });
 
     const submit = () => {
-        // if (processing || !data.content.trim()) return;
-
         patch(route("profile.update", user.id), {
             preserveScroll: true,
             onSuccess: () => {
@@ -90,7 +89,11 @@ export function SettingsModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="w-full sm:max-w-4xl h-[80vh] flex flex-col bg-[#BFBAA8] p-0">
+            <DialogContent
+                className={cn(
+                    "w-full sm:max-w-4xl h-[80vh] flex flex-col bg-[#BFBAA8] p-0"
+                )}
+            >
                 <div className="flex flex-1">
                     <aside
                         className="w-72 p-4 rounded-l-lg shadow-md mr-6"
