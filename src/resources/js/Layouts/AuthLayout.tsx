@@ -18,10 +18,10 @@ import { SettingsModal } from "@/Components/Modal/SettingsModal";
 import { FriendsSubmenu } from "@/Components/Shared/Menu/FriendsSubmenu";
 
 export default function AuthLayout({ children }: PropsWithChildren) {
-    const { auth, settings_user } = usePage<PageProps & { settings_user: AuthUser }>().props;
+    const { auth, settings_user, friendships } = usePage<PageProps & { settings_user: AuthUser }>().props;
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-    const [pendingFriendships, setPendingFriendships] = useState(3)
     const user = auth.user;
+
 
     const openSettingsModal = () => {
         router.reload({
@@ -41,7 +41,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                         <Bell className="w-5 h-5" />
                     </Button>
 
-                    <FriendsSubmenu pendingCount={pendingFriendships} onPendingCountChange={setPendingFriendships} />
+                    <FriendsSubmenu pendingFriendsData={friendships?.pending || []} pendingCount={friendships?.count || 0} />
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

@@ -3,54 +3,49 @@
 namespace Modules\Friendships\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Auth;
+use Exception;
+use Modules\Friendships\DTOs\AddFriendData;
+use Modules\Friendships\Interfaces\Services\IFriendshipsService;
 
 class FriendshipsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(protected IFriendshipsService $friendshipService)
     {
-        return view('friendships::index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(AddFriendData $data)
     {
-        return view('friendships::create');
+        try {
+            $this->friendshipService->sendRequest(Auth::user(), $data->tag);
+        } catch (Exception $e) {
+            // Retorna para a página anterior com uma mensagem de erro
+            return back()->with('error', $e->getMessage());
+        }
+
+        // Retorna para a página anterior com uma mensagem de sucesso
+        return back()->with('success', 'Pedido de amizade enviado com sucesso!');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function accept(string $id)
     {
-        return view('friendships::show');
+        try {
+            $this->friendshipService->acceptRequest($id, Auth::user());
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+        return back()->with('success', 'Amigo adicionado!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
+    public function destroy(string $id)
     {
-        return view('friendships::edit');
+        try {
+            // No futuro, este método pode ser usado para remover amigos também
+            $this->friendshipService->rejectRequest($id, Auth::user());
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+        return back()->with('success', 'Pedido recusado.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }

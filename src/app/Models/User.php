@@ -6,9 +6,10 @@ use DB;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Modules\Friendships\Models\Friendship;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -98,15 +99,19 @@ class User extends Authenticatable implements HasMedia
         return User::whereIn('id', $allFriendIds)->get();
     }
 
-    public function friendRequestsSent(): BelongsToMany
+    /**
+     * Retorna os pedidos de amizade que este usuário enviou.
+     */
+    public function friendRequestsSent(): HasMany
     {
-        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
-            ->wherePivot('status', 'pending');
+        return $this->hasMany(Friendship::class, 'user_id')->where('status', 'pending');
     }
 
-    public function friendRequestsReceived(): BelongsToMany
+    /**
+     * Retorna os pedidos de amizade que este usuário recebeu.
+     */
+    public function friendRequestsReceived(): HasMany
     {
-        return $this->belongsToMany(User::class, 'friendships', 'friend_id', 'user_id')
-            ->wherePivot('status', 'pending');
+        return $this->hasMany(Friendship::class, 'friend_id')->where('status', 'pending');
     }
 }

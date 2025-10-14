@@ -7,7 +7,21 @@ export type AuthUser = {
     discriminator: string;
     email: string;
     avatar_url: string | null;
+    tag?: string;
 };
+
+export type PendingFriend = {
+    id: string; // User ID
+    friendship_id: string; // Friendship Request ID
+    username: string;
+    discriminator: string;
+    avatar_url: string | null;
+};
+
+export type FriendshipsData = {
+    pending: PendingFriend[];
+    count: number;
+} | null;
 
 export interface Comment {
     id: number;
@@ -80,6 +94,7 @@ declare module '@inertiajs/core' {
       success?: string;
       error?: string;
     };
+    friendships?: FriendshipsData;
     // Adicione aqui outras props que são compartilhadas em TODAS as páginas
   }
 }
