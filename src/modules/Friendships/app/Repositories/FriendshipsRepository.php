@@ -32,7 +32,7 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
     }
 
     public function createRequest(User $sender, User $receiver): Friendship
-    {w
+    {
         return $this->create([
             'user_id' => $sender->id,
             'friend_id' => $receiver->id,
@@ -57,6 +57,14 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
         return $user->friendRequestsReceived()->with('sender')->get();
     }
 
+    public function getPendingRequestsCountFor(User $user): int
+    {
+        return $this->model
+            ->where('friend_id', $user->id)
+            ->where('status', 'pending')
+            ->count();
+    }
+
     public function findPendingRequestById(string $friendshipId, User $receiver): ?Friendship
     {
         return $this->model
@@ -64,6 +72,37 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
             ->where('friend_id', $receiver->id)
             ->where('status', 'pending')
             ->first();
+    }
+
+    public function getAcceptedFriendsFor(User $user, int $limit = 20, int $offset = 0): Collection
+    {
+        return $this->model
+            ->where('status', 'accepted')
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('friend_id', $user->id);
+            })
+            ->with(['sender', 'receiver'])
+            ->offset($offset)
+            ->limit($limit)
+            ->get()
+            ->map(function ($friendship) use ($user) {
+                // Retorna o usuário que não é o usuário atual
+                return $friendship->user_id === $user->id 
+                    ? $friendship->receiver 
+                    : $friendship->sender;
+            });
+    }
+
+    public function getAcceptedFriendsCountFor(User $user): int
+    {
+        return $this->model
+            ->where('status', 'accepted')
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->orWhere('friend_id', $user->id);
+            })
+            ->count();
     }
 
 }

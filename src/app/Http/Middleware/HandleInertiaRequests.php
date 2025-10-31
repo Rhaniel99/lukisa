@@ -43,26 +43,16 @@ class HandleInertiaRequests extends Middleware
             ],
             'friendships' => function () use ($request) {
                 if (!$request->user()) {
-                    return null;
+                    return ['count' => 0]; // Retorna um valor padrão
                 }
 
                 $friendshipService = app(\Modules\Friendships\Interfaces\Services\IFriendshipsService::class);
-                // Assumindo que getPendingRequests retorna uma coleção de models Friendship,
-                // cada um com uma relação 'sender' para o usuário que enviou o pedido.
-                $pendingFriendships = $friendshipService->getPendingRequests($request->user());
 
+                // ===== MUDANÇA PRINCIPAL =====
+                // Agora buscamos apenas a contagem em todas as requisições.
+                // A lista completa (pending) foi removida daqui.
                 return [
-                    'pending' => $pendingFriendships->map(function ($friendship) {
-                        $sender = $friendship->sender;
-                        return [
-                            'id' => $sender->id,
-                            'friendship_id' => $friendship->id, // ID do pedido de amizade
-                            'username' => $sender->username,
-                            'discriminator' => $sender->discriminator,
-                            'avatar_url' => $sender->getFirstMedia('avatars')?->getTemporaryUrl(now()->addMinutes(5), 'thumb'),
-                        ];
-                    }),
-                    'count' => $pendingFriendships->count(),
+                    'count' => $friendshipService->getPendingRequestsCount($request->user()),
                 ];
             },
             // SITUAÇÃO 2: Apenas para o modal (completo e sob demanda)

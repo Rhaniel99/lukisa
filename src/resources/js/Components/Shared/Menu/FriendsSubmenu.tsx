@@ -1,5 +1,5 @@
 import { DropdownMenuItem } from "@/Components/ui/dropdown-menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/Components/ui/button";
 import {
     Users,
@@ -21,9 +21,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "@inertiajs/react";
+import { useForm, usePage } from "@inertiajs/react";
 import { Form } from "@/Components/UI/Form";
-import { PendingFriend } from "@/Types/models";
+import { PageProps, PendingFriend } from "@/Types/models";
 
 interface Friend {
     id: string;
@@ -34,31 +34,58 @@ interface Friend {
 }
 
 interface FriendsSubmenuProps {
-    pendingFriendsData: PendingFriend[];
     pendingCount: number;
 }
 
-export function FriendsSubmenu({ pendingFriendsData, pendingCount }: FriendsSubmenuProps) {
+export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSubmenuProps) {
+    // Pega as props que chegam via reload parcial
+    const { props } = usePage<PageProps & { pending_friends: any, accepted_friends: any }>();
+
+    // States para controlar o que já foi carregado
+    const [pendingLoaded, setPendingLoaded] = useState(false);
+    const [acceptedLoaded, setAcceptedLoaded] = useState(false);
+
+    // States para armazenar os dados das listas
+    const [activeFriends, setActiveFriends] = useState<Friend[]>([]);
+    const [pendingFriends, setPendingFriends] = useState<PendingFriend[]>([]);
+    const [pendingCount, setPendingCount] = useState(initialPendingCount);
+
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddFriendMode, setIsAddFriendMode] = useState(false);
-    const [friends, setFriends] = useState<Friend[]>([
-        {
-            id: "1",
-            username: "Alice",
-            discriminator: "1234",
-            avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
-            status: "online",
-        },
-        {
-            id: "2",
-            username: "Bob",
-            discriminator: "5678",
-            avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
-            status: "offline",
-        },
-    ]);
+    useEffect(() => {
+        if (props.pending_friends) {
+            setPendingFriends(props.pending_friends);
+            setPendingCount(props.pending_friends.length);
+            setPendingLoaded(true);
+        }
+    }, [props.pending_friends]);
 
-    const filteredActiveFriends = friends.filter(
+    useEffect(() => {
+        if (props.accepted_friends) {
+            setActiveFriends(props.accepted_friends);
+            setAcceptedLoaded(true);
+        }
+    }, [props.accepted_friends]);
+
+
+    // const [friends, setFriends] = useState<Friend[]>([
+    //     {
+    //         id: "1",
+    //         username: "Alice",
+    //         discriminator: "1234",
+    //         avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
+    //         status: "online",
+    //     },
+    //     {
+    //         id: "2",
+    //         username: "Bob",
+    //         discriminator: "5678",
+    //         avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
+    //         status: "offline",
+    //     },
+    // ]);
+
+    const filteredActiveFriends = activeFriends.filter(
         (friend) =>
             (friend.username
                 .toLowerCase()
@@ -66,7 +93,7 @@ export function FriendsSubmenu({ pendingFriendsData, pendingCount }: FriendsSubm
                 friend.discriminator.includes(searchQuery)) && friend.status !== 'pending'
     );
 
-    const filteredPendingFriends = pendingFriendsData.filter(
+    const filteredPendingFriends = pendingFriends.filter(
         (friend) =>
             friend.username
                 .toLowerCase()
@@ -103,7 +130,7 @@ export function FriendsSubmenu({ pendingFriendsData, pendingCount }: FriendsSubm
     };
 
     const handleBlockFriend = (friendId: string) => {
-        setFriends((prev) => prev.filter((f) => f.id !== friendId));
+        setActiveFriends((prev) => prev.filter((f) => f.id !== friendId));
     };
 
     return (
@@ -122,6 +149,7 @@ export function FriendsSubmenu({ pendingFriendsData, pendingCount }: FriendsSubm
                     )}
                 </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent
                 align="end"
                 className="w-80 bg-white border-[#E8E6D4] shadow-lg p-0 data-[state=open]:animate-in data-[state=closed]:animate-out"
@@ -164,6 +192,7 @@ export function FriendsSubmenu({ pendingFriendsData, pendingCount }: FriendsSubm
                                 </motion.h3>
                             )}
                         </AnimatePresence>
+                        
                         <Button
                             type="button"
                             size="icon"

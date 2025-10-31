@@ -54,6 +54,12 @@ class FriendshipsService implements IFriendshipsService
         return $this->friendshipRepository->getPendingRequestsFor($user);
     }
 
+    public function getPendingRequestsCount(User $user): int
+    {
+        return $this->friendshipRepository->getPendingRequestsCountFor($user);
+    }
+
+
     public function acceptRequest(string $friendshipId, User $user): bool
     {
         $friendship = $this->friendshipRepository->findPendingRequestById($friendshipId, $user);
@@ -74,6 +80,16 @@ class FriendshipsService implements IFriendshipsService
         }
 
         return $this->friendshipRepository->delete($friendship->id);
+    }
+
+    public function getAcceptedFriends(User $user, int $limit = 20, int $offset = 0): Collection
+    {
+        return $this->friendshipRepository->getAcceptedFriendsFor($user, $limit, $offset);
+    }
+
+    public function getAcceptedFriendsCount(User $user): int
+    {
+        return $this->friendshipRepository->getAcceptedFriendsCountFor($user);
     }
 
 }

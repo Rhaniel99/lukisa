@@ -41,7 +41,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                         <Bell className="w-5 h-5" />
                     </Button>
 
-                    <FriendsSubmenu pendingFriendsData={friendships?.pending || []} pendingCount={friendships?.count || 0} />
+                    <FriendsSubmenu pendingCount={friendships?.count || 0} />
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

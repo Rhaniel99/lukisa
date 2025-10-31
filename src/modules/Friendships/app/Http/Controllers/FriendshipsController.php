@@ -3,9 +3,12 @@
 namespace Modules\Friendships\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Auth;
 use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Modules\Friendships\DTOs\AddFriendData;
+use Modules\Friendships\DTOs\FriendData;
+use Modules\Friendships\DTOs\PendingFriendData;
 use Modules\Friendships\Interfaces\Services\IFriendshipsService;
 
 class FriendshipsController extends Controller
@@ -46,6 +49,64 @@ class FriendshipsController extends Controller
             return back()->with('error', $e->getMessage());
         }
         return back()->with('success', 'Pedido recusado.');
+    }
+
+    public function index()
+    {
+        $user = Auth::user();
+        
+        // Carrega dados iniciais (primeiros 20 amigos aceitos e todos os pendentes)
+        $pendingRequests = $this->friendshipService->getPendingRequests($user);
+        $acceptedFriends = $this->friendshipService->getAcceptedFriends($user, 20, 0);
+        
+        $pendingData = PendingFriendData::collection($pendingRequests);
+        $acceptedData = FriendData::collection($acceptedFriends);
+        
+        return inertia()->share([
+            'pending_friends' => $pendingData,
+            'accepted_friends' => $acceptedData,
+            'pending_count' => $pendingRequests->count(),
+            'accepted_count' => $this->friendshipService->getAcceptedFriendsCount($user)
+        ]);
+    }
+
+    public function getPending(Request $request)
+    {
+        $user = Auth::user();
+        $pendingRequests = $this->friendshipService->getPendingRequests($user);
+        $pendingData = PendingFriendData::collection($pendingRequests);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'pending_friends' => $pendingData,
+                'count' => $pendingRequests->count()
+            ]);
+        }
+
+        return inertia()->share(['pending_friends' => $pendingData]);
+    }
+
+    public function getAccepted(Request $request)
+    {
+        $user = Auth::user();
+        $limit = $request->get('limit', 20);
+        $offset = $request->get('offset', 0);
+        
+        $acceptedFriends = $this->friendshipService->getAcceptedFriends($user, $limit, $offset);
+        $acceptedData = FriendData::collection($acceptedFriends);
+        $totalCount = $this->friendshipService->getAcceptedFriendsCount($user);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'accepted_friends' => $acceptedData,
+                'count' => $acceptedFriends->count(),
+                'total_count' => $totalCount,
+                'has_more' => ($offset + $limit) < $totalCount,
+                'next_offset' => $offset + $limit
+            ]);
+        }
+
+        return inertia()->share(['accepted_friends' => $acceptedData]);
     }
 
 }

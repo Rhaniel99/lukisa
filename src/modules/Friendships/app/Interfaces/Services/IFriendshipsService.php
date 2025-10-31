@@ -15,4 +15,7 @@ interface IFriendshipsService {
     public function getPendingRequests(User $user): Collection;
     public function acceptRequest(string $friendshipId, User $user): bool;
     public function rejectRequest(string $friendshipId, User $user): bool;
+    public function getPendingRequestsCount(User $user): int;
+    public function getAcceptedFriends(User $user, int $limit = 20, int $offset = 0): Collection;
+    public function getAcceptedFriendsCount(User $user): int;
 }
