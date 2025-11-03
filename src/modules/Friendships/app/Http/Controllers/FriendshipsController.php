@@ -59,8 +59,8 @@ class FriendshipsController extends Controller
         $pendingRequests = $this->friendshipService->getPendingRequests($user);
         $acceptedFriends = $this->friendshipService->getAcceptedFriends($user, 20, 0);
         
-        $pendingData = PendingFriendData::collection($pendingRequests);
-        $acceptedData = FriendData::collection($acceptedFriends);
+        $pendingData = PendingFriendData::collect($pendingRequests);
+        $acceptedData = FriendData::collect($acceptedFriends);
         
         return inertia()->share([
             'pending_friends' => $pendingData,
@@ -74,7 +74,7 @@ class FriendshipsController extends Controller
     {
         $user = Auth::user();
         $pendingRequests = $this->friendshipService->getPendingRequests($user);
-        $pendingData = PendingFriendData::collection($pendingRequests);
+        $pendingData = PendingFriendData::collect($pendingRequests);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -93,7 +93,7 @@ class FriendshipsController extends Controller
         $offset = $request->get('offset', 0);
         
         $acceptedFriends = $this->friendshipService->getAcceptedFriends($user, $limit, $offset);
-        $acceptedData = FriendData::collection($acceptedFriends);
+        $acceptedData = FriendData::collect($acceptedFriends);
         $totalCount = $this->friendshipService->getAcceptedFriendsCount($user);
 
         if ($request->expectsJson()) {

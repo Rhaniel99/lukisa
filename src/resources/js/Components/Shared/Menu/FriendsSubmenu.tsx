@@ -1,14 +1,10 @@
-import { DropdownMenuItem } from "@/Components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { Button } from "@/Components/ui/button";
 import {
     Users,
     Search,
     UserPlus,
-    Ban,
-    Check,
     X,
-    MoreVertical,
 } from "lucide-react";
 import {
     DropdownMenu,
@@ -17,73 +13,72 @@ import {
 } from "@/Components/ui/dropdown-menu";
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm, usePage } from "@inertiajs/react";
+import { useForm, usePage, router } from "@inertiajs/react";
 import { Form } from "@/Components/UI/Form";
 import { PageProps, PendingFriend } from "@/Types/models";
-
-interface Friend {
-    id: string;
-    username: string;
-    discriminator: string;
-    avatar_url: string;
-    status: "online" | "offline" | "pending";
-}
+import { FriendItem, Friend } from "./FriendItem";
+import { PendingFriendItem } from "./PendingFriendItem";
 
 interface FriendsSubmenuProps {
     pendingCount: number;
 }
 
 export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSubmenuProps) {
-    // Pega as props que chegam via reload parcial
-    const { props } = usePage<PageProps & { pending_friends: any, accepted_friends: any }>();
+    const { props } = usePage<PageProps & { friendships: { count: number, pending?: PendingFriend[], accepted?: Friend[] } }>();
 
-    // States para controlar o que já foi carregado
+    const [isOpen, setIsOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState("all");
+
     const [pendingLoaded, setPendingLoaded] = useState(false);
     const [acceptedLoaded, setAcceptedLoaded] = useState(false);
 
-    // States para armazenar os dados das listas
     const [activeFriends, setActiveFriends] = useState<Friend[]>([]);
     const [pendingFriends, setPendingFriends] = useState<PendingFriend[]>([]);
     const [pendingCount, setPendingCount] = useState(initialPendingCount);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddFriendMode, setIsAddFriendMode] = useState(false);
+
     useEffect(() => {
-        if (props.pending_friends) {
-            setPendingFriends(props.pending_friends);
-            setPendingCount(props.pending_friends.length);
+        setPendingCount(props.friendships.count);
+
+        if (props.friendships.pending) {
+            setPendingFriends(props.friendships.pending);
             setPendingLoaded(true);
         }
-    }, [props.pending_friends]);
-
-    useEffect(() => {
-        if (props.accepted_friends) {
-            setActiveFriends(props.accepted_friends);
+        if (props.friendships.accepted) {
+            setActiveFriends(props.friendships.accepted);
             setAcceptedLoaded(true);
         }
-    }, [props.accepted_friends]);
+    }, [props.friendships]);
 
+    const loadContent = (tab: string) => {
+        if (tab === "pending" && !pendingLoaded) {
+            router.reload({
+                data: { include: 'pending' },
+                only: ['friendships'],
+            });
+        } else if (tab === "all" && !acceptedLoaded) {
+            router.reload({
+                data: { include: 'accepted' },
+                only: ['friendships'],
+            });
+        }
+    };
 
-    // const [friends, setFriends] = useState<Friend[]>([
-    //     {
-    //         id: "1",
-    //         username: "Alice",
-    //         discriminator: "1234",
-    //         avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
-    //         status: "online",
-    //     },
-    //     {
-    //         id: "2",
-    //         username: "Bob",
-    //         discriminator: "5678",
-    //         avatar_url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
-    //         status: "offline",
-    //     },
-    // ]);
+    useEffect(() => {
+        if (isOpen) {
+            loadContent(activeTab);
+        }
+    }, [isOpen]);
+
+    const handleTabChange = (value: string) => {
+        setActiveTab(value);
+        loadContent(value);
+    };
 
     const filteredActiveFriends = activeFriends.filter(
         (friend) =>
@@ -120,12 +115,24 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
     const handleAcceptFriend = (friendshipId: string) => {
         friendshipForm.patch(route("friends.accept", friendshipId), {
             preserveScroll: true,
+            onSuccess: () => {
+                router.reload({
+                    data: { include: 'pending,accepted' },
+                    only: ['friendships'],
+                });
+            },
         });
     };
 
     const handleRejectFriend = (friendshipId: string) => {
         friendshipForm.delete(route("friends.destroy", friendshipId), {
             preserveScroll: true,
+            onSuccess: () => {
+                router.reload({
+                    data: { include: 'pending' },
+                    only: ['friendships'],
+                });
+            },
         });
     };
 
@@ -134,7 +141,7 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
     };
 
     return (
-        <DropdownMenu>
+        <DropdownMenu onOpenChange={setIsOpen}>
             <DropdownMenuTrigger asChild>
                 <Button
                     variant="ghost"
@@ -236,7 +243,7 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
                         />
                     </div>
 
-                    <Tabs defaultValue="all" className="w-full">
+                    <Tabs defaultValue="all" className="w-full" onValueChange={handleTabChange}>
                         <TabsList className="grid w-full grid-cols-2 bg-[#F5F4ED]">
                             <TabsTrigger
                                 value="all"
@@ -310,100 +317,4 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
     );
 }
 
-function FriendItem({ friend, onBlock }: { friend: Friend; onBlock: () => void }) {
-    return (
-        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#F5F4ED] transition-colors">
-            <div className="relative">
-                <Avatar className="h-10 w-10">
-                    <AvatarImage
-                        src={friend.avatar_url || "/placeholder.svg"}
-                        alt={friend.username}
-                    />
-                    <AvatarFallback className="bg-[#8B9A7E] text-white">
-                        {friend.username.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                </Avatar>
-                <div
-                    className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${friend.status === "online"
-                        ? "bg-green-500"
-                        : "bg-gray-400"
-                        }`}
-                />
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#3A3A3A] truncate">
-                    {friend.username}
-                </p>
-                <p className="text-xs text-[#5C4A3A]/50">#{friend.discriminator}</p>
-            </div>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 text-[#5C4A3A] hover:bg-[#E8E6D4]"
-                    >
-                        <MoreVertical className="h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                    <DropdownMenuItem
-                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
-                        onClick={onBlock}
-                    >
-                        <Ban className="mr-2 h-4 w-4" />
-                        Bloquear
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-    );
-}
 
-function PendingFriendItem({
-    friend,
-    onAccept,
-    onReject,
-}: {
-    friend: PendingFriend;
-    onAccept: () => void;
-    onReject: () => void;
-}) {
-    return (
-        <div className="flex items-center gap-3 p-2 rounded-lg bg-[#F5F4ED]">
-            <Avatar className="h-10 w-10">
-                <AvatarImage
-                    src={friend.avatar_url || "/placeholder.svg"}
-                    alt={friend.username}
-                />
-                <AvatarFallback className="bg-[#8B9A7E] text-white">
-                    {friend.username.charAt(0).toUpperCase()}
-                </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#3A3A3A] truncate">
-                    {friend.username}
-                </p>
-                <p className="text-xs text-[#5C4A3A]/50">#{friend.discriminator}</p>
-            </div>
-            <div className="flex gap-1">
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 text-green-600 hover:bg-green-50 hover:text-green-700"
-                    onClick={onAccept}
-                >
-                    <Check className="h-4 w-4" />
-                </Button>
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
-                    onClick={onReject}
-                >
-                    <X className="h-4 w-4" />
-                </Button>
-            </div>
-        </div>
-    );
-}

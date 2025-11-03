@@ -42,18 +42,28 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn() => $request->session()->get('error'),
             ],
             'friendships' => function () use ($request) {
-                if (!$request->user()) {
-                    return ['count' => 0]; // Retorna um valor padrão
+                if (!$user = $request->user()) {
+                    return ['count' => 0];
                 }
 
                 $friendshipService = app(\Modules\Friendships\Interfaces\Services\IFriendshipsService::class);
+                $includes = explode(',', $request->input('include', ''));
 
-                // ===== MUDANÇA PRINCIPAL =====
-                // Agora buscamos apenas a contagem em todas as requisições.
-                // A lista completa (pending) foi removida daqui.
-                return [
-                    'count' => $friendshipService->getPendingRequestsCount($request->user()),
+                $data = [
+                    'count' => $friendshipService->getPendingRequestsCount($user),
                 ];
+
+                if (in_array('pending', $includes)) {
+                    $pendingRequests = $friendshipService->getPendingRequests($user);
+                    $data['pending'] = \Modules\Friendships\DTOs\PendingFriendData::collect($pendingRequests);
+                }
+
+                if (in_array('accepted', $includes)) {
+                    $acceptedFriends = $friendshipService->getAcceptedFriends($user, 20, 0);
+                    $data['accepted'] = \Modules\Friendships\DTOs\FriendData::collect($acceptedFriends);
+                }
+
+                return $data;
             },
             // SITUAÇÃO 2: Apenas para o modal (completo e sob demanda)
             'settings_user' => fn() => $request->user()
