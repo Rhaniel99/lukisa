@@ -14,6 +14,9 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+/**
+ * @mixin IdeHelperUser
+ */
 class User extends Authenticatable implements HasMedia
 {
     use HasFactory, Notifiable, HasUuids, InteractsWithMedia;

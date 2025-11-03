@@ -1,11 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/Components/ui/button";
-import {
-    Users,
-    Search,
-    UserPlus,
-    X,
-} from "lucide-react";
+import { Users, Search, UserPlus, X } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,91 +11,25 @@ import { Badge } from "@/Components/ui/badge";
 import { ScrollArea } from "@/Components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm, usePage, router } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
 import { Form } from "@/Components/UI/Form";
-import { PageProps, PendingFriend } from "@/Types/models";
-import { FriendItem, Friend } from "./FriendItem";
+import { FriendItem } from "./FriendItem";
 import { PendingFriendItem } from "./PendingFriendItem";
+import { useFriends } from "@/Hooks/useFriends";
 
 interface FriendsSubmenuProps {
     pendingCount: number;
 }
 
 export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSubmenuProps) {
-    const { props } = usePage<PageProps & { friendships: { count: number, pending?: PendingFriend[], accepted?: Friend[] } }>();
-
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState("all");
-
-    const [pendingLoaded, setPendingLoaded] = useState(false);
-    const [acceptedLoaded, setAcceptedLoaded] = useState(false);
-
-    const [activeFriends, setActiveFriends] = useState<Friend[]>([]);
-    const [pendingFriends, setPendingFriends] = useState<PendingFriend[]>([]);
-    const [pendingCount, setPendingCount] = useState(initialPendingCount);
-
-    const [searchQuery, setSearchQuery] = useState("");
+    const [activeTab, setActiveTab] = useState<"all" | "pending">("all");
     const [isAddFriendMode, setIsAddFriendMode] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
-    useEffect(() => {
-        setPendingCount(props.friendships.count);
+    const { data, setData, post, processing, errors, reset } = useForm({ tag: "" });
 
-        if (props.friendships.pending) {
-            setPendingFriends(props.friendships.pending);
-            setPendingLoaded(true);
-        }
-        if (props.friendships.accepted) {
-            setActiveFriends(props.friendships.accepted);
-            setAcceptedLoaded(true);
-        }
-    }, [props.friendships]);
-
-    const loadContent = (tab: string) => {
-        if (tab === "pending" && !pendingLoaded) {
-            router.reload({
-                data: { include: 'pending' },
-                only: ['friendships'],
-            });
-        } else if (tab === "all" && !acceptedLoaded) {
-            router.reload({
-                data: { include: 'accepted' },
-                only: ['friendships'],
-            });
-        }
-    };
-
-    useEffect(() => {
-        if (isOpen) {
-            loadContent(activeTab);
-        }
-    }, [isOpen]);
-
-    const handleTabChange = (value: string) => {
-        setActiveTab(value);
-        loadContent(value);
-    };
-
-    const filteredActiveFriends = activeFriends.filter(
-        (friend) =>
-            (friend.username
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-                friend.discriminator.includes(searchQuery)) && friend.status !== 'pending'
-    );
-
-    const filteredPendingFriends = pendingFriends.filter(
-        (friend) =>
-            friend.username
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-            friend.discriminator.includes(searchQuery)
-    );
-
-    const { data, setData, post, processing, errors, reset } = useForm({
-        tag: "",
-    });
-
-    const friendshipForm = useForm({});
+    const { pending, accepted, counts, load, acceptFriend, rejectFriend, blockFriend } = useFriends();
 
     const handleAddFriendSubmit = () => {
         post(route("friends.store"), {
@@ -112,33 +41,26 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
         });
     };
 
-    const handleAcceptFriend = (friendshipId: string) => {
-        friendshipForm.patch(route("friends.accept", friendshipId), {
-            preserveScroll: true,
-            onSuccess: () => {
-                router.reload({
-                    data: { include: 'pending,accepted' },
-                    only: ['friendships'],
-                });
-            },
-        });
+    // 🔁 Lazy load quando abre
+    useEffect(() => {
+        if (isOpen) load(activeTab === "pending" ? "pending" : "accepted");
+    }, [isOpen]);
+
+    // 🔁 Carrega conteúdo ao trocar aba
+    const handleTabChange = (value: string) => {
+        setActiveTab(value as "all" | "pending");
+        load(value === "pending" ? "pending" : "accepted");
     };
 
-    const handleRejectFriend = (friendshipId: string) => {
-        friendshipForm.delete(route("friends.destroy", friendshipId), {
-            preserveScroll: true,
-            onSuccess: () => {
-                router.reload({
-                    data: { include: 'pending' },
-                    only: ['friendships'],
-                });
-            },
-        });
-    };
+    const filteredActiveFriends = accepted.filter((friend) =>
+        [friend.username, friend.discriminator]
+            .some((f) => f.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
 
-    const handleBlockFriend = (friendId: string) => {
-        setActiveFriends((prev) => prev.filter((f) => f.id !== friendId));
-    };
+    const filteredPendingFriends = pending.filter((friend) =>
+        [friend.username, friend.discriminator]
+            .some((f) => f.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
 
     return (
         <DropdownMenu onOpenChange={setIsOpen}>
@@ -149,9 +71,9 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
                     className="text-[#5C4A3A] hover:bg-[#E8E6D4]/70 relative"
                 >
                     <Users className="w-5 h-5" />
-                    {pendingCount > 0 && (
+                    {(counts || initialPendingCount) > 0 && (
                         <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs border-2 border-white">
-                            {pendingCount}
+                            {counts || initialPendingCount}
                         </Badge>
                     )}
                 </Button>
@@ -162,8 +84,8 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
                 className="w-80 bg-white border-[#E8E6D4] shadow-lg p-0 data-[state=open]:animate-in data-[state=closed]:animate-out"
             >
                 <div className="p-4 space-y-4">
+                    {/* Cabeçalho */}
                     <div className="flex items-center justify-between gap-2">
-
                         <AnimatePresence mode="wait">
                             {isAddFriendMode ? (
                                 <motion.div
@@ -199,7 +121,7 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
                                 </motion.h3>
                             )}
                         </AnimatePresence>
-                        
+
                         <Button
                             type="button"
                             size="icon"
@@ -233,6 +155,7 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
                         </Button>
                     </div>
 
+                    {/* Busca */}
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#5C4A3A]/50" />
                         <Input
@@ -243,71 +166,58 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
                         />
                     </div>
 
+                    {/* Tabs */}
                     <Tabs defaultValue="all" className="w-full" onValueChange={handleTabChange}>
                         <TabsList className="grid w-full grid-cols-2 bg-[#F5F4ED]">
-                            <TabsTrigger
-                                value="all"
-                                className="data-[state=active]:bg-white"
-                            >
+                            <TabsTrigger value="all" className="data-[state=active]:bg-white">
                                 Todos
                             </TabsTrigger>
-                            <TabsTrigger
-                                value="pending"
-                                className="data-[state=active]:bg-white relative"
-                            >
+                            <TabsTrigger value="pending" className="data-[state=active]:bg-white relative">
                                 Pendentes
-                                {pendingCount > 0 && (
+                                {counts > 0 && (
                                     <Badge className="ml-2 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
-                                        {pendingCount}
+                                        {counts}
                                     </Badge>
                                 )}
                             </TabsTrigger>
                         </TabsList>
 
+                        {/* Amigos */}
                         <TabsContent value="all" className="mt-4">
                             <ScrollArea className="h-[300px] pr-4">
-                                <div className="space-y-2">
-                                    {filteredActiveFriends.length === 0 ? (
-                                        <p className="text-center text-sm text-[#5C4A3A]/50 py-8">
-                                            Nenhum amigo encontrado
-                                        </p>
-                                    ) : (
-                                        filteredActiveFriends.map((friend) => (
-                                            <FriendItem
-                                                key={friend.id}
-                                                friend={friend}
-                                                onBlock={() =>
-                                                    handleBlockFriend(friend.id)
-                                                }
-                                            />
-                                        ))
-                                    )}
-                                </div>
+                                {filteredActiveFriends.length === 0 ? (
+                                    <p className="text-center text-sm text-[#5C4A3A]/50 py-8">
+                                        Nenhum amigo encontrado
+                                    </p>
+                                ) : (
+                                    filteredActiveFriends.map((friend) => (
+                                        <FriendItem
+                                            key={friend.id}
+                                            friend={friend}
+                                            onBlock={() => blockFriend(friend.id)}
+                                        />
+                                    ))
+                                )}
                             </ScrollArea>
                         </TabsContent>
 
+                        {/* Pendentes */}
                         <TabsContent value="pending" className="mt-4">
                             <ScrollArea className="h-[300px] pr-4">
-                                <div className="space-y-2">
-                                    {filteredPendingFriends.length === 0 ? (
-                                        <p className="text-center text-sm text-[#5C4A3A]/50 py-8">
-                                            Nenhuma solicitação pendente
-                                        </p>
-                                    ) : (
-                                        filteredPendingFriends.map((friend) => (
-                                            <PendingFriendItem
-                                                key={friend.friendship_id}
-                                                friend={friend}
-                                                onAccept={() =>
-                                                    handleAcceptFriend(friend.friendship_id)
-                                                }
-                                                onReject={() =>
-                                                    handleRejectFriend(friend.friendship_id)
-                                                }
-                                            />
-                                        ))
-                                    )}
-                                </div>
+                                {filteredPendingFriends.length === 0 ? (
+                                    <p className="text-center text-sm text-[#5C4A3A]/50 py-8">
+                                        Nenhuma solicitação pendente
+                                    </p>
+                                ) : (
+                                    filteredPendingFriends.map((friend) => (
+                                        <PendingFriendItem
+                                            key={friend.friendship_id}
+                                            friend={friend}
+                                            onAccept={() => acceptFriend(friend.friendship_id)}
+                                            onReject={() => rejectFriend(friend.friendship_id)}
+                                        />
+                                    ))
+                                )}
                             </ScrollArea>
                         </TabsContent>
                     </Tabs>
@@ -316,5 +226,3 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
         </DropdownMenu>
     );
 }
-
-

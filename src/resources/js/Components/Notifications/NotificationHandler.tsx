@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { usePage, router } from "@inertiajs/react";
+import { useEffect, useRef } from "react";
+import { usePage } from "@inertiajs/react";
 import { ToastContainer, toast, Flip } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PageProps } from "@/Types/models";
@@ -12,25 +12,21 @@ interface NotificationPayload {
 export default function NotificationHandler() {
     const { props } = usePage<PageProps>();
     const { flash, errors, auth } = props;
+    const lastFlashRef = useRef<string>("");
 
     useEffect(() => {
-        if (flash?.success) {
+        if (flash?.success && flash.success !== lastFlashRef.current) {
             toast.success(flash.success);
+            lastFlashRef.current = flash.success;
         }
-        if (flash?.error) {
+        if (flash?.error && flash.error !== lastFlashRef.current) {
             toast.error(flash.error);
+            lastFlashRef.current = flash.error;
         }
         if (errors && Object.keys(errors).length > 0) {
             Object.values(errors).forEach((errMsg) => toast.error(errMsg));
         }
-
-        if (flash?.success || flash?.error) {
-            router.reload({
-                only: [], // Não recarregar nenhum dado específico
-                replace: true, // Substituir entrada do histórico
-            });
-        }
-    }, [flash, errors]);
+    }, [flash?.success, flash?.error, errors]);
 
     // --- Lógica do (Broadcast) ---
     useEffect(() => {
@@ -60,7 +56,7 @@ export default function NotificationHandler() {
     // Renderiza o container uma única vez
     return (
         <ToastContainer
-            position="top-right"
+            position="bottom-right"
             autoClose={5000}
             hideProgressBar={false}
             newestOnTop={false}

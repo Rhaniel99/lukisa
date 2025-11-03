@@ -45,6 +45,7 @@ class FriendshipsController extends Controller
         try {
             // No futuro, este método pode ser usado para remover amigos também
             $this->friendshipService->rejectRequest($id, Auth::user());
+            
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }

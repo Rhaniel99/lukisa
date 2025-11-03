@@ -13,12 +13,14 @@ class AddFriendData extends Data
         #[Required, StringType, Regex('/^.+#\d{4}$/')]
         public string $tag,
     ) {
+        // Normaliza imediatamente
+        $this->tag = preg_replace('/\s+/', '', $this->tag);
     }
 
     /**
      * Define mensagens de erro customizadas para a validação.
      */
-    public static function messages(...$_args): array // <-- A CORREÇÃO ESTÁ AQUI
+    public static function messages(...$_args): array
     {
         return [
             'tag.required' => 'Você precisa digitar a tag de um usuário.',

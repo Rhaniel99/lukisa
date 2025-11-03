@@ -38,8 +38,8 @@ class HandleInertiaRequests extends Middleware
                 : null,
 
             'flash' => [
-                'success' => fn() => $request->session()->get('success'),
-                'error' => fn() => $request->session()->get('error'),
+                'success' => fn() => $request->session()->pull('success'),
+                'error' => fn() => $request->session()->pull('error'),
             ],
             'friendships' => function () use ($request) {
                 if (!$user = $request->user()) {

@@ -18,6 +18,15 @@ export type PendingFriend = {
     avatar_url: string | null;
 };
 
+export interface Friend {
+    id: string;
+    username: string;
+    discriminator: string;
+    avatar_url: string;
+    status: "online" | "offline" | "pending";
+}
+
+
 export type FriendshipsData = {
     pending: PendingFriend[];
     count: number;

@@ -23,6 +23,7 @@
         "tightenco/ziggy": "^2.5"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.6",
         "fakerphp/faker": "^1.23",
         "laravel-lang/common": "^6.7",
         "laravel/pail": "^1.2.2",
@@ -86,6 +87,6 @@
             "wikimedia/composer-merge-plugin": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

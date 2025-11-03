@@ -8,14 +8,8 @@ import {
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import { Ban, MoreVertical } from "lucide-react";
+import { Friend } from "@/Types/models";
 
-export interface Friend {
-    id: string;
-    username: string;
-    discriminator: string;
-    avatar_url: string;
-    status: "online" | "offline" | "pending";
-}
 
 interface FriendItemProps {
     friend: Friend;
@@ -36,11 +30,10 @@ export function FriendItem({ friend, onBlock }: FriendItemProps) {
                     </AvatarFallback>
                 </Avatar>
                 <div
-                    className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
-                        friend.status === "online"
+                    className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${friend.status === "online"
                             ? "bg-green-500"
                             : "bg-gray-400"
-                    }`}
+                        }`}
                 />
             </div>
             <div className="flex-1 min-w-0">
