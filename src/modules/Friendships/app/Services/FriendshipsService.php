@@ -11,9 +11,11 @@ use Modules\Friendships\Models\Friendship;
 
 class FriendshipsService implements IFriendshipsService
 {
+    protected $repository;
     public function __construct(
-        protected IFriendshipsRepository $friendshipRepository
+        IFriendshipsRepository $repository
     ) {
+        $this->repository = $repository;
     }
 
     /**
@@ -26,7 +28,7 @@ class FriendshipsService implements IFriendshipsService
      */
     public function sendRequest(User $sender, string $receiverTag): Friendship
     {
-        $receiver = $this->friendshipRepository->findUserByTag($receiverTag);
+        $receiver = $this->repository->findUserByTag($receiverTag);
 
         if (!$receiver) {
             throw new Exception('O usuário com esta tag não foi encontrado.');
@@ -37,7 +39,7 @@ class FriendshipsService implements IFriendshipsService
         }
 
         // Verifica se já existe uma amizade ou pedido entre os dois
-        $existingFriendship = $this->friendshipRepository->findExistingFriendship($sender, $receiver);
+        $existingFriendship = $this->repository->findExistingFriendship($sender, $receiver);
 
         if ($existingFriendship) {
             if ($existingFriendship->status === 'pending') {
@@ -46,50 +48,49 @@ class FriendshipsService implements IFriendshipsService
             throw new Exception('Você já é amigo deste usuário.');
         }
 
-        return $this->friendshipRepository->createRequest($sender, $receiver);
+        return $this->repository->createRequest($sender, $receiver);
     }
 
     public function getPendingRequests(User $user): Collection
     {
-        return $this->friendshipRepository->getPendingRequestsFor($user);
+        return $this->repository->getPendingRequestsFor($user);
     }
 
     public function getPendingRequestsCount(User $user): int
     {
-        return $this->friendshipRepository->getPendingRequestsCountFor($user);
+        return $this->repository->getPendingRequestsCountFor($user);
     }
 
 
     public function acceptRequest(string $friendshipId, User $user): bool
     {
-        $friendship = $this->friendshipRepository->findPendingRequestById($friendshipId, $user);
+        $friendship = $this->repository->findPendingRequestById($friendshipId, $user);
 
         if (!$friendship) {
             throw new Exception("Pedido de amizade não encontrado ou já respondido.");
         }
 
-        return $this->friendshipRepository->update($friendship->id, ['status' => 'accepted']);
+        return $this->repository->update($friendship->id, ['status' => 'accepted']);
     }
 
     public function rejectRequest(string $friendshipId, User $user): bool
     {
-        $friendship = $this->friendshipRepository->findPendingRequestById($friendshipId, $user);
+        $friendship = $this->repository->findPendingRequestById($friendshipId, $user);
 
         if (!$friendship) {
             throw new Exception("Pedido de amizade não encontrado ou já respondido.");
         }
 
-        return $this->friendshipRepository->delete($friendship->id);
+        return $this->repository->delete($friendship->id);
     }
 
     public function getAcceptedFriends(User $user, int $limit = 20, int $offset = 0): Collection
     {
-        return $this->friendshipRepository->getAcceptedFriendsFor($user, $limit, $offset);
+        return $this->repository->getAcceptedFriendsFor($user, $limit, $offset);
     }
 
     public function getAcceptedFriendsCount(User $user): int
     {
-        return $this->friendshipRepository->getAcceptedFriendsCountFor($user);
+        return $this->repository->getAcceptedFriendsCountFor($user);
     }
-
 }

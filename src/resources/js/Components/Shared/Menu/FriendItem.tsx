@@ -7,16 +7,17 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
-import { Ban, MoreVertical } from "lucide-react";
+import { Ban, MoreVertical, UserX } from "lucide-react";
 import { Friend } from "@/Types/models";
 
 
 interface FriendItemProps {
     friend: Friend;
+    onRemove: () => void;
     onBlock: () => void;
 }
 
-export function FriendItem({ friend, onBlock }: FriendItemProps) {
+export function FriendItem({ friend, onRemove, onBlock }: FriendItemProps) {
     return (
         <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#F5F4ED] transition-colors">
             <div className="relative">
@@ -54,7 +55,14 @@ export function FriendItem({ friend, onBlock }: FriendItemProps) {
                         <MoreVertical className="h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuContent align="end" className="w-40 bg-white border-[#E8E6D4] shadow-lg p-0 data-[state=open]:animate-in data-[state=closed]:animate-out">
+                    <DropdownMenuItem
+                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                        onClick={onRemove}
+                    >
+                        <UserX className="mr-2 h-4 w-4" />
+                        Remover
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                         className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
                         onClick={onBlock}

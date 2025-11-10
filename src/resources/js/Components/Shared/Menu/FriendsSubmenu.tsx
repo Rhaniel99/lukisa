@@ -29,7 +29,7 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
 
     const { data, setData, post, processing, errors, reset } = useForm({ tag: "" });
 
-    const { pending, accepted, counts, load, acceptFriend, rejectFriend, blockFriend } = useFriends();
+    const { pending, accepted, counts, load, acceptFriend, rejectFriend, removeFriend, blockFriend } = useFriends();
 
     const handleAddFriendSubmit = () => {
         post(route("friends.store"), {
@@ -194,6 +194,7 @@ export function FriendsSubmenu({ pendingCount: initialPendingCount }: FriendsSub
                                         <FriendItem
                                             key={friend.id}
                                             friend={friend}
+                                            onRemove={() => removeFriend(friend.id)}
                                             onBlock={() => blockFriend(friend.id)}
                                         />
                                     ))

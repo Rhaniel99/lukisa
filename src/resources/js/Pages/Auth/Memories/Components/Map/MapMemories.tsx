@@ -23,7 +23,7 @@ const MapMemories: React.FC<MapMemoriesProps> = ({
     onMapClick,
     children,
 }) => (
-    <div className="h-full w-full">
+    <div className="relative z-0 h-full w-full">
         <HereMap center={initialPosition}>
             {/* Layers do mapa */}
             <MapSearchField />

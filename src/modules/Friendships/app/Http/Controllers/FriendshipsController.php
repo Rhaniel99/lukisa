@@ -13,14 +13,16 @@ use Modules\Friendships\Interfaces\Services\IFriendshipsService;
 
 class FriendshipsController extends Controller
 {
-    public function __construct(protected IFriendshipsService $friendshipService)
+    private $service;
+    public function __construct(IFriendshipsService $service)
     {
+        $this->service = $service;
     }
 
     public function store(AddFriendData $data)
     {
         try {
-            $this->friendshipService->sendRequest(Auth::user(), $data->tag);
+            $this->service->sendRequest(Auth::user(), $data->tag);
         } catch (Exception $e) {
             // Retorna para a página anterior com uma mensagem de erro
             return back()->with('error', $e->getMessage());
@@ -33,7 +35,7 @@ class FriendshipsController extends Controller
     public function accept(string $id)
     {
         try {
-            $this->friendshipService->acceptRequest($id, Auth::user());
+            $this->service->acceptRequest($id, Auth::user());
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -44,8 +46,7 @@ class FriendshipsController extends Controller
     {
         try {
             // No futuro, este método pode ser usado para remover amigos também
-            $this->friendshipService->rejectRequest($id, Auth::user());
-            
+            $this->service->rejectRequest($id, Auth::user());
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -55,26 +56,26 @@ class FriendshipsController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         // Carrega dados iniciais (primeiros 20 amigos aceitos e todos os pendentes)
-        $pendingRequests = $this->friendshipService->getPendingRequests($user);
-        $acceptedFriends = $this->friendshipService->getAcceptedFriends($user, 20, 0);
-        
+        $pendingRequests = $this->service->getPendingRequests($user);
+        $acceptedFriends = $this->service->getAcceptedFriends($user, 20, 0);
+
         $pendingData = PendingFriendData::collect($pendingRequests);
         $acceptedData = FriendData::collect($acceptedFriends);
-        
+
         return inertia()->share([
             'pending_friends' => $pendingData,
             'accepted_friends' => $acceptedData,
             'pending_count' => $pendingRequests->count(),
-            'accepted_count' => $this->friendshipService->getAcceptedFriendsCount($user)
+            'accepted_count' => $this->service->getAcceptedFriendsCount($user)
         ]);
     }
 
     public function getPending(Request $request)
     {
         $user = Auth::user();
-        $pendingRequests = $this->friendshipService->getPendingRequests($user);
+        $pendingRequests = $this->service->getPendingRequests($user);
         $pendingData = PendingFriendData::collect($pendingRequests);
 
         if ($request->expectsJson()) {
@@ -92,10 +93,10 @@ class FriendshipsController extends Controller
         $user = Auth::user();
         $limit = $request->get('limit', 20);
         $offset = $request->get('offset', 0);
-        
-        $acceptedFriends = $this->friendshipService->getAcceptedFriends($user, $limit, $offset);
+
+        $acceptedFriends = $this->service->getAcceptedFriends($user, $limit, $offset);
         $acceptedData = FriendData::collect($acceptedFriends);
-        $totalCount = $this->friendshipService->getAcceptedFriendsCount($user);
+        $totalCount = $this->service->getAcceptedFriendsCount($user);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -109,5 +110,4 @@ class FriendshipsController extends Controller
 
         return inertia()->share(['accepted_friends' => $acceptedData]);
     }
-
 }

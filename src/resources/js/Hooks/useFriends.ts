@@ -75,6 +75,18 @@ export function useFriends() {
         });
     };
 
+    const removeFriend = (friendId: string) => {
+        friendshipForm.delete(route("friends.destroy", friendId), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setAccepted((prev) => prev.filter((f) => f.id !== friendId));
+                setLoading(false);
+            },
+            onStart: () => setLoading(true),
+            onFinish: () => setLoading(false),
+        });
+    };
+
     const blockFriend = (friendId: string) => {
         // Esta é uma ação apenas do lado do cliente por enquanto.
         setAccepted((prev) => prev.filter((f) => f.id !== friendId));
@@ -88,6 +100,7 @@ export function useFriends() {
         load,
         acceptFriend,
         rejectFriend,
+        removeFriend,
         blockFriend,
     };
 }
