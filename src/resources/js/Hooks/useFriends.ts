@@ -76,7 +76,7 @@ export function useFriends() {
     };
 
     const removeFriend = (friendId: string) => {
-        friendshipForm.delete(route("friends.destroy", friendId), {
+        friendshipForm.delete(route("friends.remove", friendId), {
             preserveScroll: true,
             onSuccess: () => {
                 setAccepted((prev) => prev.filter((f) => f.id !== friendId));

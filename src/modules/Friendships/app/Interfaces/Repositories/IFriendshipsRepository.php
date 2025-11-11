@@ -17,9 +17,8 @@ interface IFriendshipsRepository extends ICoreRepository
     public function createRequest(User $sender, User $receiver): Friendship;
     public function findExistingFriendship(User $user1, User $user2): ?Friendship;
     public function getPendingRequestsFor(User $user): Collection;
-    public function findPendingRequestById(string $friendshipId, User $receiver): ?Friendship;
     public function getPendingRequestsCountFor(User $user): int;
     public function getAcceptedFriendsFor(User $user, int $limit = 20, int $offset = 0): Collection;
     public function getAcceptedFriendsCountFor(User $user): int;
-
+    public function findPendingRequestById(string $friendshipId): ?Friendship;
 }

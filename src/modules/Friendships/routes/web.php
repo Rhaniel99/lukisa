@@ -14,7 +14,9 @@ Route::middleware(['auth', 'check.profile'])->group(function () {
     Route::patch('/friends/{id}/accept', [FriendshipsController::class, 'accept'])->name('friends.accept');
 
     // Rota para RECUSAR/CANCELAR um pedido de amizade
-    Route::delete('/friends/{id}', [FriendshipsController::class, 'destroy'])->name('friends.destroy');
+    Route::delete('/friends/{friendship_id}', [FriendshipsController::class, 'destroy'])->name('friends.destroy');
+
+    Route::delete('/friends/remove-friend-to-friend/{friendship_id}', [FriendshipsController::class, 'removeFriendToFriend'])->name('friends.remove');
 
     Route::get('/friends/pending', [FriendshipsController::class, 'getPending'])->name('friends.pending');
     

@@ -65,11 +65,10 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
             ->count();
     }
 
-    public function findPendingRequestById(string $friendshipId, User $receiver): ?Friendship
+    public function findPendingRequestById(string $friendshipId): ?Friendship
     {
         return $this->model
             ->where('id', $friendshipId)
-            ->where('friend_id', $receiver->id)
             ->where('status', 'pending')
             ->first();
     }

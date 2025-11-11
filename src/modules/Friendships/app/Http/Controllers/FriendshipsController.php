@@ -39,18 +39,32 @@ class FriendshipsController extends Controller
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
-        return back()->with('success', 'Amigo adicionado!');
+        return back()->with('success', 'Adicionado com sucesso!');
     }
 
-    public function destroy(string $id)
+    public function destroy(string $friendship_id)
     {
         try {
             // No futuro, este método pode ser usado para remover amigos também
-            $this->service->rejectRequest($id, Auth::user());
+            $this->service->rejectRequest($friendship_id);
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
-        return back()->with('success', 'Pedido recusado.');
+        return back()->with('success', 'Removido com sucesso!');
+    }
+
+    public function block(string $user_id){
+
+    }
+
+    public function removeFriendToFriend(string $user_id){
+        try {
+            // No futuro, este método pode ser usado para remover amigos também
+            $this->service->removeFriendToFriend($user_id);
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+        return back()->with('success', 'Removido com sucesso!');
     }
 
     public function index()

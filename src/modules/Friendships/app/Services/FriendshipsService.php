@@ -73,9 +73,20 @@ class FriendshipsService implements IFriendshipsService
         return $this->repository->update($friendship->id, ['status' => 'accepted']);
     }
 
-    public function rejectRequest(string $friendshipId, User $user): bool
+    public function rejectRequest(string $friendship_id): bool
     {
-        $friendship = $this->repository->findPendingRequestById($friendshipId, $user);
+        $friendship = $this->repository->findPendingRequestById($friendship_id);
+
+        if (!$friendship) {
+            throw new Exception("Pedido de amizade não encontrado ou já respondido.");
+        }
+
+        return $this->repository->delete($friendship->id);
+    }
+
+    public function removeFriendToFriend(string $user_id): bool
+    {
+        $friendship = $this->repository->findExistingFriendship(User::findOrFail($user_id), \Auth::user());
 
         if (!$friendship) {
             throw new Exception("Pedido de amizade não encontrado ou já respondido.");
