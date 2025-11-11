@@ -14,11 +14,11 @@ use Modules\Friendships\Models\Friendship;
 interface IFriendshipsRepository extends ICoreRepository
 {
     public function findUserByTag(string $tag): ?User;
-    public function createRequest(User $sender, User $receiver): Friendship;
-    public function findExistingFriendship(User $user1, User $user2): ?Friendship;
+    public function createRequest(string $user_id, string $friend_id): Friendship;
+    public function findExistingFriendship(string $user_id, string $friend_id): ?Friendship;
+    public function findPendingRequestById(string $friendship_id): ?Friendship;
     public function getPendingRequestsFor(User $user): Collection;
     public function getPendingRequestsCountFor(User $user): int;
     public function getAcceptedFriendsFor(User $user, int $limit = 20, int $offset = 0): Collection;
     public function getAcceptedFriendsCountFor(User $user): int;
-    public function findPendingRequestById(string $friendshipId): ?Friendship;
 }

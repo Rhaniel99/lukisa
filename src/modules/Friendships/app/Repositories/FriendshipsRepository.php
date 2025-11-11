@@ -31,25 +31,23 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
         return $this->userRepository->findUserByUsernameAndDiscriminator($username, $discriminator);
     }
 
-    public function createRequest(User $sender, User $receiver): Friendship
+    public function createRequest(string $user_id, string $friend_id): Friendship
     {
         return $this->create([
-            'user_id' => $sender->id,
-            'friend_id' => $receiver->id,
+            'user_id' => $user_id,
+            'friend_id' => $friend_id,
             'status' => 'pending',
         ]);
     }
 
-    public function findExistingFriendship(User $user1, User $user2): ?Friendship
+    public function findExistingFriendship(string $user_id, string $friend_id): ?Friendship
     {
         return $this->model
-            ->where(function ($query) use ($user1, $user2) {
-                $query->where('user_id', $user1->id)->where('friend_id', $user2->id);
-            })
-            ->orWhere(function ($query) use ($user1, $user2) {
-                $query->where('user_id', $user2->id)->where('friend_id', $user1->id);
-            })
-            ->first();
+            ->where(function ($query) use ($user_id, $friend_id) {
+                $query->where('user_id', $user_id)->where('friend_id', $friend_id);
+            })->orWhere(function ($query) use ($user_id, $friend_id) {
+                $query->where('user_id', $friend_id)->where('friend_id', $user_id);
+            })->first();
     }
 
     public function getPendingRequestsFor(User $user): Collection
@@ -65,10 +63,10 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
             ->count();
     }
 
-    public function findPendingRequestById(string $friendshipId): ?Friendship
+    public function findPendingRequestById(string $friendship_id): ?Friendship
     {
         return $this->model
-            ->where('id', $friendshipId)
+            ->where('id', $friendship_id)
             ->where('status', 'pending')
             ->first();
     }
@@ -79,7 +77,7 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
             ->where('status', 'accepted')
             ->where(function ($query) use ($user) {
                 $query->where('user_id', $user->id)
-                      ->orWhere('friend_id', $user->id);
+                    ->orWhere('friend_id', $user->id);
             })
             ->with(['sender', 'receiver'])
             ->offset($offset)
@@ -87,8 +85,8 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
             ->get()
             ->map(function ($friendship) use ($user) {
                 // Retorna o usuário que não é o usuário atual
-                return $friendship->user_id === $user->id 
-                    ? $friendship->receiver 
+                return $friendship->user_id === $user->id
+                    ? $friendship->receiver
                     : $friendship->sender;
             });
     }
@@ -99,9 +97,8 @@ class FriendshipsRepository extends CoreRepository implements IFriendshipsReposi
             ->where('status', 'accepted')
             ->where(function ($query) use ($user) {
                 $query->where('user_id', $user->id)
-                      ->orWhere('friend_id', $user->id);
+                    ->orWhere('friend_id', $user->id);
             })
             ->count();
     }
-
 }

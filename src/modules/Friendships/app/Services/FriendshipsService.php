@@ -18,15 +18,7 @@ class FriendshipsService implements IFriendshipsService
         $this->repository = $repository;
     }
 
-    /**
-     * Envia um novo pedido de amizade.
-     *
-     * @param User $sender O usuário que está enviando o pedido.
-     * @param string $receiverTag A tag do usuário que receberá o pedido (ex: "rhaniel#1234").
-     * @return Friendship O registro da amizade criada.
-     * @throws Exception Se uma regra de negócio for violada.
-     */
-    public function sendRequest(User $sender, string $receiverTag): Friendship
+    public function sendRequest(string $user_id, string $receiverTag): Friendship
     {
         $receiver = $this->repository->findUserByTag($receiverTag);
 
@@ -34,12 +26,12 @@ class FriendshipsService implements IFriendshipsService
             throw new Exception('O usuário com esta tag não foi encontrado.');
         }
 
-        if ($sender->id === $receiver->id) {
+        if ($user_id === $receiver->id) {
             throw new Exception('Você não pode adicionar a si mesmo como amigo.');
         }
 
         // Verifica se já existe uma amizade ou pedido entre os dois
-        $existingFriendship = $this->repository->findExistingFriendship($sender, $receiver);
+        $existingFriendship = $this->repository->findExistingFriendship($user_id, $receiver->id);
 
         if ($existingFriendship) {
             if ($existingFriendship->status === 'pending') {
@@ -48,7 +40,7 @@ class FriendshipsService implements IFriendshipsService
             throw new Exception('Você já é amigo deste usuário.');
         }
 
-        return $this->repository->createRequest($sender, $receiver);
+        return $this->repository->createRequest($user_id, $receiver->id);
     }
 
     public function getPendingRequests(User $user): Collection
@@ -62,9 +54,9 @@ class FriendshipsService implements IFriendshipsService
     }
 
 
-    public function acceptRequest(string $friendshipId, User $user): bool
+    public function acceptRequest(string $friendship_id): bool
     {
-        $friendship = $this->repository->findPendingRequestById($friendshipId, $user);
+        $friendship = $this->repository->findPendingRequestById($friendship_id);
 
         if (!$friendship) {
             throw new Exception("Pedido de amizade não encontrado ou já respondido.");
@@ -84,15 +76,26 @@ class FriendshipsService implements IFriendshipsService
         return $this->repository->delete($friendship->id);
     }
 
-    public function removeFriendToFriend(string $user_id): bool
+    public function removeFriendToFriend(string $friend_id, string $user_id): bool
     {
-        $friendship = $this->repository->findExistingFriendship(User::findOrFail($user_id), \Auth::user());
+        $friendship = $this->repository->findExistingFriendship($user_id, $friend_id);
 
         if (!$friendship) {
             throw new Exception("Pedido de amizade não encontrado ou já respondido.");
         }
 
         return $this->repository->delete($friendship->id);
+    }
+
+    public function setFriendBlock(string $friend_id, string $user_id): bool
+    {
+        $friendship = $this->repository->findExistingFriendship($user_id, $friend_id);
+        if ($friendship) {
+            // 2. Atualiza o status
+            return $this->repository->update($friendship->id, ['status' => 'blocked']);
+        }
+
+        return false;
     }
 
     public function getAcceptedFriends(User $user, int $limit = 20, int $offset = 0): Collection

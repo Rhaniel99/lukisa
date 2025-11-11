@@ -22,7 +22,7 @@ class FriendshipsController extends Controller
     public function store(AddFriendData $data)
     {
         try {
-            $this->service->sendRequest(Auth::user(), $data->tag);
+            $this->service->sendRequest(Auth::user()->id, $data->tag);
         } catch (Exception $e) {
             // Retorna para a página anterior com uma mensagem de erro
             return back()->with('error', $e->getMessage());
@@ -32,10 +32,10 @@ class FriendshipsController extends Controller
         return back()->with('success', 'Pedido de amizade enviado com sucesso!');
     }
 
-    public function accept(string $id)
+    public function accept(string $friendship_id)
     {
         try {
-            $this->service->acceptRequest($id, Auth::user());
+            $this->service->acceptRequest($friendship_id);
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -45,7 +45,6 @@ class FriendshipsController extends Controller
     public function destroy(string $friendship_id)
     {
         try {
-            // No futuro, este método pode ser usado para remover amigos também
             $this->service->rejectRequest($friendship_id);
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -53,14 +52,21 @@ class FriendshipsController extends Controller
         return back()->with('success', 'Removido com sucesso!');
     }
 
-    public function block(string $user_id){
-
+    public function block(string $friend_id)
+    {
+        try {
+            $this->service->setFriendBlock($friend_id, Auth::user()->id);
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+        return back()->with('success', 'Sucesso!');
     }
 
-    public function removeFriendToFriend(string $user_id){
+    public function removeFriendToFriend(string $friend_id)
+    {
         try {
             // No futuro, este método pode ser usado para remover amigos também
-            $this->service->removeFriendToFriend($user_id);
+            $this->service->removeFriendToFriend($friend_id, Auth::user()->id);
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }

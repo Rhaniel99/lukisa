@@ -17,18 +17,17 @@ use Modules\Authentication\Interfaces\Services\IAuthenticationService;
 
 class AuthenticationController extends Controller
 {
-    protected IAuthenticationService $authService;
+    protected IAuthenticationService $service;
 
-    public function __construct(IAuthenticationService $authService)
+    public function __construct(IAuthenticationService $service)
     {
-        $this->authService = $authService;
+        $this->service = $service;
     }
-
 
     public function profileRegister(UpdateProfileData $r): RedirectResponse
     {
         $userId = Auth::id();
-        $success = $this->authService->updateProfile($userId, $r);
+        $success = $this->service->updateProfile($userId, $r);
 
         if (!$success) {
             return back()->with('error', 'Ocorreu um erro ao atualizar seu perfil. Por favor, tente novamente.');
@@ -40,7 +39,7 @@ class AuthenticationController extends Controller
 
     public function authLogin(LoginData $r)
     {
-        $success = $this->authService->login($r);
+        $success = $this->service->login($r);
 
         if (!$success) {
             throw ValidationException::withMessages([
@@ -53,7 +52,7 @@ class AuthenticationController extends Controller
 
     public function userRegister(RegisterData $r)
     {
-        $user = $this->authService->register($r);
+        $user = $this->service->register($r);
         Auth::login($user);
         request()->session()->regenerate();
         return to_route('lukisa.index')->with(['success' => "Bem vindo! Sua conta foi criada com sucesso."]);
@@ -61,7 +60,7 @@ class AuthenticationController extends Controller
 
     public function forgotVerify(CheckUserData $r)
     {
-        $user = $this->authService->findByEmailAndBirthDate($r);
+        $user = $this->service->findByEmailAndBirthDate($r);
 
         if ($user) {
             return inertia('Public/Authentication/Forgot', [
@@ -75,7 +74,7 @@ class AuthenticationController extends Controller
 
     public function forgotPassword(ResetPasswordData $r): RedirectResponse
     {
-        $success = $this->authService->resetPassword($r);
+        $success = $this->service->resetPassword($r);
 
         if (!$success) {
             return back()->with('errors', 'Os dados informados não correspondem a nenhuma conta.');
@@ -83,11 +82,13 @@ class AuthenticationController extends Controller
 
         return to_route('home')->with('success', 'Sua senha foi redefinida com sucesso! Você já pode fazer o login.');
     }
+    
     public function updateProfile(Request $request, $id)
     {
         dd($id);
         dd($request->all());
     }
+
     public function logout()
     {
         Auth::logout();

@@ -43,14 +43,14 @@ export function useFriends() {
         });
     }, []);
 
-    const acceptFriend = (id: string) => {
-        friendshipForm.patch(route("friends.accept", id), {
+    const acceptFriend = (friendship_id: string) => {
+        friendshipForm.patch(route("friends.accept", friendship_id), {
             preserveScroll: true,
             onSuccess: () => {
                 // Remover da lista pendente localmente - o flash será mostrado pelo NotificationHandler
-                const friendToAccept = pending.find((f) => f.friendship_id === id);
+                const friendToAccept = pending.find((f) => f.friendship_id === friendship_id);
                 if (friendToAccept) {
-                    setPending((prev) => prev.filter((f) => f.friendship_id !== id));
+                    setPending((prev) => prev.filter((f) => f.friendship_id !== friendship_id));
                     setAccepted((prev) => [...prev, { id: friendToAccept.id, username: friendToAccept.username, discriminator: friendToAccept.discriminator, avatar_url: friendToAccept.avatar_url || '', status: 'offline' as const }]);
                     setCounts((prev) => Math.max(0, prev - 1));
                 }
@@ -88,8 +88,15 @@ export function useFriends() {
     };
 
     const blockFriend = (friendId: string) => {
-        // Esta é uma ação apenas do lado do cliente por enquanto.
-        setAccepted((prev) => prev.filter((f) => f.id !== friendId));
+        friendshipForm.post(route("friends.block", friendId), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setAccepted((prev) => prev.filter((f) => f.id !== friendId));
+                setLoading(false);
+            },
+            onStart: () => setLoading(true),
+            onFinish: () => setLoading(false),
+        });
     };
 
     return {
