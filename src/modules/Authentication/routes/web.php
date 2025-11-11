@@ -22,7 +22,6 @@ Route::middleware('auth')->group(function() {
     Route::post('/complete-profile', [AuthenticationController::class, 'profileRegister'])->name('profile.register');
 });
 
-
 Route::middleware(['auth', 'check.profile'])->group(function() {
-    Route::patch('/update-profile/{id}', [AuthenticationController::class, 'updateProfile'])->name('profile.update');
+    Route::patch('/update-profile', [AuthenticationController::class, 'updateProfile'])->name('profile.update');
 });

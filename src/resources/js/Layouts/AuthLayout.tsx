@@ -14,7 +14,7 @@ import {
 } from "@/Components/ui/dropdown-menu";
 import { Header } from "@/Components/Shared/Header";
 import { PageProps, AuthUser } from "@/Types/models";
-import { SettingsModal } from "@/Components/Modal/SettingsModal";
+import { SettingsModal } from "@/Components/Modal/SettingsModal/Index";
 import { FriendsSubmenu } from "@/Components/Shared/Menu/FriendsSubmenu";
 
 export default function AuthLayout({ children }: PropsWithChildren) {
@@ -66,14 +66,11 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                                 <span>Configurações</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="bg-[#E8E6D4]/50" />
-                            <DropdownMenuItem className="cursor-pointer text-red-600 hover:!text-red-600 hover:!bg-red-50 focus:!bg-red-50">
-                                <Link
-                                    href={route("auth.logout")}
-                                    method="post"
-                                    as="button"
-                                >
-                                    <span>Sair</span>
-                                </Link>
+                            <DropdownMenuItem
+                                className="cursor-pointer text-red-600 hover:!text-red-600 hover:!bg-red-50 focus:!bg-red-50"
+                                onSelect={() => router.post(route("auth.logout"))}
+                            >
+                                <span>Sair</span>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

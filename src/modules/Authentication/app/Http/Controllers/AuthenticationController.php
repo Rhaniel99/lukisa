@@ -12,6 +12,7 @@ use Modules\Authentication\DTOs\LoginData;
 use Modules\Authentication\DTOs\RegisterData;
 use Modules\Authentication\DTOs\ResetPasswordData;
 use Modules\Authentication\DTOs\UpdateProfileData;
+use Modules\Authentication\DTOs\UpdateUserData;
 use Modules\Authentication\Interfaces\Services\IAuthenticationService;
 
 
@@ -82,11 +83,10 @@ class AuthenticationController extends Controller
 
         return to_route('home')->with('success', 'Sua senha foi redefinida com sucesso! Você já pode fazer o login.');
     }
-    
-    public function updateProfile(Request $request, $id)
+
+    public function updateProfile(UpdateUserData $r)
     {
-        dd($id);
-        dd($request->all());
+        dd($r->all());
     }
 
     public function logout()
