@@ -5,24 +5,17 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
+use Modules\Friendships\Interfaces\Services\IFriendshipsService;
 use Modules\Memories\DTOs\UserData;
 
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that's loaded on the first page visit.
-     *
-     * @see https://inertiajs.com/server-side-setup#root-template
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determines the current asset version.
-     *
-     * @see https://inertiajs.com/asset-versioning
-     */
+    public function __construct(
+        protected IFriendshipsService $friendshipService
+    ) {}
+
     public function version(Request $request): ?string
     {
         return parent::version($request);
@@ -31,26 +24,52 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         return array_merge(parent::share($request), [
-            'auth' => fn() => $request->user()
-                ? [
-                    'user' => UserData::from($request->user())
-                ]
-                : null,
-
-            'flash' => $this->buildFlashProps($request),
-            'friendships' => fn() => $this->buildFriendshipsProps($request),
-            'settings_user' => fn() => $request->user()
-                ? UserData::from($request->user())
-                ->include('email', 'fullname', 'birthDate', 'avatarHistory')
-                : null,
+            // Métodos privados para encapsular a lógica
+            'auth' => $this->getAuthProps($request),
+            'flash' => $this->getFlashProps(),
+            'friendships' => fn() => $this->getFriendshipsProps($request),
+            'settings_user' => fn() => $this->getSettingsUserProps($request),
         ]);
     }
 
-    protected function buildFlashProps(Request $request): array
+    /**
+     * Retorna os dados básicos do usuário autenticado.
+     */
+    private function getAuthProps(Request $request): ?array
+    {
+        if (!$user = $request->user()) {
+            return null;
+        }
+
+        return [
+            'user' => UserData::from($user),
+        ];
+    }
+
+    /**
+     * Retorna os dados completos do usuário para o modal de configurações.
+     * Carregado sob demanda (Lazy).
+     */
+    private function getSettingsUserProps(Request $request): ?UserData
+    {
+        if (!$user = $request->user()) {
+            return null;
+        }
+
+        // Incluímos explicitamente os campos pesados/lazy
+        return UserData::from($user)
+            ->include('email', 'fullname', 'birthDate', 'avatarHistory');
+    }
+
+    /**
+     * Monta as mensagens flash da sessão.
+     */
+    private function getFlashProps(): array
     {
         $flash = [];
+        $types = ['success', 'error', 'info', 'warning'];
 
-        foreach (['success', 'error', 'info', 'warning'] as $type) {
+        foreach ($types as $type) {
             if (Session::has($type)) {
                 $flash[$type] = [
                     'message' => Session::get($type),
@@ -63,29 +82,28 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Constrói os dados de amizades (dinâmico via "include")
+     * Lógica para carregar dados de amizade baseada na query string 'include'.
      */
-    protected function buildFriendshipsProps(Request $request): array
+    private function getFriendshipsProps(Request $request): array
     {
         if (!$user = $request->user()) {
             return ['count' => 0];
         }
 
-        /** @var IFriendshipsService $friendshipService */
-        $friendshipService = app(\Modules\Friendships\Interfaces\Services\IFriendshipsService::class);
-        $includes = explode(',', $request->input('include', ''));
-
+        // Como injetamos o serviço no construtor, podemos usá-lo diretamente aqui
         $data = [
-            'count' => $friendshipService->getPendingRequestsCount($user),
+            'count' => $this->friendshipService->getPendingRequestsCount($user),
         ];
 
+        $includes = explode(',', $request->input('include', ''));
+
         if (in_array('pending', $includes)) {
-            $pendingRequests = $friendshipService->getPendingRequests($user);
+            $pendingRequests = $this->friendshipService->getPendingRequests($user);
             $data['pending'] = \Modules\Friendships\DTOs\PendingFriendData::collect($pendingRequests);
         }
 
         if (in_array('accepted', $includes)) {
-            $acceptedFriends = $friendshipService->getAcceptedFriends($user, 20, 0);
+            $acceptedFriends = $this->friendshipService->getAcceptedFriends($user, 20, 0);
             $data['accepted'] = \Modules\Friendships\DTOs\FriendData::collect($acceptedFriends);
         }
 
