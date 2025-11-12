@@ -72,15 +72,10 @@ export interface MemoriesIndexProps {
     places: Place[];
 }
 
-// export type User = {
-//     id: string;
-//     fullname: string;
-//     discriminator: string;
-//     username: string;
-//     email: string;
-//     avatar: string | null;
-//     avatar_url: string | null;
-// };
+export type FlashMessage = {
+    message: string;
+    time: number;
+};
 
 // ✅ Define e exporta o tipo base que todas as páginas terão
 export type PageProps = InertiaPageProps & {
@@ -88,10 +83,12 @@ export type PageProps = InertiaPageProps & {
         user: AuthUser;
     };
     settings_user?: SettingsUser;
-    flash?: {
-        success?: string;
-        error?: string;
-    }
+ flash?: {
+        success?: FlashMessage;
+        error?: FlashMessage;
+        info?: FlashMessage;
+        warning?: FlashMessage;
+    };
 };
 
 declare module '@inertiajs/core' {

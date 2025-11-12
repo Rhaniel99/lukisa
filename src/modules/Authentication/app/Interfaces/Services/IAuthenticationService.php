@@ -7,6 +7,7 @@ use Modules\Authentication\DTOs\CheckUserData;
 use Modules\Authentication\DTOs\LoginData;
 use Modules\Authentication\DTOs\RegisterData;
 use Modules\Authentication\DTOs\ResetPasswordData;
+use Modules\Authentication\DTOs\CompleteProfileData;
 use Modules\Authentication\DTOs\UpdateProfileData;
 
 interface IAuthenticationService
@@ -25,6 +26,8 @@ interface IAuthenticationService
 
     public function resetPassword(ResetPasswordData $data): bool;
 
-    public function updateProfile(string $userId, UpdateProfileData $r): bool;
+    public function completeProfile(string $userId, CompleteProfileData $r): bool;
+
+    public function updateProfile(string $user_id, UpdateProfileData $data): bool;
 
 }

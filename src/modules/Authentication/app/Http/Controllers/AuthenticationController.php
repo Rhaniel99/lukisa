@@ -4,17 +4,16 @@ namespace Modules\Authentication\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Auth;
+use Exception;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Modules\Authentication\DTOs\CheckUserData;
 use Modules\Authentication\DTOs\LoginData;
 use Modules\Authentication\DTOs\RegisterData;
 use Modules\Authentication\DTOs\ResetPasswordData;
+use Modules\Authentication\DTOs\CompleteProfileData;
 use Modules\Authentication\DTOs\UpdateProfileData;
-use Modules\Authentication\DTOs\UpdateUserData;
 use Modules\Authentication\Interfaces\Services\IAuthenticationService;
-
 
 class AuthenticationController extends Controller
 {
@@ -25,10 +24,9 @@ class AuthenticationController extends Controller
         $this->service = $service;
     }
 
-    public function profileRegister(UpdateProfileData $r): RedirectResponse
+    public function profileRegister(CompleteProfileData $r): RedirectResponse
     {
-        $userId = Auth::id();
-        $success = $this->service->updateProfile($userId, $r);
+        $success = $this->service->completeProfile(Auth::id(), $r);
 
         if (!$success) {
             return back()->with('error', 'Ocorreu um erro ao atualizar seu perfil. Por favor, tente novamente.');
@@ -84,9 +82,14 @@ class AuthenticationController extends Controller
         return to_route('home')->with('success', 'Sua senha foi redefinida com sucesso! Você já pode fazer o login.');
     }
 
-    public function updateProfile(UpdateUserData $r)
+    public function updateProfile(UpdateProfileData $r)
     {
-        dd($r->all());
+        try {
+            $this->service->updateProfile(Auth::id(), $r);
+            return back()->with('success', 'Perfil atualizado com sucesso!');
+        } catch (Exception $e) {
+            return back()->with('error', 'Ocorreu um erro ao atualizar seu perfil. Por favor, tente novamente mais tarde.');
+        }
     }
 
     public function logout()
@@ -94,5 +97,4 @@ class AuthenticationController extends Controller
         Auth::logout();
         return to_route('home');
     }
-
 }

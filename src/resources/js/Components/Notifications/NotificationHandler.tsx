@@ -12,21 +12,30 @@ interface NotificationPayload {
 export default function NotificationHandler() {
     const { props } = usePage<PageProps>();
     const { flash, errors, auth } = props;
+    // ? Importante para que não bug ao fazer outras requisições 
     const lastFlashRef = useRef<string>("");
-
     useEffect(() => {
-        if (flash?.success && flash.success !== lastFlashRef.current) {
-            toast.success(flash.success);
-            lastFlashRef.current = flash.success;
+        if (flash?.success?.message) {
+            const key = `${flash.success.message}-${flash.success.time}`;
+            if (key !== lastFlashRef.current) {
+                toast.success(flash.success.message);
+                lastFlashRef.current = key;
+            }
         }
-        if (flash?.error && flash.error !== lastFlashRef.current) {
-            toast.error(flash.error);
-            lastFlashRef.current = flash.error;
+
+        if (flash?.error?.message) {
+            const key = `${flash.error.message}-${flash.error.time}`;
+            if (key !== lastFlashRef.current) {
+                toast.error(flash.error.message);
+                lastFlashRef.current = key;
+            }
         }
+
         if (errors && Object.keys(errors).length > 0) {
             Object.values(errors).forEach((errMsg) => toast.error(errMsg));
         }
     }, [flash?.success, flash?.error, errors]);
+
 
     // --- Lógica do (Broadcast) ---
     useEffect(() => {

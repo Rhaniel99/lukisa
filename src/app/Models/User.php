@@ -73,6 +73,12 @@ class User extends Authenticatable implements HasMedia
             ->sharpen(10)
             ->nonQueued();
     }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatars')
+            ->useDisk('s3');
+    }
     /**
      * Retorna os amigos do usuário (relacionamentos aceitos).
      * Este método é complexo porque a amizade é bidirecional.
