@@ -98,68 +98,57 @@ class AuthenticationService implements IAuthenticationService
             throw new \Exception('Usuário não encontrado.');
         }
 
-        // Dados vindos do DTO (já sem nulos)
+        // 1. Pega os dados limpos do DTO
         $incoming = $dto->toArray();
+        $updateData = [];
 
-        // Campos que realmente mudaram
-        $changed = collect($incoming)
-            ->filter(fn($value, $field) => $user->{$field} !== $value)
-            ->toArray();
-
-        // Nenhuma mudança? retorna direto
-        if (empty($changed)) {
-            return true;
-        }
-
-        /**
-         * Mapeia nomes lógicos -> colunas do banco
-         */
+        // 2. Definição de Mapeamento e Regras
+        // [Campo DTO] => [Coluna Banco]
         $map = [
             'fullname' => 'name',
-            'username' => 'username',
         ];
 
-        /**
-         * Regras especiais por campo (dinâmicas e fáceis de expandir)
-         */
-        $rules = [
-            'username' => function ($value, &$data) {
-                $data['discriminator'] = $this->genUniqueDiscriminator($value);
-                return $value;
-            },
-            // Exemplo futuro:
-            // 'email' => fn($value, &$data) => strtolower($value),
-        ];
+        foreach ($incoming as $dtoField => $value) {
+            // 2. LÓGICA INTELIGENTE:
+            // Tenta pegar do mapa. Se não existir, assume que o nome da coluna 
+            // é igual ao nome do campo no DTO (ex: email -> email).
+            $dbColumn = $map[$dtoField] ?? $dtoField;
 
-        // Aplica o mapeamento e as regras especiais automaticamente
-        $updateData = collect($changed)->mapWithKeys(function ($value, $key) use ($map, $rules, &$changed) {
-            $dbField = $map[$key] ?? $key;
-
-            // Se existir uma regra especial, aplica
-            if (isset($rules[$key])) {
-                $value = $rules[$key]($value, $changed);
+            // Verifica se o valor mudou (exceto senha, que sempre processamos se vier)
+            if ($dtoField !== 'password' && $user->{$dbColumn} === $value) {
+                continue;
             }
 
-            return [$dbField => $value];
-        })->merge($changed)->toArray();
+            // --- REGRAS ESPECIAIS ---
+            if ($dtoField === 'username') {
+                $updateData['discriminator'] = $this->genUniqueDiscriminator($value);
+            }
 
+            if ($dtoField === 'password') {
+                $value = \Illuminate\Support\Facades\Hash::make($value);
+            }
+
+            $updateData[$dbColumn] = $value;
+        }
+
+        // 4. Lógica de Avatar (Mantida)
         if ($dto->avatar) {
             $user->addMedia($dto->avatar)->toMediaCollection('avatars');
         } elseif ($dto->media_id) {
-            // Busca a mídia específica
             $mediaItem = $user->getMedia('avatars')->where('id', $dto->media_id)->first();
-
             if ($mediaItem) {
-                // Atualiza a data de criação para o momento atual.
                 $mediaItem->created_at = now();
                 $mediaItem->save();
             }
         }
 
+        // 5. Se não tiver nada para atualizar no banco, retorna true
+        if (empty($updateData)) {
+            return true;
+        }
+
         return $this->repository->update($userId, $updateData);
     }
-
-
 
     /**
      * Gera um discriminator único de 4 dígitos para um determinado username.

@@ -3,11 +3,14 @@
 namespace Modules\Authentication\DTOs;
 
 use Illuminate\Http\UploadedFile;
+use Spatie\LaravelData\Attributes\Validation\Confirmed;
+use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\File;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Attributes\Validation\Mimes;
+use Spatie\LaravelData\Attributes\Validation\Min;
 use Spatie\LaravelData\Attributes\Validation\Nullable;
 use Spatie\LaravelData\Attributes\Validation\StringType;
 
@@ -16,6 +19,14 @@ class UpdateProfileData extends Data
     public function __construct(
         #[Nullable, StringType, Max(255)]
         public ?string $fullname,
+
+        #[Nullable, StringType, Email(), Max(255)]
+        public ?string $email,
+
+        #[Nullable, StringType, Min(8), Confirmed]
+        public ?string $password,
+
+        public ?string $password_confirmation,
         
         #[Nullable, StringType, Max(255)]
         public ?string $username,
@@ -35,6 +46,8 @@ class UpdateProfileData extends Data
         return array_filter([
             'fullname' => $this->fullname,
             'username' => $this->username,
+            'email'    => $this->email,
+            'password' => $this->password,
         ], fn($value) => !is_null($value));
     }
 }

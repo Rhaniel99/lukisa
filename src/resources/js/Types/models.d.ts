@@ -4,6 +4,8 @@ export type AuthUser = {
     id: string;
     fullname: string;
     username: string;
+    password: string;
+    confirm_password: string;
     discriminator: string;
     email: string;
     avatar_url: string | null;
