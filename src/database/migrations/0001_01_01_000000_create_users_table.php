@@ -19,6 +19,8 @@ return new class extends Migration
             $table->date('birth_date');
             $table->string('username')->nullable();
             $table->string('discriminator', 4);
+            $table->enum('privacy', ['public', 'friends', 'private'])->default('public');
+            $table->boolean('allow_friend_requests')->default(true);
             $table->integer('status')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

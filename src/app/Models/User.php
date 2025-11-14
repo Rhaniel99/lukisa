@@ -28,6 +28,8 @@ class User extends Authenticatable implements HasMedia
         'birth_date',
         'username',
         'discriminator',
+        'privacy',
+        'allow_friend_requests',
         'status'
     ];
 
@@ -62,6 +64,7 @@ class User extends Authenticatable implements HasMedia
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'birth_date' => 'datetime',
+            'allow_friend_requests' => 'boolean',
         ];
     }
 
