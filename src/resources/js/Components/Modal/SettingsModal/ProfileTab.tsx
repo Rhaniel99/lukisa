@@ -50,7 +50,7 @@ export const ProfileTab = ({ user }: ProfileTabProps) => {
                     setData("avatar", file);
                     setData("media_id", null); // Reseta histórico se subir novo
                 }}
-                onHistorySelect={(id) => {
+                onHistorySelect={(id: number | null) => {
                     setData("media_id", id);
                     setData("avatar", null); // Reseta upload se escolher histórico
                 }}

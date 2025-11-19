@@ -47,7 +47,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-9 w-9 rounded-full focus-visible:ring-[#8B9A7E]">
                                 <Avatar className="h-9 w-9 border-2 border-[#8B9A7E]">
-                                    <AvatarImage src={user.avatar_url || "/placeholder.svg"} alt={user.username} />
+                                    <AvatarImage src={user.avatar_url || undefined} alt={user.username} />
                                     <AvatarFallback className="bg-[#8B9A7E] text-white font-semibold">
                                         {user.username.charAt(0).toUpperCase()}
                                     </AvatarFallback>

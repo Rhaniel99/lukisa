@@ -48,7 +48,6 @@ export function AvatarUploader({
         const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
         onAvatarChange(file);
         setPreviewUrl(URL.createObjectURL(blob));
-        onHistorySelect(null, ""); // Limpa seleção de histórico
     };
 
     const handleHistoryClick = (item: MediaItem) => {
