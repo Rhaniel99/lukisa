@@ -1,13 +1,24 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Modules\Core\Database\Migrations\ModuleMigration;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends ModuleMigration
+return new class extends Migration
 {
+    private string $schema;
+
+    public function __construct()
+    {
+        $this->schema = config('marvin.database.schema');
+    }
+
     public function up(): void
     {
-        $this->createTable('chat_messages', function (Blueprint $table) {
+        DB::statement("DROP SCHEMA IF EXISTS {$this->schema} CASCADE");
+        DB::statement("CREATE SCHEMA IF NOT EXISTS {$this->schema}");
+
+        Schema::create("{$this->schema}.chat_messages", function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('role');
@@ -16,8 +27,11 @@ return new class extends ModuleMigration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        $this->dropTable('chat_messages');
+        Schema::dropIfExists("{$this->schema}.chat_messages");
     }
 };
