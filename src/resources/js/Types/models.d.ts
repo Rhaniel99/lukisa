@@ -81,32 +81,52 @@ export type FlashMessage = {
     time: number;
 };
 
+export type NotificationsData = {
+    count: number;
+    list?: NotificationItem[];
+};
+
+export type NotificationItem = {
+    id: string;
+    read_at: string | null;
+    created_at: string;
+    data: {
+        type: 'like' | 'comment' | 'friend_request';
+        message: string;
+        actor_name: string;
+        actor_avatar: string;
+        link?: string;
+    };
+};
+
 // ✅ Define e exporta o tipo base que todas as páginas terão
 export type PageProps = InertiaPageProps & {
     auth: {
         user: AuthUser;
     };
     settings_user?: SettingsUser;
- flash?: {
+    flash?: {
         success?: FlashMessage;
         error?: FlashMessage;
         info?: FlashMessage;
         warning?: FlashMessage;
     };
+    notifications?: NotificationsData;
 };
 
 declare module '@inertiajs/core' {
-  export interface PageProps extends InertiaPageProps {
-    auth: {
-      user: AuthUser;
-    };
-    flash?: {
-      success?: string;
-      error?: string;
-    };
-    friendships?: FriendshipsData;
-    // Adicione aqui outras props que são compartilhadas em TODAS as páginas
-  }
+    export interface PageProps extends InertiaPageProps {
+        auth: {
+            user: AuthUser;
+        };
+        flash?: {
+            success?: string;
+            error?: string;
+        };
+        friendships?: FriendshipsData;
+        notifications?: NotificationsData;
+        // Adicione aqui outras props que são compartilhadas em TODAS as páginas
+    }
 }
 
 export interface PaginatedResponse<T> {

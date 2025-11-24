@@ -16,6 +16,7 @@ import { Header } from "@/Components/Shared/Header";
 import { PageProps, AuthUser } from "@/Types/models";
 import { SettingsModal } from "@/Components/Modal/SettingsModal/Index";
 import { FriendsSubmenu } from "@/Components/Shared/Menu/FriendsSubmenu";
+import { NotificationsSubmenu } from "@/Components/Shared/Menu/NotificationsSubmenu";
 
 export default function AuthLayout({ children }: PropsWithChildren) {
     const { auth, settings_user, friendships } = usePage<PageProps & { settings_user: AuthUser }>().props;
@@ -37,9 +38,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
             <NotificationHandler />
             <div className="flex flex-col h-screen" style={{ backgroundColor: "#D9D7C5" }}>
                 <Header>
-                    <Button variant="ghost" size="icon" className="text-[#5C4A3A] hover:bg-[#E8E6D4]/70">
-                        <Bell className="w-5 h-5" />
-                    </Button>
+                    <NotificationsSubmenu />
 
                     <FriendsSubmenu pendingCount={friendships?.count || 0} />
 
@@ -54,7 +53,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        
+
                         <DropdownMenuContent
                             align="end"
                             className="w-56 bg-white border-[#E8E6D4] shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out"

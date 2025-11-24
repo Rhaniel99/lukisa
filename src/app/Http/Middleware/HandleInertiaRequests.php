@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Inertia\Middleware;
-use Modules\Friendships\Interfaces\Services\IFriendshipsService;
+use Illuminate\Http\Request;
 use Modules\Memories\DTOs\UserData;
+use Illuminate\Support\Facades\Session;
+use Modules\Friendships\Interfaces\Services\IFriendshipsService;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -29,6 +29,49 @@ class HandleInertiaRequests extends Middleware
             'flash' => $this->getFlashProps(),
             'friendships' => fn() => $this->getFriendshipsProps($request),
             'settings_user' => fn() => $this->getSettingsUserProps($request),
+            'notifications' => function () use ($request) {
+                if (!$user = $request->user()) {
+                    return ['count' => 0];
+                }
+
+                $data = [
+                    'count' => $user->unreadNotifications()->count(),
+                ];
+
+                // Se o front pedir 'include=notifications', carregamos a lista
+                if ($request->input('include') === 'notifications') {
+                    $data['list'] = $user->notifications()
+                        ->latest()
+                        ->limit(10)
+                        ->get()
+                        ->map(function ($n) {
+                            // Recupera os dados brutos do banco
+                            $notificationData = $n->data;
+
+                            // --- LÓGICA DE HIDRATAÇÃO DO AVATAR ---
+                            // Se não tiver avatar (porque não salvamos no banco), geramos agora.
+                            if (!isset($notificationData['actor_avatar']) && isset($notificationData['actor_id'])) {
+                                // Busca o usuário (actor) para gerar a URL assinada fresca
+                                // O cache aqui seria bem-vindo, mas find() é rápido o suficiente para 10 itens
+                                $actor = \App\Models\User::find($notificationData['actor_id']);
+
+                                if ($actor) {
+                                    $notificationData['actor_avatar'] = $actor->getFirstMedia('avatars')?->getTemporaryUrl(now()->addMinutes(60), 'thumb');
+                                }
+                            }
+                            // --------------------------------------
+
+                            return [
+                                'id' => $n->id,
+                                'read_at' => $n->read_at,
+                                'data' => $notificationData, // Usamos os dados enriquecidos
+                                'created_at' => $n->created_at->diffForHumans(),
+                            ];
+                        });
+                }
+
+                return $data;
+            },
         ]);
     }
 

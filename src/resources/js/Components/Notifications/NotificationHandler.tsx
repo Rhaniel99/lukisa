@@ -14,6 +14,7 @@ export default function NotificationHandler() {
     const { flash, errors, auth } = props;
     // ? Importante para que não bug ao fazer outras requisições 
     const lastFlashRef = useRef<string>("");
+    
     useEffect(() => {
         if (flash?.success?.message) {
             const key = `${flash.success.message}-${flash.success.time}`;
@@ -38,29 +39,29 @@ export default function NotificationHandler() {
 
 
     // --- Lógica do (Broadcast) ---
-    useEffect(() => {
-        if (!auth?.user?.id) {
-            return;
-        }
+    // useEffect(() => {
+    //     if (!auth?.user?.id) {
+    //         return;
+    //     }
 
-        const channelName = `App.Models.User.${auth.user.id}`;
+    //     const channelName = `App.Models.User.${auth.user.id}`;
 
-        window.Echo.private(channelName).notification(
-            (notification: NotificationPayload) => {
-                console.log("Notificação de broadcast recebida:", notification);
-                toast(notification.body, {
-                    type: notification.status || "info",
-                });
-            }
-        );
+    //     window.Echo.private(channelName).notification(
+    //         (notification: NotificationPayload) => {
+    //             console.log("Notificação de broadcast recebida:", notification);
+    //             toast(notification.body, {
+    //                 type: notification.status || "info",
+    //             });
+    //         }
+    //     );
 
-        console.log(`Ouvindo notificações no canal: ${channelName}`);
+    //     console.log(`Ouvindo notificações no canal: ${channelName}`);
 
-        return () => {
-            console.log(`Saindo do canal: ${channelName}`);
-            window.Echo.leave(channelName);
-        };
-    }, [auth?.user?.id]);
+    //     return () => {
+    //         console.log(`Saindo do canal: ${channelName}`);
+    //         window.Echo.leave(channelName);
+    //     };
+    // }, [auth?.user?.id]);
 
     // Renderiza o container uma única vez
     return (
