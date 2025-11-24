@@ -5,6 +5,7 @@ namespace Modules\Friendships\Services;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Modules\Friendships\Events\FriendRequestReceived;
 use Modules\Friendships\Interfaces\Repositories\IFriendshipsRepository;
 use Modules\Friendships\Interfaces\Services\IFriendshipsService;
 use Modules\Friendships\Models\Friendship;
@@ -44,8 +45,13 @@ class FriendshipsService implements IFriendshipsService
             }
             throw new Exception('Você já é amigo deste usuário.');
         }
+        $friendship = $this->repository->createRequest($user_id,  $receiver->id);
+        $newCount = $this->repository->getPendingRequestsCountFor($receiver);
+        
+        FriendRequestReceived::dispatch($receiver->id, $newCount);
 
-        return $this->repository->createRequest($user_id, $receiver->id);
+        return $friendship;
+        // return $this->repository->createRequest($user_id, $receiver->id);
     }
 
     public function getPendingRequests(User $user): Collection

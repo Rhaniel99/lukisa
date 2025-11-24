@@ -4,10 +4,15 @@ import { PageProps, Friend, PendingFriend } from "@/Types/models";
 
 type ListType = "pending" | "accepted";
 
+interface FriendRequestEvent {
+    count: number;
+}
+
 export function useFriends() {
     const { props } = usePage<
         PageProps & { friendships: { count: number; pending?: PendingFriend[]; accepted?: Friend[] } }
     >();
+    const authUser = props.auth.user;
 
     const [pending, setPending] = useState<PendingFriend[]>([]);
     const [accepted, setAccepted] = useState<Friend[]>([]);
@@ -16,12 +21,9 @@ export function useFriends() {
 
     const friendshipForm = useForm({});
 
-    // Este useEffect será a forma primária de atualizar o estado local
-    // quando a prop 'friendships' mudar devido a um router.reload.
     useEffect(() => {
-        setCounts(props.friendships?.count || 0); // Sempre atualiza a contagem
+        setCounts(props.friendships?.count || 0);
 
-        // Apenas atualiza se a prop existe, não limpa quando não existe
         if (props.friendships?.pending !== undefined) {
             setPending(props.friendships.pending);
         }
@@ -30,8 +32,30 @@ export function useFriends() {
             setAccepted(props.friendships.accepted);
         }
 
-        setLoading(false); // Garante que o loading seja falso após a atualização das props
+        setLoading(false);
     }, [props.friendships]);
+
+    useEffect(() => {
+        if (!authUser?.id) return;
+
+        // O canal privado padrão do Laravel para notificações de usuário é 'App.Models.User.{id}'
+        const channelName = `App.Models.User.${authUser.id}`;
+
+        // Conecta ao canal privado
+        const channel = window.Echo.private(channelName);
+
+        // Escuta o evento definido no broadcastAs() -> 'friend.request.received'
+        // O ponto (.) no início é importante para indicar que não estamos usando o namespace padrão do Laravel Events
+        channel.listen(".friend.request.received", (e: FriendRequestEvent) => {
+            // Atualiza o contador imediatamente
+            setCounts(e.count);
+        });
+
+        // Limpeza ao desmontar o componente
+        return () => {
+            channel.stopListening(".friend.request.received");
+        };
+    }, [authUser?.id]);
 
     // A função load agora sempre dispara um router.reload
     const load = useCallback((type: ListType) => {

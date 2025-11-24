@@ -54,6 +54,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
+                        
                         <DropdownMenuContent
                             align="end"
                             className="w-56 bg-white border-[#E8E6D4] shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out"
