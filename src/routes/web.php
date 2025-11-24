@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\NotificationController;
 use App\Models\User;
 use App\Notifications\MessageTestNotification;
@@ -17,10 +16,6 @@ Route::middleware('auth', 'check.profile')->group(function () {
     
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
         ->name('notifications.mark-as-read');
-
-    // Rotas de Avatar
-    Route::get('/users/{user}/avatar', [AvatarController::class, 'show'])->name('users.avatar');
-    Route::get('/media/{media}/avatar', [AvatarController::class, 'showFromMedia'])->name('media.avatar');
 });
 
 Route::get('send', function () {

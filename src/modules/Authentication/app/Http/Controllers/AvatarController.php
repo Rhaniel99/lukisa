@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\Authentication\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;

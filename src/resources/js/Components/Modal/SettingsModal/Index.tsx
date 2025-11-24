@@ -94,13 +94,13 @@ export function SettingsModal({
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
                             />
-                            <NavItem
+                            {/* <NavItem
                                 tab="notifications"
                                 icon={Bell}
                                 label="Notificações"
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
-                            />
+                            /> */}
                         </nav>
                     </aside>
 

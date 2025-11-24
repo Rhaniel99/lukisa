@@ -12,25 +12,45 @@ class CommentPosted extends Notification
     use Queueable;
 
     public function __construct(
-        public User $actor, // Quem curtiu
-        public Memorie $memory // Qual memória
+        public User $actor,
+        public Memorie $memory
     ) {}
 
     public function via($notifiable): array
     {
-        return ['database', 'broadcast']; // Salva no banco e envia via Reverb
+        return ['database', 'broadcast'];
     }
 
-    public function toArray($notifiable): array
+    /**
+     * Dados persistentes para o Banco de Dados.
+     * NÃO salvamos a URL aqui para não expirar.
+     */
+    public function toDatabase($notifiable): array
     {
         return [
             'type' => 'comment',
             'message' => "{$this->actor->username} comentou na sua memória.",
             'actor_id' => $this->actor->id,
             'actor_name' => $this->actor->name,
-            'actor_avatar' => $this->actor->getFirstMediaUrl('avatars', 'thumb'),
             'memory_id' => $this->memory->id,
-            'link' => route('memo.maps.index', ['memory_id' => $this->memory->id]), // Link para abrir no mapa
+            'link' => route('memo.maps.index', ['memory_id' => $this->memory->id]),
+        ];
+    }
+
+    /**
+     * Dados efêmeros para o Broadcast (Reverb/Toast).
+     * Reutiliza a lógica de rota permanente com cache-busting.
+     */
+    public function toBroadcast($notifiable): array
+    {
+        return [
+            'data' => [
+                'type' => 'comment',
+                'message' => "{$this->actor->username} comentou na sua memória.",
+                'actor_name' => $this->actor->name,
+                'actor_avatar' => $this->actor->getPublicAvatarUrl(),
+                'link' => route('memo.maps.index', ['memory_id' => $this->memory->id]),
+            ]
         ];
     }
 }

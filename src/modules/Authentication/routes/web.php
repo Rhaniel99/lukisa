@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Authentication\Http\Controllers\AuthenticationController;
+use Modules\Authentication\Http\Controllers\AvatarController;
 
 // ? GET
 Route::middleware('guest')->group(function () {
@@ -24,4 +25,8 @@ Route::middleware('auth')->group(function() {
 
 Route::middleware(['auth', 'check.profile'])->group(function() {
     Route::patch('/update-profile', [AuthenticationController::class, 'updateProfile'])->name('profile.update');
+
+    // Rotas de Avatar
+    Route::get('/users/{user}/avatar', [AvatarController::class, 'show'])->name('users.avatar');
+    Route::get('/media/{media}/avatar', [AvatarController::class, 'showFromMedia'])->name('media.avatar');
 });
