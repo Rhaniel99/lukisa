@@ -19,12 +19,12 @@ class UserData extends Data
         public readonly ?string $discriminator,
         public readonly ?string $avatarUrl,
 
-        // Propriedades "Preguiçosas" (Lazy)
-        // Elas não serão enviadas a menos que explicitamente solicitadas
+        // Propriedades "Preguiçosas" (Lazy) : Elas não serão enviadas a menos que explicitamente solicitadas
         public readonly Lazy|string|null $fullname,
         public readonly Lazy|string|null $email,
         public readonly Lazy|Carbon|null $birthDate,
         public readonly Lazy|bool|null $privacy,
+        public readonly Lazy|bool|null $allowFriendRequests,
         public readonly Lazy|array $avatarHistory,
     ) {}
 
@@ -48,6 +48,7 @@ class UserData extends Data
             email: Lazy::create(fn() => $user->email),
             birthDate: Lazy::create(fn() => $user->birth_date),
             privacy: Lazy::create(fn() => $user->privacy),
+            allowFriendRequests: Lazy::create(fn() => $user->allow_friend_requests),
 
             // 3. O histórico são os avatares restantes na coleção já ordenada
             avatarHistory: Lazy::create(function() use ($avatars) {

@@ -3,9 +3,11 @@
 namespace Modules\Authentication\DTOs;
 
 use Illuminate\Http\UploadedFile;
+use Spatie\LaravelData\Attributes\Validation\BooleanType;
 use Spatie\LaravelData\Attributes\Validation\Confirmed;
 use Spatie\LaravelData\Attributes\Validation\Email;
 use Spatie\LaravelData\Attributes\Validation\File;
+use Spatie\LaravelData\Attributes\Validation\In;
 use Spatie\LaravelData\Attributes\Validation\IntegerType;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\Validation\Max;
@@ -36,6 +38,12 @@ class UpdateProfileData extends Data
 
         #[Nullable, IntegerType]
         public ?int $media_id,
+
+        #[Nullable, In(['public', 'friends', 'private'])]
+        public ?string $privacy,
+
+        #[Nullable, BooleanType]
+        public ?bool $allow_friend_requests
     ) {}
 
     /**
@@ -48,6 +56,8 @@ class UpdateProfileData extends Data
             'username' => $this->username,
             'email'    => $this->email,
             'password' => $this->password,
+            'privacy' => $this->privacy,
+            'allow_friend_requests' => $this->allow_friend_requests,
         ], fn($value) => !is_null($value));
     }
 }

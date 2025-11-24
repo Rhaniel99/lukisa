@@ -58,7 +58,7 @@ class HandleInertiaRequests extends Middleware
 
         // Incluímos explicitamente os campos pesados/lazy
         return UserData::from($user)
-            ->include('email', 'fullname', 'birthDate', 'avatarHistory');
+            ->include('email', 'fullname', 'birthDate', 'avatarHistory', 'privacy', 'allowFriendRequests');
     }
 
     /**

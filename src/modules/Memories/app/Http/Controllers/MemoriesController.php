@@ -37,9 +37,13 @@ class MemoriesController extends Controller
         return back()->with('success', 'Memoria salva com sucesso!');
     }
 
+
     public function destroy(Memorie $memory)
     {
-        if ($memory->user_id !== auth()->id()) {
+        /** @var \Illuminate\Contracts\Auth\Guard $guard */
+        $guard = auth();
+
+        if ($memory->user_id !== $guard->id()) {
             abort(403);
         }
 
@@ -71,12 +75,9 @@ class MemoriesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
-    {
-    }
+    public function update(Request $request, $id) {}
 
     /**
      * Remove the specified resource from storage.
      */
-
 }

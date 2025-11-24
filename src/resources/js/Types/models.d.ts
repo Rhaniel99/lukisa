@@ -10,6 +10,8 @@ export type AuthUser = {
     email: string;
     avatar_url: string | null;
     tag?: string;
+    privacy: string;
+    allow_friend_requests: boolean;
 };
 
 export type PendingFriend = {

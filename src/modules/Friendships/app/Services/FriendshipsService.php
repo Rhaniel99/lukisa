@@ -30,6 +30,11 @@ class FriendshipsService implements IFriendshipsService
             throw new Exception('Você não pode adicionar a si mesmo como amigo.');
         }
 
+        // === NOVA REGRA DE PRIVACIDADE ===
+        if ($receiver->allow_friend_requests === false) {
+            throw new Exception('Este usuário optou por não receber pedidos de amizade.');
+        }
+
         // Verifica se já existe uma amizade ou pedido entre os dois
         $existingFriendship = $this->repository->findExistingFriendship($user_id, $receiver->id);
 

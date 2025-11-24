@@ -41,7 +41,7 @@ export function SettingsModal({
             case "account":
                 return <AccountTab user={user} />;
             case "privacy":
-                return <PrivacyTab />;
+                return <PrivacyTab user={user} />;
             case "notifications":
                 return <NotificationsTab />;
             default:

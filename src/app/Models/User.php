@@ -28,9 +28,9 @@ class User extends Authenticatable implements HasMedia
         'birth_date',
         'username',
         'discriminator',
+        'status',
         'privacy',
         'allow_friend_requests',
-        'status'
     ];
 
 
