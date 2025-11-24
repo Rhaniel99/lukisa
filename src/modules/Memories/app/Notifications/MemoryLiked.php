@@ -30,9 +30,8 @@ class MemoryLiked extends Notification
         return [
             'type' => 'like',
             'message' => "{$this->actor->username} curtiu sua memória.",
-            'actor_id' => $this->actor->id, // Importante: Salvamos o ID para buscar depois
+            'actor_id' => $this->actor->id,
             'actor_name' => $this->actor->name,
-            // 'actor_avatar' => NÃO salvamos aqui
             'memory_id' => $this->memory->id,
             'link' => route('memo.maps.index', ['memory_id' => $this->memory->id]),
         ];
@@ -40,7 +39,7 @@ class MemoryLiked extends Notification
 
     /**
      * Dados efêmeros para o Broadcast (Reverb/Toast).
-     * Aqui geramos a URL temporária pois será exibida na hora.
+     * Reutiliza a lógica de rota permanente com cache-busting.
      */
     public function toBroadcast($notifiable): array
     {
@@ -49,7 +48,7 @@ class MemoryLiked extends Notification
                 'type' => 'like',
                 'message' => "{$this->actor->username} curtiu sua memória.",
                 'actor_name' => $this->actor->name,
-                'actor_avatar' => $this->actor->getFirstMedia('avatars')?->getTemporaryUrl(now()->addMinutes(30), 'thumb'),
+                'actor_avatar' => $this->actor->getPublicAvatarUrl(), // <-- Lógica de URL centralizada no Model
                 'link' => route('memo.maps.index', ['memory_id' => $this->memory->id]),
             ]
         ];

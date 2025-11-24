@@ -42,6 +42,28 @@ class User extends Authenticatable implements HasMedia
         return "{$this->username}#{$this->discriminator}";
     }
 
+    /**
+     * Gera a URL pública e cacheável para o avatar atual do usuário.
+     *
+     * @return string|null
+     */
+    public function getPublicAvatarUrl(): ?string
+    {
+        $currentAvatar = $this->getMedia('avatars')
+            ->sortByDesc('created_at')
+            ->first();
+
+        if (!$currentAvatar) {
+            return null;
+        }
+
+        $cacheBuster = $currentAvatar->updated_at->timestamp;
+
+        return route('users.avatar', [
+            'user' => $this->id,
+            'v' => $cacheBuster,
+        ]);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

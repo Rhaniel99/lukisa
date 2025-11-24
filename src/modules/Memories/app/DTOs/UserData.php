@@ -30,33 +30,29 @@ class UserData extends Data
 
     public static function fromModel(User $user): self
     {
-        // 1. Pega a coleção de avatares ordenada pela data de criação
-        $avatars = $user->getMedia('avatars')->sortByDesc('created_at');
-
-        // 2. O avatar atual é o primeiro da coleção ordenada
-        $currentAvatar = $avatars->first();
-        $currentUrl = $currentAvatar?->getTemporaryUrl(now()->addMinutes(5), 'thumb');
-
         return new self(
             id: $user->id,
             username: $user->username,
             discriminator: $user->discriminator,
-            avatarUrl: $currentUrl,
-
-            // 2. Campos simples, mas que você quer esconder do payload global 'auth.user'
+            avatarUrl: $user->getPublicAvatarUrl(),
             fullname: Lazy::create(fn() => $user->name),
             email: Lazy::create(fn() => $user->email),
             birthDate: Lazy::create(fn() => $user->birth_date),
             privacy: Lazy::create(fn() => $user->privacy),
             allowFriendRequests: Lazy::create(fn() => $user->allow_friend_requests),
 
-            // 3. O histórico são os avatares restantes na coleção já ordenada
-            avatarHistory: Lazy::create(function() use ($avatars) {
-                return $avatars->slice(1, 5) // Pula o primeiro (atual) e pega os 5 anteriores
+            // A lógica do histórico permanece aqui, pois é específica da transformação
+            avatarHistory: Lazy::create(function() use ($user) {
+                $avatars = $user->getMedia('avatars')->sortByDesc('created_at');
+                return $avatars->slice(1, 5)
                     ->map(function (Media $media) {
+                        $cacheBuster = $media->updated_at->timestamp;
                         return [
                             'id' => $media->id,
-                            'url' => $media->getTemporaryUrl(now()->addMinutes(5), 'thumb'),
+                            'url' => route('media.avatar', [
+                                'media' => $media->id,
+                                'v' => $cacheBuster
+                            ]),
                         ];
                     })
                     ->values()

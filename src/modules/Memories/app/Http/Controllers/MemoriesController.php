@@ -25,7 +25,6 @@ class MemoriesController extends Controller
         return Inertia::render('Auth/Memories/Index', MemoriesIndexViewModel::fromRequest($request));
     }
 
-
     public function store(StoreMemoryData $r)
     {
         $success = $this->memoryService->saveMemories($r);
@@ -36,7 +35,6 @@ class MemoriesController extends Controller
 
         return back()->with('success', 'Memoria salva com sucesso!');
     }
-
 
     public function destroy(Memorie $memory)
     {
