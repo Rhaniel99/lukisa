@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LukisaController;
 use App\Http\Controllers\NotificationController;
 use App\Models\User;
 use App\Notifications\MessageTestNotification;
@@ -16,6 +17,9 @@ Route::middleware('auth', 'check.profile')->group(function () {
     
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
         ->name('notifications.mark-as-read');
+
+    // Dash Inicial, só tem index. 
+    Route::resource('lukisa', LukisaController::class)->names('lukisa');
 });
 
 Route::get('send', function () {

@@ -1,0 +1,11 @@
+{
+    "name": "Phamani",
+    "alias": "phamani",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Phamani\\Providers\\PhamaniServiceProvider"
+    ],
+    "files": []
+}
