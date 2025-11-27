@@ -3,3 +3,4 @@
 docker/minio/data
 docker/pgsql/data
 src/storage/media-library/temp/
+.vscode
