@@ -6,9 +6,9 @@ use Modules\Authentication\Http\Controllers\AvatarController;
 
 // ? GET
 Route::middleware('guest')->group(function () {
-    Route::inertia('/login', 'Public/Authentication/Login')->name('form.login');
-    Route::inertia('/signup', 'Public/Authentication/Signup')->name('form.signup');
-    Route::inertia('/forgot', 'Public/Authentication/Forgot')->name('form.forgot');
+    Route::inertia('/login', 'Public/Authentication/Login/Index')->name('form.login');
+    Route::inertia('/signup', 'Public/Authentication/Signup/Index')->name('form.signup');
+    Route::inertia('/forgot', 'Public/Authentication/Forgot/Index')->name('form.forgot');
 });
 
 // ? POST
@@ -19,7 +19,7 @@ Route::post('/forgot/verify', [AuthenticationController::class, 'forgotVerify'])
 Route::post('/forgot/password', [AuthenticationController::class, 'forgotPassword'])->name('forgot.password');
 
 Route::middleware('auth')->group(function() {
-    Route::inertia('/complete-profile', 'Public/Authentication/Profile')->name('profile.complete');
+    Route::inertia('/complete-profile', 'Public/Authentication/Profile/Index')->name('profile.complete');
     Route::post('/complete-profile', [AuthenticationController::class, 'profileRegister'])->name('profile.register');
 });
 

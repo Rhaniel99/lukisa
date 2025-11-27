@@ -30,7 +30,6 @@ export interface Friend {
     status: "online" | "offline" | "pending";
 }
 
-
 export type FriendshipsData = {
     pending: PendingFriend[];
     count: number;

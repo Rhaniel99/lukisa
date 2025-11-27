@@ -1,12 +1,9 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm, usePage } from "@inertiajs/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Form } from "@/Components/UI/Form";
 import { Label } from "@/Components/ui/label";
 import { Calendar, Loader2, Lock, Mail } from "lucide-react";
-import { Input } from "@/Components/ui/input";
-import { Button } from "@/Components/ui/button";
-import { CardHeader, CardTitle, CardDescription } from "@/Components/ui/card";
 import type { PageProps as InertiaPageProps } from "@inertiajs/core";
 
 interface ForgotPageSpecificProps {
@@ -17,7 +14,7 @@ interface ForgotPageSpecificProps {
 
 type PageProps = InertiaPageProps & ForgotPageSpecificProps;
 
-export const ForgotForm: React.FC = () => {
+export default function ForgotForm() {
     const {
         user_verified,
         verified_email,
@@ -53,14 +50,10 @@ export const ForgotForm: React.FC = () => {
     return (
         <>
             {/* Header dinâmico */}
-            <CardHeader className="text-center">
-                <CardTitle className="text-2xl text-lukisa-dark">
-                    {title}
-                </CardTitle>
-                <CardDescription className="text-lukisa-brown">
-                    {description}
-                </CardDescription>
-            </CardHeader>
+            <div className="text-center mb-8">
+                <h1 className="text-[#3D2817] mb-2">{title}</h1>
+                <p className="text-[#6B4E3D]">{description}</p>
+            </div>
 
             {/* Form com animação na troca de etapa */}
             <AnimatePresence initial={false} mode="wait">
@@ -71,85 +64,76 @@ export const ForgotForm: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
+                        className="space-y-5"
                     >
-                        {/* ETAPA 2 */}
-                        <Form
-                            onSubmit={handleResetPassword}
-                            className="space-y-4"
-                        >
+                        {/* ETAPA 2 - Nova Senha */}
+                        <Form onSubmit={handleResetPassword} className="space-y-5">
                             <input
-                                type="email" // Usar o tipo correto ajuda o navegador
+                                type="email"
                                 name="email"
-                                autoComplete="username" // <-- A CORREÇÃO PRINCIPAL
+                                autoComplete="username"
                                 value={data.email}
                                 readOnly
-                                className="hidden" // Mantemos o campo oculto para o usuário
+                                className="hidden"
                             />
 
-                            {/* campo senha */}
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="password"
-                                    className="text-lukisa-dark"
-                                >
+                            {/* Campo senha */}
+                            <div>
+                                <Label htmlFor="password" className="block text-[#3D2817] mb-2">
                                     Nova Senha
                                 </Label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
-                                    <Input
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8B7355]" />
+                                    <input
                                         id="password"
                                         type="password"
                                         placeholder="Digite a nova senha"
                                         autoComplete="new-password"
                                         value={data.password}
-                                        onChange={(e) =>
-                                            setData("password", e.target.value)
-                                        }
-                                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                                        onChange={(e) => setData("password", e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-white border-2 border-[#E8DCC4] rounded-xl focus:outline-none focus:border-[#6B4E3D] transition-colors text-[#3D2817] placeholder:text-[#A69580]"
                                         required
                                     />
-                                    {errors.password && (
-                                        <p className="mt-2 text-xs text-red-600">
-                                            {errors.password}
-                                        </p>
-                                    )}
                                 </div>
+                                {errors.password && (
+                                    <p className="mt-2 text-xs text-red-600">{errors.password}</p>
+                                )}
                             </div>
-                            {/* confirmar senha */}
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="password_confirmation"
-                                    className="text-lukisa-dark"
-                                >
+
+                            {/* Campo confirmar senha */}
+                            <div>
+                                <Label htmlFor="password_confirmation" className="block text-[#3D2817] mb-2">
                                     Confirmar Senha
                                 </Label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
-                                    <Input
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8B7355]" />
+                                    <input
                                         id="password_confirmation"
                                         type="password"
                                         autoComplete="new-password"
                                         placeholder="Confirme a nova senha"
                                         value={data.password_confirmation}
-                                        onChange={(e) =>
-                                            setData(
-                                                "password_confirmation",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                                        onChange={(e) => setData("password_confirmation", e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-white border-2 border-[#E8DCC4] rounded-xl focus:outline-none focus:border-[#6B4E3D] transition-colors text-[#3D2817] placeholder:text-[#A69580]"
                                         required
                                     />
                                 </div>
                             </div>
-                            <Button
+
+                            <button
                                 type="submit"
-                                className="w-full bg-lukisa-sage hover:bg-lukisa-brown text-white"
-                                size="lg"
                                 disabled={processing}
+                                className="w-full bg-[#6B4E3D] text-[#F5EFE6] py-4 rounded-xl hover:bg-[#3D2817] transition-colors shadow-lg disabled:bg-[#A69580] disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                {processing ? "Salvando..." : "Redefinir Senha"}
-                            </Button>
+                                {processing ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Salvando...
+                                    </>
+                                ) : (
+                                    "Redefinir Senha"
+                                )}
+                            </button>
                         </Form>
                     </motion.div>
                 ) : (
@@ -159,77 +143,64 @@ export const ForgotForm: React.FC = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3 }}
+                        className="space-y-5"
                     >
-                        {/* ETAPA 1 */}
-                        <Form onSubmit={handleCheckUser} className="space-y-4">
-                            {/* campo email */}
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="email"
-                                    className="text-lukisa-dark"
-                                >
+                        {/* ETAPA 1 - Verificação */}
+                        <Form onSubmit={handleCheckUser} className="space-y-5">
+                            {/* Campo email */}
+                            <div>
+                                <Label htmlFor="email" className="block text-[#3D2817] mb-2">
                                     Email
                                 </Label>
                                 <div className="relative">
-                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
-                                    <Input
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8B7355]" />
+                                    <input
                                         id="email"
                                         type="email"
                                         placeholder="Digite seu e-mail"
                                         value={data.email}
-                                        onChange={(e) =>
-                                            setData("email", e.target.value)
-                                        }
-                                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                                        onChange={(e) => setData("email", e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-white border-2 border-[#E8DCC4] rounded-xl focus:outline-none focus:border-[#6B4E3D] transition-colors text-[#3D2817] placeholder:text-[#A69580]"
                                         required
                                     />
-                                    {pageErrors.email && (
-                                        <p className="mt-2 text-xs text-red-600">
-                                            {pageErrors.email}
-                                        </p>
-                                    )}
                                 </div>
+                                {pageErrors.email && (
+                                    <p className="mt-2 text-xs text-red-600">{pageErrors.email}</p>
+                                )}
                             </div>
-                            {/* campo data de nascimento */}
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="birth_date"
-                                    className="text-lukisa-dark"
-                                >
+
+                            {/* Campo data de nascimento */}
+                            <div>
+                                <Label htmlFor="birth_date" className="block text-[#3D2817] mb-2">
                                     Data de Nascimento
                                 </Label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-lukisa-sage" />
-                                    <Input
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8B7355]" />
+                                    <input
                                         id="birth_date"
                                         type="date"
                                         value={data.birth_date}
-                                        onChange={(e) =>
-                                            setData(
-                                                "birth_date",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="pl-10 border-lukisa-cream focus:border-lukisa-sage"
+                                        onChange={(e) => setData("birth_date", e.target.value)}
+                                        className="w-full pl-12 pr-4 py-3 bg-white border-2 border-[#E8DCC4] rounded-xl focus:outline-none focus:border-[#6B4E3D] transition-colors text-[#3D2817] placeholder:text-[#A69580]"
                                         required
                                     />
                                 </div>
                             </div>
-                            <Button
+
+                            <button
                                 type="submit"
-                                className="w-full bg-lukisa-sage hover:bg-lukisa-brown text-white"
-                                size="lg"
                                 disabled={processing}
+                                className="w-full bg-[#6B4E3D] text-[#F5EFE6] py-4 rounded-xl hover:bg-[#3D2817] transition-colors shadow-lg disabled:bg-[#A69580] disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {processing ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        <Loader2 className="w-5 h-5 animate-spin" />
                                         Processando...
                                     </>
                                 ) : (
                                     "Prosseguir"
                                 )}
-                            </Button>
+                            </button>
                         </Form>
                     </motion.div>
                 )}

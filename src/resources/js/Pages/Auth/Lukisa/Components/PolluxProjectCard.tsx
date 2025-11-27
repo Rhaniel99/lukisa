@@ -1,11 +1,11 @@
-import { DollarSign } from 'lucide-react';
+import { Tag } from 'lucide-react';
 import ServiceCard from '@/Components/Shared/ServiceCard';
 
 const PolluxProjectCard = () => {
     return (
         <ServiceCard
             href={route("phamani.index")}
-            icon={<DollarSign className="w-12 h-12 mb-4 group-hover:scale-110 transition-transform" style={{ color: "#403E34" }} />}
+            icon={<Tag className="w-12 h-12 mb-4 group-hover:scale-110 transition-transform" style={{ color: "#403E34" }} />}
             title="Phamani"
             description="Seu espaço pessoal para organizar suas finanças pessoais"
             actionText="Acessar Phamani"

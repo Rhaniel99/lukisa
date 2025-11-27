@@ -8,7 +8,7 @@ import {
 import logo from "/public/img/cat-l.svg";
 import { Button } from "@/Components/ui/button";
 import { Head } from "@inertiajs/react";
-import ProfileForm from './Components/ProfileForm';
+import ProfileForm from './components/ProfileForm';
 
 export default function Profile() {
 

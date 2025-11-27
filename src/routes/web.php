@@ -7,7 +7,7 @@ use App\Notifications\MessageTestNotification;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('/', fn() => inertia('Public/Home'))->name('home');
+    Route::get('/', fn() => inertia('Public/Home/Index'))->name('home');
 });
 
 Route::middleware('auth', 'check.profile')->group(function () {
