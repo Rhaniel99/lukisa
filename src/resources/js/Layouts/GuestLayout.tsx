@@ -1,7 +1,8 @@
 import type React from "react";
-import NotificationHandler from "@/Components/Notifications/NotificationHandler";
+// import NotificationHandler from "@/Components/Notifications/NotificationHandler";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePage } from "@inertiajs/react";
+import CozyNotification from "@/Components/Notifications/CozyNotification";
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -18,7 +19,7 @@ export default function GuestLayout({ children }: LayoutProps) {
 
     return (
         <>
-            <NotificationHandler />
+            <CozyNotification />
             
             <div className="min-h-screen bg-gradient-to-br from-lukisa-light via-lukisa-cream to-lukisa-sage">
                 <AnimatePresence mode="wait" initial={false}>

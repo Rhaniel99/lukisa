@@ -1,64 +1,51 @@
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
 import logo from "/public/img/cat-l.svg";
-import { Button } from "@/Components/ui/button";
-import { Head } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react"; 
 import ProfileForm from './components/ProfileForm';
+import { LogOut } from "lucide-react"; 
 
 export default function Profile() {
-
     return (
         <>
             <Head title="Perfil" />
+            <div className="min-h-screen bg-gradient-to-br from-[#E8DCC4] via-[#D4C5A9] to-[#C9B59A] flex items-center justify-center p-4">
+                <div className="w-full max-w-md">
+                    {/* Card Principal */}
+                    <div className="bg-[#F5EFE6] rounded-3xl shadow-2xl p-8 md:p-10 relative overflow-hidden">
+                        
+                        <Link
+                            href={route("auth.logout")}
+                            method="post"
+                            as="button"
+                            className="absolute top-6 right-6 p-2 text-[#8B7355] hover:text-[#6B4E3D] hover:bg-[#E8DCC4]/40 rounded-full transition-all duration-300"
+                            title="Sair"
+                        >
+                            <LogOut className="w-5 h-5" />
+                        </Link>
 
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <div className="w-full max-w-md animate-fade-in">
-                    {/* Header */}
-                    <div className="text-center mb-8">
-                        <div className="flex items-center justify-center space-x-3 mb-4">
-                            <img
-                                src={logo}
-                                alt="Lukisa Logo"
-                                width={40}
-                                height={40}
-                                className="w-10 h-10"
-                            />
-                            <h1 className="text-2xl font-bold text-lukisa-dark">
-                                Lukisa
-                            </h1>
+                        {/* Logo Animado */}
+                        <div className="flex justify-center mb-8">
+                            <div className="w-20 h-20 bg-[#6B4E3D] rounded-2xl flex items-center justify-center shadow-xl transform hover:scale-105 transition-transform duration-300">
+                                <img
+                                    src={logo}
+                                    alt="Lukisa Logo"
+                                    className="w-12 h-12 object-contain brightness-0 invert"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Conteúdo com Animação de Entrada */}
+                        <div className="animate-in fade-in slide-in-from-right duration-500">
+                            <div className="text-center mb-2">
+                                <h1 className="text-[#3D2817] text-2xl font-semibold mb-2">Complete seu perfil</h1>
+                                <p className="text-[#6B4E3D] text-sm">
+                                    Configure seu nome de usuário e foto de perfil
+                                </p>
+                            </div>
+
+                            {/* Formulário Integrado */}
+                            <ProfileForm />
                         </div>
                     </div>
-
-                    <Card className="bg-white/80 backdrop-blur-sm border-lukisa-cream shadow-xl">
-                        <CardHeader className="text-center">
-                            <CardTitle className="text-2xl text-lukisa-dark">
-                                Complete seu perfil
-                            </CardTitle>
-                            <CardDescription className="text-lukisa-brown">
-                                Configure seu nome de usuário e foto de perfil
-                            </CardDescription>
-                        </CardHeader>
-
-                        <CardContent className="space-y-6">
-
-                            <ProfileForm />
-
-                            <div className="text-center">
-                                <Button
-                                    variant="ghost"
-                                    className="text-lukisa-brown hover:text-lukisa-dark"
-                                    onClick={() => (window.location.href = "/")}
-                                >
-                                    Pular por enquanto
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
             </div>
         </>
