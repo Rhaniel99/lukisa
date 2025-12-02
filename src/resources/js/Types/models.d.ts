@@ -1,4 +1,5 @@
 import { PageProps as InertiaPageProps } from '@inertiajs/core';
+import { SettingsUser } from './Settings';
 
 export type AuthUser = {
     id: string;
@@ -103,7 +104,6 @@ export type PageProps = InertiaPageProps & {
     auth: {
         user: AuthUser;
     };
-    settings_user?: SettingsUser;
     flash?: {
         success?: FlashMessage;
         error?: FlashMessage;
@@ -111,6 +111,7 @@ export type PageProps = InertiaPageProps & {
         warning?: FlashMessage;
     };
     notifications?: NotificationsData;
+    settings_user?: SettingsUser; 
 };
 
 declare module '@inertiajs/core' {
@@ -124,6 +125,7 @@ declare module '@inertiajs/core' {
         };
         friendships?: FriendshipsData;
         notifications?: NotificationsData;
+        settings_user?: SettingsUser;
         // Adicione aqui outras props que são compartilhadas em TODAS as páginas
     }
 }

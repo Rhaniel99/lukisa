@@ -4,7 +4,8 @@ import { Form } from "@/Components/UI/Form";
 import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
-import { AvatarUploader } from "./AvatarUploader";
+import { AvatarUploader } from "@/Components/Shared/Avatar/AvatarUploader";
+// import { AvatarUploader } from "./AvatarUploader";
 
 interface ProfileTabProps {
     user: UserData & { avatar_history?: { id: number; url: string }[] };

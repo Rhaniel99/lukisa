@@ -1,3 +1,4 @@
+import { SettingsUser } from './Settings';
 import { AxiosInstance } from 'axios';
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';

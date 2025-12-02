@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useForm, usePage } from "@inertiajs/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { Form } from "@/Components/UI/Form";
 import { Label } from "@/Components/ui/label";
 import { Calendar, Loader2, Lock, Mail } from "lucide-react";
@@ -47,6 +47,13 @@ export default function ForgotForm() {
         ? "Digite sua nova senha abaixo"
         : "Insira seu e-mail e data de nascimento para redefinir sua senha";
 
+    const animationProps = {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -20 },
+        transition: { duration: 0.3 }
+    };
+
     return (
         <>
             {/* Header dinâmico */}
@@ -60,10 +67,7 @@ export default function ForgotForm() {
                 {isUserVerified ? (
                     <motion.div
                         key="step2"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3 }}
+                        {...animationProps}
                         className="space-y-5"
                     >
                         {/* ETAPA 2 - Nova Senha */}
@@ -139,10 +143,7 @@ export default function ForgotForm() {
                 ) : (
                     <motion.div
                         key="step1"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.3 }}
+                        {...animationProps}
                         className="space-y-5"
                     >
                         {/* ETAPA 1 - Verificação */}
