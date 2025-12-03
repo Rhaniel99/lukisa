@@ -1,55 +1,62 @@
-import React from "react";
-import { Head, usePage } from "@inertiajs/react";
-import { PageProps } from "@/Types/models";
-import Chatbot from "@/Pages/Auth/Marvin/Components/Chatbot";
-import { motion, AnimatePresence } from "framer-motion";
-import WelcomeHeader from "@/Pages/Auth/Lukisa/Components/WelcomeHeader";
-import MemoriesCard from "@/Pages/Auth/Lukisa/Components/MemoriesCard";
-import PolluxProjectCard from "@/Pages/Auth/Lukisa/Components/PolluxProjectCard";
-import MarvinCard from "@/Pages/Auth/Lukisa/Components/MarvinCard";
-import { useMarvinChat } from "@/Pages/Auth/Lukisa/Hooks/useMarvinChat";
+import { Head, router } from "@inertiajs/react";
+import { useAuth } from "@/Hooks/useAuth";
+import { MapPin, Wallet, MessageCircle } from "lucide-react";
+import { Header } from "./components/Header";
+import { ModulesGrid } from "./components/card/ModuleGrid";
+import { ModuleCard } from "./components/card/ModuleCard";
+import { useMarvinChat } from "./hooks/useMarvinChat";
+import { MarvinModal } from "./components/modal/MarvinModal";
 
-const Index: React.FC = () => {
-    const { auth } = usePage<PageProps>().props;
+export default function Index() {
+    const { username } = useAuth();
+
     const { isChatOpen, chatMessages, ollamaStatus, openChat, closeChat, sendMessage } = useMarvinChat();
 
     return (
         <>
-            <Head title="Bem-vindo" />
+            <Head title="Bem vindo" />
 
-            <main className="px-6 py-12">
-                <div className="max-w-4xl mx-auto">
-                    <WelcomeHeader username={auth.user.username} />
+            <Header
+                title="Escolha onde deseja continuar"
+                subtitle={`Bem-vindo de volta, ${username}.`}
+            />
 
-                    <div className="grid md:grid-cols-3 gap-8">
-                        <MemoriesCard />
-                        <PolluxProjectCard />
-                        <MarvinCard onClick={openChat} />
-                    </div>
-                </div>
-            </main>
+            <ModulesGrid>
+                <ModuleCard
+                    icon={MapPin}
+                    title="Memories"
+                    description="Explore e compartilhe suas lembranças em um mapa interativo."
+                    buttonText="Acessar"
+                    delay={0.1}
+                    onClick={() => router.get("/memories")}
+                />
 
-            <AnimatePresence>
-                {isChatOpen && (
-                    <motion.div
-                        className="fixed bottom-4 right-4 z-50"
-                        initial={{ opacity: 0, x: 100 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 100 }}
-                        transition={{ ease: "easeInOut", duration: 0.3 }}
-                    >
-                        <Chatbot
-                            messages={chatMessages}
-                            onClose={closeChat}
-                            status={ollamaStatus}
-                            onSendMessage={sendMessage}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                <ModuleCard
+                    icon={Wallet}
+                    title="Phamani"
+                    description="Gerencie suas finanças pessoais com clareza."
+                    buttonText="Acessar"
+                    delay={0.2}
+                    onClick={() => router.get("/phamani")}
+                />
+
+                <ModuleCard
+                    icon={MessageCircle}
+                    title="Marvin"
+                    description="Converse com seu assistente inteligente."
+                    buttonText="Conversar"
+                    delay={0.3}
+                    onClick={openChat}
+                />
+            </ModulesGrid>
+
+            <MarvinModal
+                isOpen={isChatOpen}
+                onClose={closeChat}
+                messages={chatMessages}
+                status={ollamaStatus}
+                onSendMessage={sendMessage}
+            />
         </>
     );
-};
-
-export default Index;
-
+}

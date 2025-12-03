@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm, usePage } from "@inertiajs/react";
 import { AnimatePresence, motion } from "motion/react";
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 import { Label } from "@/Components/ui/label";
 import { Calendar, Loader2, Lock, Mail } from "lucide-react";
 import type { PageProps as InertiaPageProps } from "@inertiajs/core";

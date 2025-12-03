@@ -1,5 +1,5 @@
 import { useForm } from "@inertiajs/react";
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 import { Calendar, Loader2, Lock, Mail, User } from "lucide-react";
 
 export default function SignupForm() {

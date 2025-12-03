@@ -1,5 +1,5 @@
 import { Link, useForm } from "@inertiajs/react";
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 import { Loader2, Lock, Mail } from "lucide-react";
 import { Checkbox } from "@/Components/ui/checkbox";
 import type { CheckedState } from "@radix-ui/react-checkbox";

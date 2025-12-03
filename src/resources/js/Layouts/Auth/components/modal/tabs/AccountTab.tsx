@@ -1,7 +1,7 @@
 import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 import { SettingsUser } from "@/Types/Settings";
 import { useAccountForm } from "@/Layouts/Auth/hooks/useAccountForm";
 

@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: PropsWithChildren) {
 
                             <SettingsModal />
 
-                            <main className="container mx-auto px-6 py-12">
+                            <main className="container mx-auto px-6 pb-24 pt-8 relative z-0">
                                 {children}
                             </main>
                         </div>

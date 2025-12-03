@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "@inertiajs/react";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 
 interface AddCommentFormProps {

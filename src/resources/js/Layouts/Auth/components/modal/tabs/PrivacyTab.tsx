@@ -1,4 +1,4 @@
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 import { Button } from "@/Components/ui/button";
 import { motion } from "motion/react";
 import { SettingsUser } from "@/Types/Settings";

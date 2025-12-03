@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Bot, Send, User, Loader2 } from "lucide-react";
 import { Head, router, usePage, useForm } from "@inertiajs/react";
 import { Message, MarvinPageProps, ConversationTurn } from "@/Types/marvin";
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 
 export default function MarvinPage() {
     const { props } = usePage<MarvinPageProps>();

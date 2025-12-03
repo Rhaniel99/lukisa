@@ -1,5 +1,4 @@
 import type React from "react";
-// import NotificationHandler from "@/Components/Notifications/NotificationHandler";
 import { AnimatePresence, motion } from "motion/react";
 import { usePage } from "@inertiajs/react";
 import CozyNotification from "@/Components/Notifications/CozyNotification";

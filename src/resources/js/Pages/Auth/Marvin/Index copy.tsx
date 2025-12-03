@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { PageProps as BasePageProps } from '@/Types/models';
-import { Form } from '@/Components/UI/Form';
+import { Form } from '@/Components/Shared/Form/Form';
 import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { ScrollArea } from '@/Components/ui/scroll-area';

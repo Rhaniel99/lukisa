@@ -2,7 +2,7 @@ import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 import { AvatarUploader } from "@/Components/Shared/Avatar/AvatarUploader";
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 import { ProfileUser } from "@/Types/ProfileUser";
 import { useProfileForm } from "@/Layouts/Auth/hooks/useProfileForm";
 

@@ -5,7 +5,7 @@ import { LatLng } from "leaflet";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
-import { Form } from "@/Components/UI/Form";
+import { Form } from "@/Components/Shared/Form/Form";
 
 interface CreateMemoryFormProps {
     coordinates: LatLng;
