@@ -1,16 +1,21 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { router, usePage } from "@inertiajs/react";
-import { PageProps, NotificationItem } from "@/Types/models";
+import { PageProps } from "@/Types/models";
+import { useAuth } from "@/Hooks/useAuth";
+import { NotificationItem } from "@/Types/Notification";
 
 export function useNotifications() {
-    const { props } = usePage<PageProps & { 
-        notifications?: { 
-            count: number; 
-            list?: NotificationItem[] 
-        } 
+
+    const { props } = usePage<PageProps & {
+        notifications?: {
+            count: number;
+            list?: NotificationItem[]
+        }
     }>();
-    
-    const authUser = props.auth.user;
+
+    const { id: userId } = useAuth();
+
+    // const authUser = props.auth.user;
 
     const [count, setCount] = useState(props.notifications?.count || 0);
     const [list, setList] = useState<NotificationItem[]>([]);
@@ -20,7 +25,7 @@ export function useNotifications() {
     // Refs para acessar o estado atual dentro do listener do Echo sem recriar o useEffect
     const isLoadedRef = useRef(isLoaded);
     const listRef = useRef(list);
-    
+
     // Atualiza as refs sempre que o estado mudar
     useEffect(() => {
         isLoadedRef.current = isLoaded;
@@ -41,9 +46,9 @@ export function useNotifications() {
 
     // --- INTEGRAÇÃO REVERB ---
     useEffect(() => {
-        if (!authUser?.id) return;
+        if (!userId) return;
 
-        const channelName = `App.Models.User.${authUser.id}`;
+        const channelName = `App.Models.User.${userId}`;
         const channel = window.Echo.private(channelName);
 
         const handleNotification = (notification: any) => {
@@ -54,7 +59,7 @@ export function useNotifications() {
             if (alreadyExists) return;
 
             // 1. Incrementa contador
-            setCount((prev) => prev + 1);
+            setCount((prev: number) => prev + 1);
 
             // 2. Adiciona à lista SE ela já estiver carregada (usando a Ref)
             if (isLoadedRef.current) {
@@ -71,7 +76,7 @@ export function useNotifications() {
                         link: notification.link || notification.data?.link
                     }
                 };
-                
+
                 setList((prev) => [newItem, ...prev]);
             }
         };
@@ -83,10 +88,10 @@ export function useNotifications() {
             // IMPORTANTE: Usar stopListening em vez de leave
             // Isso remove apenas este callback, mantendo o canal vivo para o NotificationHandler
             channel.stopListening('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', handleNotification);
-             // Se o stopListening genérico não funcionar, tente remover o listener específico se souber o evento exato, 
-             // ou apenas não chame o leave() aqui se o NotificationHandler for o "dono" do canal.
+            // Se o stopListening genérico não funcionar, tente remover o listener específico se souber o evento exato, 
+            // ou apenas não chame o leave() aqui se o NotificationHandler for o "dono" do canal.
         };
-    }, [authUser?.id]); // Dependências mínimas para rodar apenas uma vez
+    }, [userId]); // Dependências mínimas para rodar apenas uma vez
 
 
     // ... Restante das funções (loadNotifications, markAsRead, etc - sem alterações) ...
@@ -101,35 +106,35 @@ export function useNotifications() {
         });
     }, [isLoaded]);
 
-const markAsRead = (id: string, onSuccessCallback?: () => void) => {
-    // 1. Atualização Otimista
-    setList(prev => prev.map(n => n.id === id ? { ...n, read_at: 'now' } : n));
-    setCount(prev => Math.max(0, prev - 1));
+    const markAsRead = (id: string, onSuccessCallback?: () => void) => {
+        // 1. Atualização Otimista
+        setList(prev => prev.map(n => n.id === id ? { ...n, read_at: 'now' } : n));
+        setCount((prev: number) => Math.max(0, prev - 1));
 
-    // 2. Envio Silencioso - ✅ Nome da rota corrigido
-    router.patch(route('notifications.mark-as-read', id), {}, { 
-        preserveScroll: true,
-        preserveState: true,
-        only: [],
-        onSuccess: () => {
-            console.log("Notificação marcada como lida no servidor.");
-            // Executa o callback se ele for fornecido
-            if (onSuccessCallback) {
-                onSuccessCallback();
+        // 2. Envio Silencioso - ✅ Nome da rota corrigido
+        router.patch(route('notifications.mark-as-read', id), {}, {
+            preserveScroll: true,
+            preserveState: true,
+            only: [],
+            onSuccess: () => {
+                console.log("Notificação marcada como lida no servidor.");
+                // Executa o callback se ele for fornecido
+                if (onSuccessCallback) {
+                    onSuccessCallback();
+                }
+            },
+            onError: () => {
+                console.error("Erro ao marcar como lida.");
             }
-        },
-        onError: () => {
-            console.error("Erro ao marcar como lida.");
-        }
-    });
-};
+        });
+    };
 
 
 
-const markAllAsRead = () => {
+    const markAllAsRead = () => {
         setList(prev => prev.map(n => ({ ...n, read_at: 'now' })));
         setCount(0);
-        router.post(route('notifications.mark-all-read'), {}, { 
+        router.post(route('notifications.mark-all-read'), {}, {
             preserveScroll: true,
             preserveState: true,
             only: [] // Não recarrega nada

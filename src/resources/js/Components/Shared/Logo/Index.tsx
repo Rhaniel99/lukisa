@@ -2,8 +2,8 @@ import logo from "/public/img/cat-l.svg";
 
 export default function Logo() {
     return (
-        <div className="w-12 h-12 bg-[#E8DCC4] rounded-2xl flex items-center justify-center shadow-md">
-            <img src={logo} alt="Lukisa Logo" />
+        <div className="w-10 h-10 bg-[#FDFBF7] rounded-xl shadow-md flex items-center justify-center border border-[#E8DCC4]/40">
+            <img src={logo} className="w-6 h-6 opacity-90" />
         </div>
     );
 }

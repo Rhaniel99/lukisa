@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
 import { Bell, Check } from "lucide-react";
-import { useNotifications } from "@/Hooks/useNotifications"; // Importe o Hook criado acima
+import { useNotifications } from "@/Layouts/Auth/hooks/useNotifications"; // Importe o Hook criado acima
 import { cn } from "@/Lib/Utils";
 
 // Componentes UI

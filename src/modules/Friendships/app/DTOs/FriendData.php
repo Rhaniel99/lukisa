@@ -25,7 +25,7 @@ class FriendData extends Data
             id: $user->id,
             username: $user->username,
             discriminator: $user->discriminator,
-            avatar_url: $user->getFirstMedia('avatars')?->getTemporaryUrl(now()->addMinutes(5), 'thumb'),
+            avatar_url: $user->getPublicAvatarUrl(),
             status: $status
         );
     }

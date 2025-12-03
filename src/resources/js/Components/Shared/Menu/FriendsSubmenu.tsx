@@ -15,7 +15,7 @@ import { useForm } from "@inertiajs/react";
 import { Form } from "@/Components/UI/Form";
 import { FriendItem } from "./FriendItem";
 import { PendingFriendItem } from "./PendingFriendItem";
-import { useFriends } from "@/Hooks/useFriends";
+import { useFriends } from "@/Layouts/Auth/hooks/useFriends";
 
 interface FriendsSubmenuProps {
     pendingCount: number;

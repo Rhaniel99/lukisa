@@ -51,7 +51,6 @@ class FriendshipsService implements IFriendshipsService
         FriendRequestReceived::dispatch($receiver->id, $newCount);
 
         return $friendship;
-        // return $this->repository->createRequest($user_id, $receiver->id);
     }
 
     public function getPendingRequests(User $user): Collection

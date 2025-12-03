@@ -15,27 +15,6 @@ export type AuthUser = {
     allow_friend_requests: boolean;
 };
 
-export type PendingFriend = {
-    id: string; // User ID
-    friendship_id: string; // Friendship Request ID
-    username: string;
-    discriminator: string;
-    avatar_url: string | null;
-};
-
-export interface Friend {
-    id: string;
-    username: string;
-    discriminator: string;
-    avatar_url: string;
-    status: "online" | "offline" | "pending";
-}
-
-export type FriendshipsData = {
-    pending: PendingFriend[];
-    count: number;
-} | null;
-
 export interface Comment {
     id: number;
     text: string;
@@ -81,23 +60,6 @@ export type FlashMessage = {
     time: number;
 };
 
-export type NotificationsData = {
-    count: number;
-    list?: NotificationItem[];
-};
-
-export type NotificationItem = {
-    id: string;
-    read_at: string | null;
-    created_at: string;
-    data: {
-        type: 'like' | 'comment' | 'friend_request';
-        message: string;
-        actor_name: string;
-        actor_avatar: string;
-        link?: string;
-    };
-};
 
 // ✅ Define e exporta o tipo base que todas as páginas terão
 export type PageProps = InertiaPageProps & {

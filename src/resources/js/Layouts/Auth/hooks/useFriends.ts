@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { router, useForm, usePage } from "@inertiajs/react";
-import { PageProps, Friend, PendingFriend } from "@/Types/models";
+import { PageProps } from "@/Types/models";
+import { useAuth } from "@/Hooks/useAuth";
+import { Friend, PendingFriend } from "@/Types/Friend";
 
 type ListType = "pending" | "accepted";
 
@@ -9,16 +11,21 @@ interface FriendRequestEvent {
 }
 
 export function useFriends() {
-    const { props } = usePage<
-        PageProps & { friendships: { count: number; pending?: PendingFriend[]; accepted?: Friend[] } }
-    >();
-    const authUser = props.auth.user;
+
+    const { props } = usePage<PageProps & { 
+        friendships: { 
+            count: number; 
+            pending?: PendingFriend[]; 
+            accepted?: Friend[] 
+        } 
+    }>();
+
+    const { id: userId } = useAuth();
 
     const [pending, setPending] = useState<PendingFriend[]>([]);
     const [accepted, setAccepted] = useState<Friend[]>([]);
     const [counts, setCounts] = useState<number>(props.friendships?.count || 0);
     const [loading, setLoading] = useState(false);
-
     const friendshipForm = useForm({});
 
     useEffect(() => {
@@ -36,28 +43,19 @@ export function useFriends() {
     }, [props.friendships]);
 
     useEffect(() => {
-        if (!authUser?.id) return;
-
-        // O canal privado padrão do Laravel para notificações de usuário é 'App.Models.User.{id}'
-        const channelName = `App.Models.User.${authUser.id}`;
-
-        // Conecta ao canal privado
+        if (!userId) return;
+        const channelName = `App.Models.User.${userId}`;
         const channel = window.Echo.private(channelName);
-
-        // Escuta o evento definido no broadcastAs() -> 'friend.request.received'
-        // O ponto (.) no início é importante para indicar que não estamos usando o namespace padrão do Laravel Events
         channel.listen(".friend.request.received", (e: FriendRequestEvent) => {
             // Atualiza o contador imediatamente
             setCounts(e.count);
         });
-
-        // Limpeza ao desmontar o componente
         return () => {
             channel.stopListening(".friend.request.received");
         };
-    }, [authUser?.id]);
+    }, [userId]);
 
-    // A função load agora sempre dispara um router.reload
+    // * A função load agora sempre dispara um router.reload
     const load = useCallback((type: ListType) => {
         setLoading(true); // Define loading como true ao iniciar a busca
         router.reload({
@@ -89,7 +87,6 @@ export function useFriends() {
         friendshipForm.delete(route("friends.destroy", id), {
             preserveScroll: true,
             onSuccess: () => {
-                // Remover da lista localmente - o flash será mostrado pelo NotificationHandler
                 setPending((prev) => prev.filter((f) => f.friendship_id !== id));
                 setCounts((prev) => Math.max(0, prev - 1));
                 setLoading(false);
@@ -123,15 +120,39 @@ export function useFriends() {
         });
     };
 
-    return {
-        pending,
-        accepted,
-        counts,
-        loading,
-        load,
-        acceptFriend,
-        rejectFriend,
-        removeFriend,
-        blockFriend,
+    const friendRequestForm = useForm({
+        tag: "",
+    });
+
+        const sendRequest = (tag: string) => {
+        friendRequestForm.setData("tag", tag);
+
+        friendRequestForm.post(route("friends.store"), {
+            preserveScroll: true,
+
+            onSuccess: () => {
+                // limpa campo
+                friendRequestForm.reset();
+                // incrementa contador
+                setCounts(prev => prev + 1);
+            },
+
+            onStart: () => setLoading(true),
+            onFinish: () => setLoading(false),
+        });
     };
-}
+
+        return {
+            pending,
+            accepted,
+            counts,
+            loading,
+            load,
+            acceptFriend,
+            rejectFriend,
+            removeFriend,
+            blockFriend,
+            sendRequest, 
+            friendRequestForm, // ⬅️ opcional caso queira acessar erros
+        };
+    }

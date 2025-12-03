@@ -28,7 +28,7 @@ class PendingFriendData extends Data
             id: $sender->id,
             username: $sender->username,
             discriminator: $sender->discriminator,
-            avatar_url: $sender->getFirstMedia('avatars')?->getTemporaryUrl(now()->addMinutes(5), 'thumb'),
+            avatar_url: $sender->getPublicAvatarUrl(),
         );
     }
 }
