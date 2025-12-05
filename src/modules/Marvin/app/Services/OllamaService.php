@@ -32,16 +32,13 @@ class OllamaService implements IOllamaService
      */
     public function generate(string $prompt, ?string $systemPromptOverride = null, array $options = []): string
     {
-        // Prepara o payload da requisição
         $payload = [
-            'model' => $this->model,
-            'prompt' => $prompt,
-            'stream' => false,
-            'options' => array_merge(config('marvin.ollama.options', []), $options),
+            'model'   => $this->model,
+            'prompt'  => $prompt,
+            'system'  => $systemPromptOverride,
+            'stream'  => false,
+            'options' => array_merge($this->options, $options),
         ];
-
-        // Usa o system prompt de override se for fornecido, senão, usa a personalidade padrão
-        $payload['system'] = $systemPromptOverride ?? $this->systemPrompt;
 
         $response = Http::timeout($this->timeout)
             ->post("{$this->url}/api/generate", $payload);
@@ -57,21 +54,27 @@ class OllamaService implements IOllamaService
      * @param array $messages Histórico da conversa
      * @return string A resposta do assistente
      */
-    public function chat(array $messages): string
+    public function chat(array $messages, string $systemPrompt): string
     {
+        // Insere o system como a PRIMEIRA mensagem
+        array_unshift($messages, [
+            'role' => 'system',
+            'content' => $systemPrompt
+        ]);
+
         $response = Http::timeout($this->timeout)
             ->post("{$this->url}/api/chat", [
-                'model' => $this->model,
+                'model'   => $this->model,
                 'messages' => $messages,
-                'stream' => false,
-                'options' => config('marvin.ollama.options'),
+                'stream'  => false,
+                'options' => $this->options,
             ]);
 
         $response->throw();
 
-        // A resposta do endpoint /api/chat vem dentro de 'message' -> 'content'
         return $response->json()['message']['content'];
     }
+
 
     /**
      * Verifica se o serviço Ollama está online e respondendo.
@@ -93,3 +96,5 @@ class OllamaService implements IOllamaService
         }
     }
 }
+
+

@@ -12,9 +12,7 @@ use Modules\Marvin\Services\OllamaService;
 
 class MarvinService implements IMarvinService
 {
-    public function __construct(protected OllamaService $ollamaService)
-    {
-    }
+    public function __construct(protected OllamaService $ollamaService) {}
 
     /**
      * Processa a pergunta do usuário, utilizando o histórico da conversa e o RAG para buscar contexto.
@@ -25,36 +23,48 @@ class MarvinService implements IMarvinService
      */
     public function ask(string $userPrompt, string $userId): ChatMessageData
     {
-        // 1. Recupera o histórico da conversa antes de adicionar a nova mensagem.
+        // HISTÓRICO CURTO (máx. 2 mensagens)
         $history = ChatMessage::query()
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
-            ->limit(10)
+            ->limit(6)
             ->get()
-            ->reverse();
+            ->reverse()
+            ->values();
 
-        // 2. RAG: Detecta a intenção e busca o contexto necessário.
-        $intent = $this->getIntent($userPrompt);
-        // Log::info('MarvinService: Intent detected', ['intent' => $intent]);
-
+        // Detecta intenção para RAG
+        $intent  = $this->getIntent($userPrompt);
         $context = $this->getContextForIntent($intent);
-        // Log::info('MarvinService: Context generated', ['context' => $context]);
 
-        // 4. Constrói o payload de mensagens para a IA, incluindo histórico e contexto RAG.
-        $messages = $this->buildMessagesPayload($history, $userPrompt, $context);
+        // Monta system prompt final
+        $systemPrompt = $this->buildSystemPrompt($context);
 
-        // 5. Envia para a IA.
-        $marvinResponse = $this->ollamaService->chat($messages);
+        // Monta mensagens (sem system!)
+        $messages = $this->buildMessagesPayload($history, $userPrompt);
 
-        // 6. Salva a resposta da IA no banco de dados.
+        // Chama o modelo
+        $marvinResponse = $this->ollamaService->chat($messages, $systemPrompt);
+
+        // Salva resposta no banco
         $assistantMessage = ChatMessage::create([
             'user_id' => $userId,
-            'role' => 'assistant',
+            'role'    => 'assistant',
             'content' => $marvinResponse,
         ]);
 
-        // 7. Retorna o DTO da mensagem criada.
         return ChatMessageData::from($assistantMessage);
+    }
+
+    private function buildSystemPrompt(?string $context): string
+    {
+        $base = config('marvin.personality');
+
+if ($context) {
+            // O Hermes obedece melhor quando o contexto é marcado explicitamente como dados
+            $base .= "\n\n### DADOS DE CONTEXTO (Use seu intelecto superior para analisar isso):\n$context\n\n### FIM DOS DADOS";
+        }
+
+        return $base;
     }
 
     /**
@@ -65,28 +75,21 @@ class MarvinService implements IMarvinService
      * @param string|null $context Contexto obtido via RAG.
      * @return array
      */
-    private function buildMessagesPayload(Collection $history, string $userPrompt, ?string $context): array
+    private function buildMessagesPayload(Collection $history, string $userPrompt): array
     {
         $messages = [];
 
-        $systemContent = config('marvin.personality');
-
-        // Isso cria um único prompt de sistema, mais coeso.
-        if ($context) {
-            $systemContent .= "\n\nINFORMAÇÃO ADICIONAL: Para a pergunta a seguir, use estritamente esta informação: $context";
-        }
-
-        // Adiciona a personalidade e o contexto (se houver) como a primeira e única mensagem do sistema.
-        $messages[] = ['role' => 'system', 'content' => $systemContent];
-
-
-        // Adiciona o histórico recuperado do banco de dados.
         foreach ($history as $message) {
-            $messages[] = ['role' => $message->role, 'content' => $message->content];
+            $messages[] = [
+                'role'    => $message->role,
+                'content' => $message->content,
+            ];
         }
 
-        // Adiciona a nova pergunta do usuário ao final do payload.
-        $messages[] = ['role' => 'user', 'content' => $userPrompt];
+        $messages[] = [
+            'role'    => 'user',
+            'content' => $userPrompt
+        ];
 
         return $messages;
     }
@@ -97,16 +100,12 @@ class MarvinService implements IMarvinService
      * @param string $intent A intenção do usuário.
      * @return string|null O contexto encontrado ou null.
      */
-    private function getContextForIntent(string $intent): ?string
+  private function getContextForIntent(string $intent): ?string
     {
-        switch ($intent) {
-            case 'get_user_count':
-                $userCount = DB::table('users')->count();
-                return "O número exato de usuários cadastrados no sistema é {$userCount}.";
-            default:
-                // Se a intenção for 'general_chat' ou outra não mapeada, não há contexto para buscar.
-                return null;
-        }
+        return match ($intent) {
+            'get_user_count' => "O sistema possui exatamente " . DB::table('users')->count() . " usuários.",
+            default          => null,
+        };
     }
 
     /**
@@ -117,18 +116,12 @@ class MarvinService implements IMarvinService
      */
     private function getIntent(string $userPrompt): string
     {
-        $possibleIntents = [
-            'get_user_count', // Para perguntas sobre o número de usuários
-            'general_chat',   // Para todas as outras conversas
-        ];
+        $possibleIntents = ['get_user_count', 'general_chat'];
 
-        $systemPromptForIntent = "Sua única tarefa é classificar a intenção do usuário em uma das seguintes categorias: "
-            . implode(', ', $possibleIntents) .
-            ". Responda APENAS com o nome da categoria e nada mais.\n\n"
-            . "Exemplos:\n"
-            . "- Se o usuário perguntar 'quantos usuários temos?', responda 'get_user_count'.\n"
-            . "- Se o usuário perguntar 'qual o número de pessoas cadastradas?', responda 'get_user_count'.\n"
-            . "- Se o usuário perguntar 'olá, tudo bem?', responda 'general_chat'.";
+        $systemPromptForIntent =
+            "Classifique a intenção do usuário em uma dessas categorias: "
+            . implode(', ', $possibleIntents)
+            . ". Responda APENAS com o nome da categoria.";
 
         $intent = $this->ollamaService->generate(
             prompt: $userPrompt,
@@ -136,12 +129,10 @@ class MarvinService implements IMarvinService
             options: ['temperature' => 0]
         );
 
-        $cleanedIntent = trim($intent);
+        $clean = trim($intent);
 
-        if (!in_array($cleanedIntent, $possibleIntents)) {
-            return 'general_chat';
-        }
-
-        return $cleanedIntent;
+        return in_array($clean, $possibleIntents)
+            ? $clean
+            : 'general_chat';
     }
 }

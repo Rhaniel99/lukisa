@@ -5,10 +5,14 @@ namespace Modules\Marvin\Providers;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
+use Modules\Marvin\Interfaces\Repositories\IChatRepository;
 use Modules\Marvin\Interfaces\Repositories\IMarvinRepository;
+use Modules\Marvin\Interfaces\Services\IChatService;
 use Modules\Marvin\Interfaces\Services\IMarvinService;
 use Modules\Marvin\Interfaces\Services\IOllamaService;
+use Modules\Marvin\Repositories\ChatRepository;
 use Modules\Marvin\Repositories\MarvinRepository;
+use Modules\Marvin\Services\ChatService;
 use Modules\Marvin\Services\MarvinService;
 use Modules\Marvin\Services\OllamaService;
 use Nwidart\Modules\Traits\PathNamespace;
@@ -52,6 +56,7 @@ class MarvinServiceProvider extends ServiceProvider
         $this->app->register(RouteServiceProvider::class);
         $this->app->register(BroadcastServiceProvider::class);
 
+        // * SERVICE
         $this->app->bind(
             IMarvinService::class,
             MarvinService::class
@@ -63,10 +68,23 @@ class MarvinServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            IChatService::class,
+            ChatService::class
+        );
+
+
+        // * REPOSITORY
+
+        $this->app->bind(
             IMarvinRepository::class,
             MarvinRepository::class
         );
 
+
+        $this->app->bind(
+            IChatRepository::class,
+            ChatRepository::class
+        );
     }
 
     /**

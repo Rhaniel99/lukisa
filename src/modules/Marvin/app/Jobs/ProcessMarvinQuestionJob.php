@@ -58,6 +58,8 @@ class ProcessMarvinQuestionJob implements ShouldQueue
             // O serviço agora só processa e salva a resposta do assistente.
             $assistantMessage = $marvinService->ask($this->prompt, $this->userId);
 
+            \Log::info($assistantMessage);
+
             // Se uma resposta foi recebida, broadcast it.
             if ($assistantMessage) {
                 NewMarvinMessageReceived::dispatch($assistantMessage, $this->userId);

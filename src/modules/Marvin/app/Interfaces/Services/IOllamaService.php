@@ -9,5 +9,6 @@ namespace Modules\Marvin\Interfaces\Services;
 interface IOllamaService
 {
     public function generate(string $prompt, ?string $systemPromptOverride = null, array $options = []): string;
-    public function chat(array $messages): string;
+    // public function chat(array $messages): string;
+    public function chat(array $messages, string $systemPrompt): string;
 }
