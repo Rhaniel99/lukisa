@@ -2,13 +2,12 @@
 
 namespace Modules\Marvin\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Modules\Marvin\DTOs\ChatMessageData;
+use Modules\Marvin\DTOs\ChatMessageResponse;
 
 class NewMarvinMessageReceived implements ShouldBroadcastNow
 {
@@ -17,7 +16,7 @@ class NewMarvinMessageReceived implements ShouldBroadcastNow
     /**
      * The new message data.
      *
-     * @var ChatMessageData
+     * @var ChatMessageResponse
      */
     public $message;
 
@@ -33,7 +32,7 @@ class NewMarvinMessageReceived implements ShouldBroadcastNow
      *
      * @return void
      */
-    public function __construct(ChatMessageData $message, string $userId)
+    public function __construct(ChatMessageResponse $message, string $userId)
     {
         $this->message = $message;
         $this->userId = $userId;

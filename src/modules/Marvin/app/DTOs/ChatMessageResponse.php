@@ -10,7 +10,7 @@ use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapName(SnakeCaseMapper::class)]
-class ChatMessageData extends Data
+class ChatMessageResponse extends Data
 {
     use WireableData;
 

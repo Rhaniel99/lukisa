@@ -8,11 +8,15 @@ use Inertia\Inertia;
 use Modules\Marvin\Interfaces\Repositories\IChatRepository;
 use Modules\Marvin\Interfaces\Repositories\IMarvinRepository;
 use Modules\Marvin\Interfaces\Services\IChatService;
+use Modules\Marvin\Interfaces\Services\IContextProviderService;
+use Modules\Marvin\Interfaces\Services\IIntentClassifierService;
 use Modules\Marvin\Interfaces\Services\IMarvinService;
 use Modules\Marvin\Interfaces\Services\IOllamaService;
 use Modules\Marvin\Repositories\ChatRepository;
 use Modules\Marvin\Repositories\MarvinRepository;
 use Modules\Marvin\Services\ChatService;
+use Modules\Marvin\Services\ContextProviderService;
+use Modules\Marvin\Services\IntentClassifierService;
 use Modules\Marvin\Services\MarvinService;
 use Modules\Marvin\Services\OllamaService;
 use Nwidart\Modules\Traits\PathNamespace;
@@ -72,6 +76,15 @@ class MarvinServiceProvider extends ServiceProvider
             ChatService::class
         );
 
+        $this->app->bind(
+            IIntentClassifierService::class,
+            IntentClassifierService::class
+        );
+
+        $this->app->bind(
+            IContextProviderService::class,
+            ContextProviderService::class
+        );
 
         // * REPOSITORY
 

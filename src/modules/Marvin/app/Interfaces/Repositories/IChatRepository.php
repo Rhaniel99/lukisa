@@ -3,8 +3,9 @@
 namespace Modules\Marvin\Interfaces\Repositories;
 
 use App\Interfaces\Repositories\ICoreRepository;
+use Illuminate\Database\Eloquent\Collection;
 
 interface IChatRepository extends ICoreRepository
 {
-    // Adicione aqui as assinaturas de métodos específicos para o ChatRepository...
+    public function getRecentByUser(string $userId, int $limit = 6): Collection;
 }

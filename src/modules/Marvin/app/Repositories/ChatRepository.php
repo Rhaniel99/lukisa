@@ -5,6 +5,8 @@ namespace Modules\Marvin\Repositories;
 use App\Repositories\Base\CoreRepository;
 use Modules\Marvin\Interfaces\Repositories\IChatRepository;
 use Modules\Marvin\Models\ChatMessage;
+use Illuminate\Database\Eloquent\Collection;
+
 
 class ChatRepository extends CoreRepository implements IChatRepository
 {
@@ -18,5 +20,15 @@ class ChatRepository extends CoreRepository implements IChatRepository
         parent::__construct($model);
     }
 
-    // Adicione aqui métodos específicos para o ChatRepository...
+    public function getRecentByUser(string $userId, int $limit = 6): Collection
+    {
+        return $this->model
+            ->newQuery()
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->reverse()
+            ->values();
+    }
 }

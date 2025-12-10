@@ -8,7 +8,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Modules\Marvin\Events\NewMarvinMessageReceived;
-use Modules\Marvin\Models\ChatMessage;
+use Modules\Marvin\Interfaces\Repositories\IChatRepository;
 use Modules\Marvin\Services\MarvinService;
 
 class ProcessMarvinQuestionJob implements ShouldQueue
@@ -45,11 +45,11 @@ class ProcessMarvinQuestionJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle(MarvinService $marvinService)
+    public function handle(MarvinService $marvinService, IChatRepository $chatRepository)
     {
         try {
             // Salva a pergunta do usuário, que agora é a única fonte da verdade.
-            ChatMessage::create([
+            $chatRepository->create([
                 'user_id' => $this->userId,
                 'role' => 'user',
                 'content' => $this->prompt,
@@ -57,8 +57,6 @@ class ProcessMarvinQuestionJob implements ShouldQueue
 
             // O serviço agora só processa e salva a resposta do assistente.
             $assistantMessage = $marvinService->ask($this->prompt, $this->userId);
-
-            \Log::info($assistantMessage);
 
             // Se uma resposta foi recebida, broadcast it.
             if ($assistantMessage) {

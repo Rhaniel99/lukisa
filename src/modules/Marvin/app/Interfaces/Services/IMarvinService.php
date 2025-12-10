@@ -2,7 +2,7 @@
 
 namespace Modules\Marvin\Interfaces\Services;
 
-use Modules\Marvin\DTOs\ChatMessageData;
+use Modules\Marvin\DTOs\ChatMessageResponse;
 
 /**
  * Interface IMarvinService
@@ -10,9 +10,12 @@ use Modules\Marvin\DTOs\ChatMessageData;
  */
 interface IMarvinService
 {
-    // public function ask_chat(string $userPrompt, string $sessionId): string;
-    // public function ask_chat(string $userPrompt, string $userId): string;
-    // public function ask(string $userPrompt): string;
-    // public function ask(string $userPrompt, string $userId): string;
-    public function ask(string $userPrompt, string $userId): ChatMessageData;
+    /**
+     * Processa a pergunta do usuário, utilizando o histórico da conversa e o RAG para buscar contexto.
+     *
+     * @param string $userPrompt A nova pergunta do usuário.
+     * @param string $userId O ID do usuário da conversa.
+     * @return ChatMessageResponse O DTO da mensagem de resposta da IA.
+     */
+    public function ask(string $userPrompt, string $userId): ChatMessageResponse;
 }
