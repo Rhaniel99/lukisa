@@ -16,25 +16,28 @@ const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: async (name) => {
-        // Carrega o componente da página dinamicamente
         const page = (await resolvePageComponent(
             `./Pages/${name}.tsx`,
             import.meta.glob("./Pages/**/*.tsx")
-        )) as any; // Usamos 'any' temporariamente para poder adicionar a propriedade 'layout'
+        )) as any;
 
         const publicPages = ["Public/"];
 
-        const isPublicPage = publicPages.some((prefix) =>
-            name.startsWith(prefix)
-        );
+        const fullscreenPages = ["Auth/Memories/"];
 
-        page.default.layout = isPublicPage
-            ? (pageComponent: React.ReactNode) => (
-                  <GuestLayout>{pageComponent}</GuestLayout>
-              )
-            : (pageComponent: React.ReactNode) => (
-                  <AuthLayout>{pageComponent}</AuthLayout>
-              );
+        const isPublic = publicPages.some(prefix => name.startsWith(prefix));
+
+        // Agora: "Auth/Memories/Index".startsWith("Auth/Memories/") será TRUE
+        const isFullscreen = fullscreenPages.some(prefix => name.startsWith(prefix));
+
+        if (isPublic) {
+            page.default.layout = (p: React.ReactNode) => <GuestLayout>{p}</GuestLayout>;
+        } else if (isFullscreen) {
+            const { default: FullscreenLayout } = await import("@/Layouts/FullscreenLayout");
+            page.default.layout = (p: React.ReactNode) => <FullscreenLayout>{p}</FullscreenLayout>;
+        } else {
+            page.default.layout = (p: React.ReactNode) => <AuthLayout>{p}</AuthLayout>;
+        }
 
         return page;
     },

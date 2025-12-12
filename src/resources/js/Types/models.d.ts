@@ -22,34 +22,6 @@ export interface Comment {
     author: User;
 }
 
-export interface Memory {
-    id: number;
-    title: string;
-    description: string;
-    created: string;
-    likes: number;
-    liked: boolean;
-    image: string | null;
-    is_owner: boolean;
-    author: User;
-    // ✅ Atualize aqui para usar o novo nome
-    comments: MemoryComment[];
-    comments_count: number;
-    // ✅ Adicione a prop de metadados da paginação
-    commentsMeta?: {
-        current_page: number;
-        last_page: number;
-        has_more_pages: boolean;
-    } | null;
-}
-
-// O Place que vem do ViewModel é mais simples
-export interface Place {
-    id: number;
-    latitude: number;
-    longitude: number;
-}
-
 // Props para a página principal
 export interface MemoriesIndexProps {
     places: Place[];

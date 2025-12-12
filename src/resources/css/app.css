@@ -231,3 +231,16 @@
   70%  { opacity: 1; transform: scale(0.9); }
   100% { opacity: 1; transform: scale(1); }
 }
+
+/* 10) Leaflet */
+.leaflet-container {
+    z-index: 1 !important;
+}
+
+.leaflet-pane,
+.leaflet-map-pane,
+.leaflet-tile-pane,
+.leaflet-marker-pane,
+.leaflet-overlay-pane {
+    z-index: 2 !important;
+}

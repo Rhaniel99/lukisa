@@ -28,7 +28,7 @@ export default function Index() {
                     description="Explore e compartilhe suas lembranças em um mapa interativo."
                     buttonText="Acessar"
                     delay={0.1}
-                    onClick={() => router.get("/memories")}
+                    onClick={() => router.get("/memories-maps")}
                 />
 
                 <ModuleCard
