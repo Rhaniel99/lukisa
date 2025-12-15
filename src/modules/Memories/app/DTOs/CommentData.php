@@ -13,7 +13,7 @@ class CommentData extends Data
     public function __construct(
         public readonly string $memory_id,
         public readonly string $id,
-        public readonly string $text, // 'text' no frontend
+        public readonly string $content, // 'text' no frontend
         public readonly string $created,
         public readonly UserData $author, // 'author' no frontend
     ) {
@@ -28,7 +28,7 @@ class CommentData extends Data
         return new self(
             memory_id: $comment->memory_id,
             id: $comment->id,
-            text: $comment->content, // Mapeia a coluna 'content' para 'text'
+            content: $comment->content, // Mapeia a coluna 'content' para 'text'
             created: $comment->created_at->diffForHumans(), // Formata a data
             author: UserData::fromModel($comment->user),
         );

@@ -10,7 +10,7 @@ use Modules\Memories\Models\Place;
 
 interface IMemoriesRepository {
 
-    public function findOrCreatePlace(float $latitude, float $longitude): Place;
+    public function findOrCreatePlace(float $latitude, float $longitude, string $name): Place;
 
     public function createMemory(StoreMemoryData $data, string $placeId, string $userId): Memorie;
 

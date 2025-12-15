@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, Minus, Locate, ArrowLeft } from 'lucide-react';
-import { MemoryModal } from './components/modal/MemoryModal';
-import { MemoryDrawer } from './components/MemoryDrawer';
-import { MemoryDetailsModal } from './components/modal/MemoryDetailsModal';
 import { Head, router } from '@inertiajs/react';
+import { Plus, Minus, Locate, ArrowLeft } from 'lucide-react';
+import { LatLng, Map as LeafletMap } from 'leaflet';
 
 import {
   MapContainer,
@@ -11,15 +9,22 @@ import {
   useMap
 } from 'react-leaflet';
 
-import { LatLng, Map as LeafletMap } from 'leaflet';
-
-import { useHereMapKey } from './hooks/useHereMap';
-import PinCozy from './components/map/PinCozy';
+// * Components
+import { MemoryModal } from './components/modal/MemoryModal';
+import { MemoryDrawer } from './components/MemoryDrawer';
+import { MemoryDetailsModal } from './components/modal/MemoryDetailsModal';
 import { ClickHandler } from './components/map/ClickHandler';
-import { getPlaceInfo } from './utils/infoPlace';
-import { Memory } from '@/Types/Memories';
 import { SearchBar } from './components/SearchBar';
+import PinTemp from './components/map/PinTemp';
+import PinCozy from './components/map/PinCozy';
+// * Hooks
+import { useHereMapKey } from './hooks/useHereMap';
+import { useMemoryFeed } from './hooks/useMemoryFeed';
+// * Services
+import { hereService } from "@/Pages/Auth/Memories/services/here.service";
 
+// * Types
+import { Memory, Place } from '@/Types/Memories';
 
 // ----------------------------------------
 //  MapSetter — melhor forma de pegar a instância do Leaflet
@@ -34,78 +39,108 @@ function MapSetter({ onMap }: { onMap: (m: LeafletMap) => void }) {
   return null;
 }
 
+interface IndexProps {
+  places: Place[];
+  selectedPlaceMemories?: Memory[]; // Lazy loaded via Lazy::when
+  selectedMemoryDetails?: Memory; // <--- (Vem do ViewModel)
+}
+
 // ----------------------------------------
 //  Página principal
 // ----------------------------------------
-export default function Index() {
-  const [scale, setScale] = useState(1);
+export default function Index({ places, selectedPlaceMemories = [], selectedMemoryDetails }: IndexProps) {
+  const apiKey = useHereMapKey();
+  // Estados do Mapa e UI
   const [map, setMap] = useState<LeafletMap | null>(null);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<string>();
-  const [selectedMemory, setSelectedMemory] = useState<any>(null);
+  const [loadingMemories, setLoadingMemories] = useState(false);
 
-  // NOVOS
-  const [selectedCoords, setSelectedCoords] = useState<LatLng | null>(null);
-  const [selectedPlaceMeta, setSelectedPlaceMeta] =
-    useState<{ name: string | null; address: string | null } | null>(null);
+  // Estados de Seleção
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
+  const [tempPin, setTempPin] = useState<{ lat: number; lng: number; label: string } | null>(null);
 
-  const [selectedPlace, setSelectedPlace] = useState<{
-    id: number;
-    lat: number;
-    lng: number;
-    label: string;
-  } | null>(null);
+  // Estados para Modal de Criação (Coords e Meta)
+  const [createCoords, setCreateCoords] = useState<LatLng | null>(null);
+  const [createPlaceMeta, setCreatePlaceMeta] = useState<{ name: string | null; address: string | null } | null>(null);
 
-  const apiKey = useHereMapKey();
+  // const [selectedCoords, setSelectedCoords] = useState<LatLng | null>(null);
+  // const [selectedPlaceMeta, setSelectedPlaceMeta] = useState<{ name: string | null; address: string | null } | null>(null);
 
-  // Mock pins
-  const pins = [
-    { id: 1, lat: -3.119, lng: -60.0217, label: "Centro Histórico" },
-    { id: 2, lat: -3.12, lng: -60.02, label: "Café da Praça" }
-  ];
+  const { memories, toggleLike } = useMemoryFeed(selectedPlaceMemories);
 
-  // Mock memories
-  const mockMemories: Record<number, Memory[]> = {
-    1: [
-      {
-        id: 1,
-        title: "Memória do lugar 1",
-        description: "...",
-        created: "2025-11-24",
-        likes: 2,
-        liked: false,
-        is_owner: true,
-        image: null,
-        author: {
-          id: 1,
-          username: "Polar"
+  const handleMemoryClick = (memory: Memory) => {
+    // Busca os detalhes completos (incluindo comentários) no servidor
+    router.visit(route('memo.maps.index'), {
+        // Mantém o place_id na URL e adiciona o memory_id
+        data: { 
+            place_id: selectedPlace?.id, // Garante que o drawer não feche/limpe
+            memory_id: memory.id,
+            comments_page: 1 
         },
-        comments: [],
-        comments_count: 0
-      }
-    ],
-    2: [
-      {
-        id: 9,
-        title: "Café da praça",
-        description: "Dia incrível.",
-        created: "2025-11-20",
-        likes: 8,
-        liked: true,
-        is_owner: false,
-        image: null,
-        author: {
-          id: 2,
-          username: "UserTest"
-        },
-        comments: [],
-        comments_count: 0
-      }
-    ]
+        only: ['selectedMemoryDetails'], // Traz apenas o detalhe pesado
+        preserveState: true,
+        preserveScroll: true,
+    });
   };
 
+  const handleCloseMemoryModal = () => {
+    // Para fechar, removemos o memory_id da URL e limpamos a prop
+    router.visit(route('memo.maps.index'), {
+        data: { place_id: selectedPlace?.id }, // Mantém só o lugar
+        only: ['selectedMemoryDetails'], // Isso vai fazer o backend retornar null para details
+        preserveState: true,
+        preserveScroll: true,
+    });
+  };
+
+  const handlePinClick = (place: Place) => {
+    setTempPin(null); // Remove pin temporário se houver
+    setSelectedPlace(place);
+    setLoadingMemories(true); // UI feedback
+    setIsDrawerOpen(true);
+
+    // INERTIA PARTIAL RELOAD
+    // Busca apenas as memórias deste lugar sem recarregar a página toda
+    router.visit(route('memo.maps.index'), {
+      data: { place_id: place.id }, // Envia o ID para o Lazy::when no backend
+      only: ['selectedPlaceMemories'], // Só queremos atualizar essa prop
+      preserveState: true, // Mantém o zoom do mapa e estados do React
+      preserveScroll: true,
+      onFinish: () => setLoadingMemories(false),
+    });
+  };
+
+  const handleMapClick = async (coords: LatLng) => {
+    setTempPin(null);
+    const info = await hereService.getPlaceInfo(coords.lat, coords.lng, apiKey);
+
+    // Prepara dados para o Modal de Criação
+    setCreateCoords(coords);
+    setCreatePlaceMeta(info);
+
+    setIsModalOpen(true);
+  };
+
+  const handleSearchSelect = ({ lat, lng, label }: { lat: number; lng: number; label: string }) => {
+    // Verifica se já existe um pin muito próximo (threshold de ~50m)
+    const threshold = 0.0005;
+    const existingPlace = places.find(p =>
+      Math.abs(p.latitude - lat) < threshold &&
+      Math.abs(p.longitude - lng) < threshold
+    );
+
+    if (existingPlace) {
+      // Se existe, foca nele e abre o drawer
+      handlePinClick(existingPlace);
+    } else {
+      // Se não existe, cria pin temporário azul
+      setSelectedPlace(null);
+      setIsDrawerOpen(false); // Fecha drawer se estiver aberto
+      setTempPin({ lat, lng, label });
+    }
+  };
 
   return (
     <>
@@ -123,10 +158,8 @@ export default function Index() {
               {/* 🔎 Search component */}
               <SearchBar
                 apiKey={apiKey}
-                map={map}        // ← passa o mapa aqui
-                onSelect={({ lat, lng, label }) => {
-                  setSelectedPlace({ id: 0, lat, lng, label });
-                }}
+                map={map}
+                onSelect={handleSearchSelect}
               />
             </div>
           </div>
@@ -202,31 +235,33 @@ export default function Index() {
           <MapSetter onMap={setMap} />
 
           {/* Click Handler */}
-          <ClickHandler
-            onClick={async (coords) => {
-              const info = await getPlaceInfo(coords.lat, coords.lng, apiKey);
-
-              setSelectedCoords(coords);
-              setSelectedPlaceMeta(info);
-              setIsModalOpen(true);
-            }}
-          />
+          <ClickHandler onClick={handleMapClick} />
 
           {/* Pins */}
-          {pins.map(pin => (
+          {places.map(place => (
             <PinCozy
-              key={pin.id}
-              lat={pin.lat}
-              lng={pin.lng}
-              label={pin.label}
-              onClick={() => {
-                setSelectedPlace(pin);
-                setSelectedLocation(pin.label);
-                setIsDrawerOpen(true);
-              }}
+              key={place.id}
+              lat={place.latitude}
+              lng={place.longitude}
+              label={place.name} // Usando 'name' do banco
+              onClick={() => handlePinClick(place)}
             />
           ))}
 
+          {tempPin && (
+            <PinTemp
+              lat={tempPin.lat}
+              lng={tempPin.lng}
+              label={tempPin.label}
+              onClick={() => {
+                // Ao clicar no temp, abre modal de criar
+                setCreateCoords(new LatLng(tempPin.lat, tempPin.lng));
+                setCreatePlaceMeta({ name: tempPin.label, address: "" });
+                setIsModalOpen(true);
+                setTempPin(null);
+              }}
+            />
+          )}
         </MapContainer>
 
         {/* ---------------------------- */}
@@ -236,21 +271,12 @@ export default function Index() {
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false);
-            setSelectedCoords(null);
+            setCreateCoords(null);
           }}
-          coords={selectedCoords}
-          placeMeta={selectedPlaceMeta}
-          onSave={(memoryData) => {
-            console.log("Memória criada:", {
-              ...memoryData,
-              latitude: selectedCoords?.lat,
-              longitude: selectedCoords?.lng,
-            });
-
-            setIsModalOpen(false);
-            setSelectedCoords(null);
-          }}
+          coords={createCoords}
+          placeMeta={createPlaceMeta}
         />
+
 
         {/* ---------------------------- */}
         {/*   Drawer de Memórias do Pin  */}
@@ -258,22 +284,41 @@ export default function Index() {
         <MemoryDrawer
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
-          locationName={selectedPlace?.label}
-          memories={selectedPlace ? mockMemories[selectedPlace.id] || [] : []}
+          locationName={selectedPlace?.name} // Usando 'name' do banco
+
+          // Passamos as memórias que vieram do Inertia Props
+          memories={memories}
+
+          // Opcional: Se quiser mostrar um skeleton enquanto carrega
+          // isLoading={loadingMemories}
+
           onAddMemory={() => {
-            setIsDrawerOpen(false);
-            setIsModalOpen(true);
+            // Adicionar memória no lugar JÁ existente
+            if (selectedPlace) {
+              setCreateCoords(new LatLng(selectedPlace.latitude, selectedPlace.longitude));
+              setCreatePlaceMeta({ name: selectedPlace.name, address: "" });
+              setIsDrawerOpen(false);
+              setIsModalOpen(true);
+            }
           }}
-          onMemoryClick={memory => setSelectedMemory(memory)}
+          onMemoryClick={handleMemoryClick} 
+          // onMemoryClick={(memory) => setSelectedMemoryId(memory.id)}
+          // onMemoryClick={(memory) => setSelectedMemory(memory)}
+          onLike={toggleLike} // <--- Passamos a função de like
         />
 
         {/* ---------------------------- */}
         {/*   Modal de detalhes memória  */}
         {/* ---------------------------- */}
         <MemoryDetailsModal
-          isOpen={!!selectedMemory}
-          onClose={() => setSelectedMemory(null)}
-          memory={selectedMemory}
+          isOpen={!!selectedMemoryDetails} // Se achou a memória, abre
+          onClose={handleCloseMemoryModal}
+          // onClose={() => setSelectedMemoryId(null)} // Limpa o ID ao fechar
+          memory={selectedMemoryDetails || null}
+
+          // memory={activeMemory} // Passamos a versão "viva" do hook useMemoryFeed
+
+          onLike={toggleLike} // Passamos a mesma função de like
         />
       </div>
     </>

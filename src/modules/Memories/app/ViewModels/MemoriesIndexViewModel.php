@@ -24,7 +24,7 @@ class MemoriesIndexViewModel extends Data
     public static function fromRequest(Request $request): static
     {
         // 1) Carrega sempre os pins
-        $places = Place::select(['id', 'latitude', 'longitude'])->get();
+        $places = Place::select(['id', 'name', 'latitude', 'longitude'])->get();
 
         // 2) Carrega memórias do lugar com PRIVACIDADE
         $selectedPlaceMemories = Lazy::when(

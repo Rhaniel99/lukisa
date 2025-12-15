@@ -1,5 +1,5 @@
-import { hereAutocomplete } from "@/Pages/Auth/Memories/utils/autocomplete";
 import { useEffect, useState } from "react";
+import { hereService } from "@/Pages/Auth/Memories/services/here.service";
 
 export function useHereMapKey() {
     const key = import.meta.env.VITE_HERE_API_KEY
@@ -22,15 +22,15 @@ export function useAutocomplete(apiKey: string, map?: L.Map | null) {
             return;
         }
 
-        const delay = setTimeout(async () => {
+        const timeout = setTimeout(async () => {
             setLoading(true);
-            const items = await hereAutocomplete(query, apiKey, map);
+            const items = await hereService.autocomplete(query, apiKey, map);
             setResults(items);
             setLoading(false);
         }, 300);
 
-        return () => clearTimeout(delay);
-    }, [query]);
+        return () => clearTimeout(timeout);
+    }, [query, apiKey, map]);
 
     return { query, setQuery, results, loading };
 }

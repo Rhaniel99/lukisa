@@ -17,6 +17,9 @@ class StoreMemoryData extends Data
         #[Required, StringType, Max(255)]
         public readonly string $title,
 
+        #[Required, StringType, Max(255)]
+        public readonly string $place_name,
+
         #[Required, StringType]
         public readonly string $content,
 

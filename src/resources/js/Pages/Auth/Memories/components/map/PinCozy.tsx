@@ -11,7 +11,6 @@ interface CozyMapPinProps {
 }
 
 export default function PinCozy({ lat, lng, label, onClick }: CozyMapPinProps) {
-
     const html = renderToStaticMarkup(
         <div className="relative group cursor-pointer" style={{ transform: "translate(-50%, -100%)" }}>
 

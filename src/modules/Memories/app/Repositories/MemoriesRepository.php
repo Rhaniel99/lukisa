@@ -17,10 +17,16 @@ class MemoriesRepository extends CoreRepository implements IMemoriesRepository
         parent::__construct($model);
     }
 
-    public function findOrCreatePlace(float $latitude, float $longitude): Place
+    public function findOrCreatePlace(float $latitude, float $longitude, string $name): Place
     {
         return Place::firstOrCreate(
-            ['latitude' => $latitude, 'longitude' => $longitude]
+            [
+                'latitude' => $latitude,
+                'longitude' => $longitude
+            ],
+            [
+                'name' => $name
+            ]
         );
     }
 

@@ -4,16 +4,26 @@ import { motion, AnimatePresence } from "motion/react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
 import { FallbackImage } from "@/Components/ui/FallbackImage";
 import { Memory } from "@/Types/Memories";
+import { useAuth } from "@/Hooks/useAuth";
+import { useCommentForm } from "@/Pages/Auth/Memories/hooks/useCommentForm";
 
 interface MemoryDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   memory: Memory | null;
+  onLike: (memory: Memory) => void;
 }
 
-export function MemoryDetailsModal({ isOpen, onClose, memory }: MemoryDetailsModalProps) {
-  const [liked, setLiked] = useState(false);
-  const [commentText, setCommentText] = useState("");
+export function MemoryDetailsModal({ isOpen, onClose, memory, onLike }: MemoryDetailsModalProps) {
+  const { user } = useAuth();
+
+  const {
+    data,
+    setData,
+    submit,
+    handleKeyDown,
+    processing
+  } = useCommentForm(memory?.id ?? 0);
 
   if (!memory) return null;
 
@@ -21,7 +31,7 @@ export function MemoryDetailsModal({ isOpen, onClose, memory }: MemoryDetailsMod
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-[#3D2817]/60 backdrop-blur-sm">
-          
+
           {/* Modal container */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -87,18 +97,22 @@ export function MemoryDetailsModal({ isOpen, onClose, memory }: MemoryDetailsMod
                 {/* Like */}
                 <div className="flex items-center gap-4 pt-4 border-t border-[#E8DCC4]">
                   <button
-                    onClick={() => setLiked(!liked)}
+                    onClick={() => onLike(memory)}
                     className="group flex items-center gap-2 transition-colors"
                   >
                     <Heart
                       className={`w-6 h-6 transition-all ${
-                        liked ? "fill-[#D4183D] text-[#D4183D]" : "text-[#8B7355] group-hover:text-[#D4183D]"
-                      }`}
+                        // Usa o estado REAL da memória
+                        memory.liked
+                          ? "fill-[#D4183D] text-[#D4183D]"
+                          : "text-[#8B7355] group-hover:text-[#D4183D]"
+                        }`}
                     />
                   </button>
 
                   <span className="text-xs text-[#8B7355]">
-                    {memory.likes + (liked ? 1 : 0)} curtidas
+                    {/* Usa a contagem REAL da memória */}
+                    {memory.likes} curtidas
                   </span>
                 </div>
 
@@ -108,32 +122,71 @@ export function MemoryDetailsModal({ isOpen, onClose, memory }: MemoryDetailsMod
                     Comentários ({memory.comments_count})
                   </h4>
 
-                  {/* Empty state real */}
-                  <p className="text-sm text-[#8B7355] text-center py-4">
-                    Nenhum comentário ainda. Seja o primeiro!
-                  </p>
+                  {memory.comments && memory.comments.length > 0 ? (
+                    <div className="space-y-4">
+                      {memory.comments.map((comment: any) => (
+                        <div key={comment.id} className="flex gap-3 items-start group">
+                          <Avatar className="w-8 h-8 mt-1">
+                            <AvatarImage src={comment.author?.avatar_url} />
+                            <AvatarFallback className="text-xs bg-[#E8DCC4] text-[#6B4E3D]">
+                              {comment.author?.username?.[0] || "?"}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div className="flex-1 bg-white/50 p-3 rounded-xl rounded-tl-none border border-[#E8DCC4]">
+                            <div className="flex justify-between items-baseline mb-1">
+                              <span className="text-xs font-bold text-[#3D2817]">
+                                {comment.author?.username}
+                              </span>
+                              <span className="text-[10px] text-[#8B7355]">
+                                {comment.created}
+                              </span>
+                            </div>
+                            <p className="text-sm text-[#6B4E3D] leading-snug">
+                              {comment.content}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Opcional: Botão de carregar mais se houver paginação */}
+                      {/* <button className="w-full text-xs text-[#8B7355] hover:underline py-2">
+                        Carregar mais comentários
+                      </button> 
+                      */}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[#8B7355] text-center py-4">
+                      Nenhum comentário ainda. Seja o primeiro!
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Footer — comment input */}
               <div className="p-4 border-t border-[#E8DCC4] bg-[#FAF7F2]">
                 <div className="flex items-center gap-2 bg-white border-2 border-[#E8DCC4] rounded-full px-4 py-2">
-                  
+
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src={memory.author.avatar_url} />
-                    <AvatarFallback>{memory.author.username.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={user?.avatar_url || undefined} />
+                    <AvatarFallback className="bg-[#6B4E3D] text-white">
+                      {user?.username?.charAt(0) || "Eu"}
+                    </AvatarFallback>
                   </Avatar>
 
                   <input
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
+                    value={data.content}
+                    onChange={(e) => setData("content", e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder="Adicione um comentário..."
-                    className="flex-1 bg-transparent outline-none text-sm text-[#3D2817]"
+                    className="flex-1 bg-transparent outline-none text-sm text-[#3D2817] placeholder:text-[#A69580]"
+                    disabled={processing}
                   />
 
                   <button
-                    disabled={!commentText.trim()}
-                    className="text-[#6B4E3D] disabled:opacity-30 hover:text-[#3D2817]"
+                    onClick={submit}
+                    disabled={processing || !data.content.trim()}
+                    className="text-[#6B4E3D] disabled:opacity-30 hover:text-[#3D2817] disabled:cursor-not-allowed transition-opacity"
                   >
                     <Send className="w-4 h-4" />
                   </button>

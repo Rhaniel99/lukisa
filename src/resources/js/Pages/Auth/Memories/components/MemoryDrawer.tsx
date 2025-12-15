@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Memory } from '@/Types/Memories';
 import { X, Heart, MessageCircle, MoreHorizontal, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -9,6 +10,7 @@ interface MemoryDrawerProps {
   locationName?: string;
   memories: Memory[];
   onMemoryClick?: (memory: Memory) => void;
+  onLike: (memory: Memory) => void;
 }
 
 export function MemoryDrawer({
@@ -17,7 +19,8 @@ export function MemoryDrawer({
   onAddMemory,
   locationName = "Local",
   memories,
-  onMemoryClick
+  onMemoryClick,
+  onLike
 }: MemoryDrawerProps) {
 
   return (
@@ -72,18 +75,27 @@ export function MemoryDrawer({
               {memories.map((memory) => (
                 <div
                   key={memory.id}
-                  onClick={() => onMemoryClick && onMemoryClick(memory)}
-                  className="bg-white rounded-3xl shadow-lg border border-[#E8DCC4] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer group"
+                  // onClick={() => onMemoryClick && onMemoryClick(memory)}
+                  className="bg-white rounded-3xl shadow-lg border border-[#E8DCC4] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 group"
+                // className="bg-white rounded-3xl shadow-lg border border-[#E8DCC4] overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer group"
                 >
                   {/* Post Header */}
                   <div className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-[#D4C5A9] border-2 border-[#F5EFE6] overflow-hidden">
-                        {/* <ImageWithFallback
-                            src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=100&q=60"
-                            alt={memory.author}
-                            className="w-full h-full object-cover"
-                         /> */}
+                        <Avatar className="w-full h-full object-cover">
+                          {/* O src aceita null/undefined. Se falhar ou for null, ele esconde a img e mostra o fallback */}
+                          <AvatarImage
+                            src={memory.author.avatar_url}
+                            alt={memory.author.username}
+                            className="object-cover"
+                          />
+
+                          {/* Fallback customizado com suas cores */}
+                          <AvatarFallback className="bg-[#6B4E3D] text-white text-[10px] font-medium">
+                            {memory.author.username.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
                       <div>
                         <h3 className="font-bold text-[#3D2817] text-sm">{memory.title}</h3>
@@ -97,12 +109,14 @@ export function MemoryDrawer({
 
                   {/* Image */}
                   {memory.image && (
-                    <div className="aspect-video bg-[#E8DCC4] relative">
-                      {/* <ImageWithFallback
+                    <div
+                      onClick={() => onMemoryClick && onMemoryClick(memory)}
+                      className="aspect-video bg-[#E8DCC4] relative cursor-pointer group-hover:brightness-95 transition-all">
+                      <img
                         src={memory.image}
                         alt={memory.title}
                         className="w-full h-full object-cover"
-                      /> */}
+                      />
                     </div>
                   )}
 
@@ -114,11 +128,28 @@ export function MemoryDrawer({
 
                     <div className="flex items-center justify-between pt-4 border-t border-[#F5EFE6]">
                       <div className="flex items-center gap-4">
-                        <button className="flex items-center gap-1.5 text-[#8B7355] hover:text-[#D4183D] transition-colors group">
-                          <Heart className="w-5 h-5 group-hover:fill-current" />
+
+                        {/* Botão de Like Atualizado */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Previne propagação (boa prática)
+                            onLike(memory);
+                          }}
+                          className="flex items-center gap-1.5 text-[#8B7355] hover:text-[#D4183D] transition-colors group/like"
+                        >
+                          <Heart
+                            className={`w-5 h-5 transition-all ${memory.liked
+                                ? "fill-[#D4183D] text-[#D4183D]"
+                                : "group-hover/like:fill-[#D4183D]/20"
+                              }`}
+                          />
                           <span className="text-xs font-medium">{memory.likes}</span>
                         </button>
-                        <button className="flex items-center gap-1.5 text-[#8B7355] hover:text-[#6B4E3D] transition-colors">
+
+                        <button
+                          onClick={() => onMemoryClick && onMemoryClick(memory)} // Comentários também abrem o modal? Se sim.
+                          className="flex items-center gap-1.5 text-[#8B7355] hover:text-[#6B4E3D] transition-colors"
+                        >
                           <MessageCircle className="w-5 h-5" />
                           <span className="text-xs font-medium">{memory.comments_count}</span>
                         </button>

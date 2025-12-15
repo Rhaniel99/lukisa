@@ -1,7 +1,8 @@
 import { Search } from "lucide-react";
 import { useAutocomplete } from "@/Pages/Auth/Memories/hooks/useHereMap";
 import { Map as LeafletMap } from 'leaflet';
-import { lookupPlace } from "@/Pages/Auth/Memories/utils/lookupPlace";
+import { hereService } from "@/Pages/Auth/Memories/services/here.service";
+
 
 interface SearchBarProps {
     apiKey: string;
@@ -36,7 +37,7 @@ export function SearchBar({ apiKey, map, onSelect }: SearchBarProps) {
 
                                 // Se não tiver position → faz lookup
                                 if (!pos) {
-                                    const data = await lookupPlace(item.id, apiKey);
+                                    const data = await hereService.lookupPlace(item.id, apiKey);
                                     if (!data) {
                                         console.warn("Lookup falhou:", item);
                                         return;

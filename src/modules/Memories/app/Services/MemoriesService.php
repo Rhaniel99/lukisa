@@ -28,7 +28,8 @@ class MemoriesService implements IMemoriesService
             // ? Passo 1: Encontrar ou criar o Place usando o método dedicado.
             $place = $this->memoryRepository->findOrCreatePlace(
                 $r->latitude,
-                $r->longitude
+                $r->longitude,
+                $r->place_name
             );
 
             // ? Passo 2: Criar a Memory usando o outro método dedicado.
