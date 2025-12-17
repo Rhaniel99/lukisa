@@ -4,34 +4,27 @@ namespace Modules\Memories\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Modules\Memories\Events\CommentPosted;
-use Modules\Memories\Notifications\CommentPosted as CommentPostedNotification;
-use Modules\Memories\Models\Memorie;
+use Modules\Memories\DTOs\StoreCommentData;
+use Modules\Memories\Interfaces\Services\ICommentService;
 
 class CommentController extends Controller
 {
-    public function store(Request $request, Memorie $memory): RedirectResponse
+    public function __construct(
+        protected ICommentService $service
+    ) {}
+
+    public function store(StoreCommentData $r): RedirectResponse
     {
-        // 1. Valida o conteúdo do comentário
-        $validated = $request->validate([
-            'content' => ['required', 'string', 'max:1000'],
-        ]);
+        $success = $this->service->save($r);
 
-        $comment = $memory->comments()->create([ // Salve o novo comentário em uma variável
-            'content' => $validated['content'],
-            'user_id' => Auth::id(),
-        ]);
-
-        if ($memory->user_id !== Auth::id()) {
-            $memory->user->notify(new CommentPostedNotification(Auth::user(), $memory));
+        if (!$success) {
+            return back()->with('error', 'Erro ao salvar comentário.');
         }
 
-        // 2. Dispare o evento e use toOthers() para não enviá-lo de volta a quem comentou
-        broadcast(new CommentPosted($comment));
-
-        // 3. Redireciona de volta para a página anterior
-        return redirect()->back()->with('success', 'Comentário adicionado!');
+        return to_route('memo.maps.index', [
+            'place_id' => $r->place_id,
+            'memory_id' => $r->memory_id,
+            'comments_page' => 1,
+        ])->with('success', 'Comentário adicionado!');
     }
 }

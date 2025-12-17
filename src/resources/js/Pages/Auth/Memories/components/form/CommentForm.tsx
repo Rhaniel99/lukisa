@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { Send } from "lucide-react";
 import { submitOnEnter } from "@/Utils/formHelpers";
 import { Memory, isMemory } from "@/Types/Memories";
+import { useMemoriesUI } from "../../contexts/MemoriesUIContext";
 
 interface CommentFormProps {
   memoryId: string;
@@ -11,24 +12,26 @@ interface CommentFormProps {
 
 export function CommentForm({ memoryId, onUpdateMemory }: CommentFormProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { selectedPlace } = useMemoriesUI();
 
   return (
-<Form
-  action={route("memo.comments.store", {
-    memory: memoryId,
-    comments_page: 1,
-  })}
-  method="post"
-  resetOnSuccess
-onSuccess={(page) => {
-  const updated = page.props.selectedMemoryDetails;
+    <Form
+      action={route("memo.comments.store", {
+        memory: memoryId,
+        comments_page: 1,
+        place_id: selectedPlace?.id,
+      })}
+      method="post"
+      resetOnSuccess
+      onSuccess={(page) => {
+        const updated = page.props.selectedMemoryDetails;
 
-  if (isMemory(updated)) {
-    onUpdateMemory(updated);
-  }
-}}
->
-
+        if (isMemory(updated)) {
+          onUpdateMemory(updated);
+        }
+      }}
+      className="w-full"
+    >
       {({ processing }) => (
         <div className="flex items-center gap-2 bg-white border-2 border-[#E8DCC4] rounded-full px-4 py-2">
           <input

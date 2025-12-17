@@ -4,6 +4,7 @@ namespace Modules\Memories\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Modules\Memories\DTOs\MemoryDataResponse;
 use Modules\Memories\DTOs\StoreMemoryData;
@@ -13,43 +14,13 @@ use Modules\Memories\ViewModels\MemoriesIndexViewModel;
 
 class MemoriesController extends Controller
 {
-    protected IMemoriesService $memoryService;
-
-    public function __construct(IMemoriesService $memoryService)
-    {
-        $this->memoryService = $memoryService;
-    }
+    public function __construct(
+        protected IMemoriesService $service
+    ) {}
 
     public function index(Request $request)
     {
         return Inertia::render('Auth/Memories/Index', MemoriesIndexViewModel::fromRequest($request));
-    }
-
-    public function store(StoreMemoryData $r)
-    {
-        $success = $this->memoryService->saveMemories($r);
-
-        if (!$success) {
-            return back()->with('error', 'Ocorreu um erro. Por favor, tente novamente.');
-        }
-
-        return back()->with('success', 'Memoria salva com sucesso!');
-    }
-
-    public function destroy(Memorie $memory)
-    {
-        /** @var \Illuminate\Contracts\Auth\Guard $guard */
-        $guard = auth();
-
-        if ($memory->user_id !== $guard->id()) {
-            abort(403);
-        }
-
-        $memory->delete();
-
-        // Redireciona de volta com uma mensagem de sucesso.
-        // O Inertia cuidará de atualizar a página.
-        return back()->with('success', 'Memória removida com sucesso!');
     }
 
     public function show(Memorie $memory)
@@ -62,6 +33,33 @@ class MemoriesController extends Controller
             'selectedMemoryDetails' => MemoryDataResponse::from($memory),
         ]);
     }
+
+    // * OK
+    public function store(StoreMemoryData $r)
+    {
+        $success = $this->service->saveMemories($r);
+
+        if (!$success) {
+            return back()->with('error', 'Ocorreu um erro. Por favor, tente novamente.');
+        }
+
+        return back()->with('success', 'Memoria salva com sucesso!');
+    }
+
+    public function destroy(Memorie $memory)
+    {
+        if ($memory->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $memory->delete();
+
+        // Redireciona de volta com uma mensagem de sucesso.
+        // O Inertia cuidará de atualizar a página.
+        return back()->with('success', 'Memória removida com sucesso!');
+    }
+
+
     /**
      * Show the form for editing the specified resource.
      */

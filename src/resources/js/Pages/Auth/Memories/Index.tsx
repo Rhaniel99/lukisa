@@ -71,6 +71,7 @@ export default function Index({
   return (
     <>
       <Head title="Memories Maps" />
+      
       <div className="relative w-full h-screen bg-[#E8DCC4] overflow-hidden">
 
         {/* Top bar */}

@@ -4,10 +4,8 @@ namespace Modules\Memories\Repositories;
 
 use App\Models\User;
 use App\Repositories\Base\CoreRepository;
-use Modules\Memories\DTOs\StoreMemoryData;
 use Modules\Memories\Interfaces\Repositories\IMemoriesRepository;
 use Modules\Memories\Models\Memorie;
-use Modules\Memories\Models\Place;
 use Illuminate\Database\Eloquent\Collection;
 
 class MemoriesRepository extends CoreRepository implements IMemoriesRepository
@@ -17,29 +15,17 @@ class MemoriesRepository extends CoreRepository implements IMemoriesRepository
         parent::__construct($model);
     }
 
-    public function findOrCreatePlace(float $latitude, float $longitude, string $name): Place
-    {
-        return Place::firstOrCreate(
-            [
-                'latitude' => $latitude,
-                'longitude' => $longitude
-            ],
-            [
-                'name' => $name
-            ]
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createMemory(StoreMemoryData $data, string $placeId, string $userId): Memorie
-    {
-        return Memorie::create([
-            'title' => $data->title,
-            'content' => $data->content,
+    public function createMemory(
+        string $title,
+        string $content,
+        string $placeId,
+        string $userId
+    ): Memorie {
+        return $this->create([
+            'title'    => $title,
+            'content'  => $content,
             'place_id' => $placeId,
-            'user_id' => $userId,
+            'user_id'  => $userId,
         ]);
     }
 

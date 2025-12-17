@@ -9,39 +9,34 @@ use Log;
 use Modules\Memories\DTOs\StoreMemoryData;
 use Modules\Memories\Interfaces\Repositories\IMemoriesRepository;
 use Modules\Memories\Interfaces\Services\IMemoriesService;
+use Modules\Memories\Interfaces\Services\IPlaceService;
 
 class MemoriesService implements IMemoriesService
 {
+    public function __construct(
+        protected IMemoriesRepository $repository,
+        protected IPlaceService $placeService
+    ) {}
 
-    protected IMemoriesRepository $memoryRepository;
-
-    public function __construct(IMemoriesRepository $memoryRepository)
-    {
-        $this->memoryRepository = $memoryRepository;
-    }
-
-    public function saveMemories(StoreMemoryData $r): bool
+    public function saveMemories(StoreMemoryData $data): bool
     {
         try {
-
             DB::beginTransaction();
+
             // ? Passo 1: Encontrar ou criar o Place usando o método dedicado.
-            $place = $this->memoryRepository->findOrCreatePlace(
-                $r->latitude,
-                $r->longitude,
-                $r->place_name
-            );
+            $place = $this->placeService->save($data->getLocationData());
 
             // ? Passo 2: Criar a Memory usando o outro método dedicado.
-            $memory = $this->memoryRepository->createMemory(
-                $r,
+            $memory = $this->repository->createMemory(
+                $data->title,
+                $data->content,
                 $place->id,
                 Auth::id()
             );
 
             // ? Passo 3: Anexar a mídia.
-            if ($r->media) {
-                $memory->addMedia($r->media)
+            if ($data->media) {
+                $memory->addMedia($data->media)
                     ->toMediaCollection('memories_media');
             }
 
