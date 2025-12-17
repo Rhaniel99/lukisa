@@ -1,29 +1,24 @@
-import { useState } from "react";
-import { X, Heart, MessageCircle, Send } from "lucide-react";
+import { X, Heart, Send } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
 import { FallbackImage } from "@/Components/ui/FallbackImage";
 import { Memory } from "@/Types/Memories";
 import { useAuth } from "@/Hooks/useAuth";
-import { useCommentForm } from "@/Pages/Auth/Memories/hooks/useCommentForm";
+import { useMemoryComments } from "@/Pages/Auth/Memories/hooks/useMemoryComment";
+import { CommentForm } from "@/Pages/Auth/Memories/components/form/CommentForm"; 
 
 interface MemoryDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   memory: Memory | null;
   onLike: (memory: Memory) => void;
+  onUpdateMemory: (memory: Memory) => void;
 }
 
-export function MemoryDetailsModal({ isOpen, onClose, memory, onLike }: MemoryDetailsModalProps) {
+export function MemoryDetailsModal({ isOpen, onClose, memory, onLike, onUpdateMemory }: MemoryDetailsModalProps) {
   const { user } = useAuth();
-
-  const {
-    data,
-    setData,
-    submit,
-    handleKeyDown,
-    processing
-  } = useCommentForm(memory?.id ?? 0);
+  const { comments, hasMore, loadMore, loading } =
+    useMemoryComments(memory);
 
   if (!memory) return null;
 
@@ -122,39 +117,61 @@ export function MemoryDetailsModal({ isOpen, onClose, memory, onLike }: MemoryDe
                     Comentários ({memory.comments_count})
                   </h4>
 
-                  {memory.comments && memory.comments.length > 0 ? (
-                    <div className="space-y-4">
-                      {memory.comments.map((comment: any) => (
-                        <div key={comment.id} className="flex gap-3 items-start group">
-                          <Avatar className="w-8 h-8 mt-1">
-                            <AvatarImage src={comment.author?.avatar_url} />
-                            <AvatarFallback className="text-xs bg-[#E8DCC4] text-[#6B4E3D]">
-                              {comment.author?.username?.[0] || "?"}
+                  {comments.length > 0 ? (
+                    <>
+                      {comments.map((comment) => (
+                        <div
+                          key={comment.id}
+                          className="flex gap-3"
+                        >
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage
+                              src={comment.author?.avatar_url}
+                            />
+                            <AvatarFallback className="text-xs">
+                              {comment.author?.username?.[0] ??
+                                "?"}
                             </AvatarFallback>
                           </Avatar>
 
-                          <div className="flex-1 bg-white/50 p-3 rounded-xl rounded-tl-none border border-[#E8DCC4]">
-                            <div className="flex justify-between items-baseline mb-1">
-                              <span className="text-xs font-bold text-[#3D2817]">
+                          <div className="flex-1 bg-white/50 p-3 rounded-xl border border-[#E8DCC4]">
+                            <div className="flex justify-between text-xs">
+                              <span className="font-bold text-[#3D2817]">
                                 {comment.author?.username}
                               </span>
-                              <span className="text-[10px] text-[#8B7355]">
+                              <span className="text-[#8B7355]">
                                 {comment.created}
                               </span>
                             </div>
-                            <p className="text-sm text-[#6B4E3D] leading-snug">
+                            <p className="text-sm text-[#6B4E3D]">
                               {comment.content}
                             </p>
                           </div>
                         </div>
                       ))}
 
-                      {/* Opcional: Botão de carregar mais se houver paginação */}
-                      {/* <button className="w-full text-xs text-[#8B7355] hover:underline py-2">
-                        Carregar mais comentários
-                      </button> 
-                      */}
-                    </div>
+                      {hasMore && (
+                        <div className="flex justify-center pt-2">
+                          <button
+                            onClick={loadMore}
+                            disabled={loading}
+                            className="
+                              px-4 py-2 text-xs font-semibold
+                              text-[#6B4E3D]
+                              bg-[#F5EFE6]
+                              border border-[#D4C5A9]
+                              rounded-full
+                              hover:bg-[#E8DCC4]
+                              disabled:opacity-50
+                            "
+                          >
+                            {loading
+                              ? "Carregando..."
+                              : "Carregar mais comentários"}
+                          </button>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <p className="text-sm text-[#8B7355] text-center py-4">
                       Nenhum comentário ainda. Seja o primeiro!
@@ -165,32 +182,10 @@ export function MemoryDetailsModal({ isOpen, onClose, memory, onLike }: MemoryDe
 
               {/* Footer — comment input */}
               <div className="p-4 border-t border-[#E8DCC4] bg-[#FAF7F2]">
-                <div className="flex items-center gap-2 bg-white border-2 border-[#E8DCC4] rounded-full px-4 py-2">
-
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={user?.avatar_url || undefined} />
-                    <AvatarFallback className="bg-[#6B4E3D] text-white">
-                      {user?.username?.charAt(0) || "Eu"}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <input
-                    value={data.content}
-                    onChange={(e) => setData("content", e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Adicione um comentário..."
-                    className="flex-1 bg-transparent outline-none text-sm text-[#3D2817] placeholder:text-[#A69580]"
-                    disabled={processing}
-                  />
-
-                  <button
-                    onClick={submit}
-                    disabled={processing || !data.content.trim()}
-                    className="text-[#6B4E3D] disabled:opacity-30 hover:text-[#3D2817] disabled:cursor-not-allowed transition-opacity"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </div>
+<CommentForm
+  memoryId={memory.id}
+  onUpdateMemory={onUpdateMemory}
+/>
               </div>
 
             </div>

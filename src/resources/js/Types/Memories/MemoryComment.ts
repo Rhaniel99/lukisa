@@ -2,7 +2,7 @@ import { User } from "@/Types/User";
 
 export interface MemoryComment {
   id: number;
-  text: string;
+  content: string;
   created: string;
   author: User;
 }

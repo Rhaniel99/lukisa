@@ -10,6 +10,8 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createRoot } from "react-dom/client";
 import GuestLayout from "@/Layouts/GuestLayout";
 import AuthLayout from "@/Layouts/Auth/Index";
+import MemoriesLayout from "@/Layouts/Memories/Index";
+
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -21,24 +23,26 @@ createInertiaApp({
             import.meta.glob("./Pages/**/*.tsx")
         )) as any;
 
-        const publicPages = ["Public/"];
+        if (!page.default.layout) {
+            switch (true) {
+                case name.startsWith("Public/"):
+                    page.default.layout = (pageEl: React.ReactNode) => (
+                        <GuestLayout>{pageEl}</GuestLayout>
+                    );
+                    break;
 
-        const fullscreenPages = ["Auth/Memories/"];
+                case name.startsWith("Auth/Memories/"):
+                    page.default.layout = (pageEl: React.ReactNode) => (
+                        <MemoriesLayout>{pageEl}</MemoriesLayout>
+                    );
+                    break;
 
-        const isPublic = publicPages.some(prefix => name.startsWith(prefix));
-
-        // Agora: "Auth/Memories/Index".startsWith("Auth/Memories/") será TRUE
-        const isFullscreen = fullscreenPages.some(prefix => name.startsWith(prefix));
-
-        if (isPublic) {
-            page.default.layout = (p: React.ReactNode) => <GuestLayout>{p}</GuestLayout>;
-        } else if (isFullscreen) {
-            const { default: FullscreenLayout } = await import("@/Layouts/FullscreenLayout");
-            page.default.layout = (p: React.ReactNode) => <FullscreenLayout>{p}</FullscreenLayout>;
-        } else {
-            page.default.layout = (p: React.ReactNode) => <AuthLayout>{p}</AuthLayout>;
+                default:
+                    page.default.layout = (pageEl: React.ReactNode) => (
+                        <AuthLayout>{pageEl}</AuthLayout>
+                    );
+            }
         }
-
         return page;
     },
 

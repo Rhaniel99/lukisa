@@ -6,12 +6,11 @@ import { MapPin, Plus } from "lucide-react";
 interface TempPinCozyProps {
     lat: number;
     lng: number;
-    label?: string;
-    onClick?: () => void;
+    label: string;
+    onClick: () => void;
 }
 
 export default function PinTemp({ lat, lng, label, onClick }: TempPinCozyProps) {
-
     // Paleta Cozy Blue:
     // Principal: #4A6C7C (Azul Petróleo Suave)
     // Contraste: #F5EFE6 (Creme claro - igual ao seu tema)
@@ -33,7 +32,7 @@ export default function PinTemp({ lat, lng, label, onClick }: TempPinCozyProps) 
                 <div className="w-10 h-10 bg-[#4A6C7C] rounded-full shadow-xl 
                         flex items-center justify-center border-2 border-[#F5EFE6] 
                         transition-transform hover:scale-110 animate-bounce-slow">
-                    
+
                     {/* Ícone combinado */}
                     <div className="relative">
                         <MapPin className="w-5 h-5 text-[#F5EFE6]" />

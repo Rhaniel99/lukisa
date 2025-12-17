@@ -2,7 +2,7 @@ import { User } from "@/Types/User";
 import { MemoryComment } from "./MemoryComment";
 
 export interface Memory {
-    id: number;
+    id: string;
     title: string;
     description: string;
     created: string;
@@ -11,12 +11,23 @@ export interface Memory {
     image: string | null;
     is_owner: boolean;
     author: User;
+
     comments: MemoryComment[];
     comments_count: number;
-    // ✅ Adicione a prop de metadados da paginação
-    commentsMeta?: {
-        current_page: number;
-        last_page: number;
-        has_more_pages: boolean;
-    } | null;
+
+    comments_current_page?: number;
+    comments_last_page?: number;
+}
+
+/**
+ * Type guard para validar Memory vinda do Inertia / backend
+ */
+export function isMemory(value: unknown): value is Memory {
+    return (
+        typeof value === "object" &&
+        value !== null &&
+        "id" in value &&
+        "title" in value &&
+        "description" in value
+    );
 }
