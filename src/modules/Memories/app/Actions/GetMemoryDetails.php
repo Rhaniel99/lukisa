@@ -5,7 +5,7 @@ namespace Modules\Memories\Actions;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Modules\Memories\Interfaces\Repositories\IMemoriesRepository;
-use Modules\Memories\DTOs\MemoryDataResponse;
+use Modules\Memories\DTOs\MemoryDetailsData;
 
 class GetMemoryDetails
 {
@@ -17,7 +17,7 @@ class GetMemoryDetails
         string $memoryId,
         ?User $viewer,
         int $commentsPage = 1
-    ): MemoryDataResponse {
+    ): MemoryDetailsData {
         $result = $this->repository->getDetailsWithComments(
             $memoryId,
             $commentsPage
@@ -28,6 +28,6 @@ class GetMemoryDetails
 
         Gate::forUser($viewer)->authorize('view', $memory);
 
-        return MemoryDataResponse::fromModel($memory, $comments, $viewer);
+        return MemoryDetailsData::fromModel($memory, $comments, $viewer);
     }
 }

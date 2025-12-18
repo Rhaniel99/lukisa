@@ -1,13 +1,15 @@
 <?php
+
 namespace Modules\Memories\DTOs;
 
+use Illuminate\Support\Facades\Auth;
 use Modules\Memories\Models\Memorie;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapName(SnakeCaseMapper::class)]
-class MemorySummaryData extends Data
+class MemoryListItemData extends Data
 {
     public function __construct(
         public readonly string $id,
@@ -19,7 +21,7 @@ class MemorySummaryData extends Data
         public readonly bool $liked,
         public readonly ?string $image,
         public readonly UserData $author,
-        public readonly bool $is_owner,
+        public readonly bool $isOwner,
     ) {}
 
     public static function fromModel(Memorie $memory): self
@@ -28,14 +30,14 @@ class MemorySummaryData extends Data
             id: $memory->id,
             title: $memory->title,
             description: $memory->content,
-            created: $memory->created_at->format('Y-m-d'),
+            created: $memory->created_at->format('d/m/Y'),
             likes: $memory->likes_count ?? 0,
             commentsCount: $memory->comments_count ?? 0,
-            liked: $memory->isLikedBy(auth()->user()),
+            liked: $memory->isLikedBy(Auth::user()),
             image: $memory->getFirstMedia('memories_media')
-                      ?->getTemporaryUrl(now()->addMinutes(5)),
+                ?->getTemporaryUrl(now()->addMinutes(5)),
             author: UserData::fromModel($memory->user),
-            is_owner: $memory->user_id === auth()->id(),
+            isOwner: $memory->user_id === Auth::id(),
         );
     }
 }

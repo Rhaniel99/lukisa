@@ -11,7 +11,7 @@ use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapName(SnakeCaseMapper::class)]
-class MemoryDataResponse extends Data
+class MemoryDetailsData extends Data
 {
     public function __construct(
         public readonly string $id,
@@ -41,7 +41,7 @@ class MemoryDataResponse extends Data
             id: $memory->id,
             title: $memory->title,
             description: $memory->content,
-            created: $memory->created_at->format('Y-m-d'),
+            created: $memory->created_at->format('d/m/Y'),
             likes: $memory->likes_count ?? 0,
             commentsCount: $memory->comments_count ?? 0,
             liked: $viewer ? $memory->isLikedBy($viewer) : false,

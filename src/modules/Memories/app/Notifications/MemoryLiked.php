@@ -48,7 +48,8 @@ class MemoryLiked extends Notification
                 'type' => 'like',
                 'message' => "{$this->actor->username} curtiu sua memória.",
                 'actor_name' => $this->actor->name,
-                'actor_avatar' => $this->actor->getPublicAvatarUrl(), // <-- Lógica de URL centralizada no Model
+                // 'actor_id' => $this->actor->id,
+                'actor_avatar' => $this->actor->getPublicAvatarUrl(), // <-- Lógica de URL centralizada no Model / Bugado resolver depois.
                 'link' => route('memo.maps.index', ['memory_id' => $this->memory->id]),
             ]
         ];

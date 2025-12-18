@@ -9,7 +9,6 @@ use Inertia\Inertia;
 use Modules\Memories\Actions\GetMemoriesForPlace;
 use Modules\Memories\Actions\GetMemoryDetails;
 use Modules\Memories\Actions\GetPlacePins;
-use Modules\Memories\DTOs\MemorySummaryData;
 use Modules\Memories\DTOs\StoreMemoryData;
 use Modules\Memories\Interfaces\Services\IMemoriesService;
 use Modules\Memories\Models\Memorie;
@@ -37,8 +36,9 @@ class MemoriesController extends Controller
 
                 selectedPlaceMemories: Lazy::when(
                     fn() => $request->filled('place_id'),
-                    fn() => MemorySummaryData::collect(
-                        $getMemoriesForPlace($request->input('place_id'), $viewer)
+                    fn() => $getMemoriesForPlace(
+                        $request->input('place_id'),
+                        $viewer
                     )
                 ),
 
@@ -53,6 +53,7 @@ class MemoriesController extends Controller
             ))->toArray()
         );
     }
+
 
     // * OK
     public function store(StoreMemoryData $r)

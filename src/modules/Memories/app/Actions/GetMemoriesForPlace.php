@@ -6,6 +6,7 @@ use App\Models\User;
 use Modules\Memories\Interfaces\Repositories\IMemoriesRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
+use Modules\Memories\DTOs\MemoryListItemData;
 
 class GetMemoriesForPlace
 {
@@ -17,8 +18,10 @@ class GetMemoriesForPlace
     {
         $memories = $this->repository->getForPlace($placeId);
 
-        return $memories->filter(
-            fn($memory) => Gate::forUser($viewer)->allows('view', $memory)
-        )->values();
+        return MemoryListItemData::collect(
+            $memories->filter(
+                fn($memory) => Gate::forUser($viewer)->allows('view', $memory)
+            )
+        );
     }
 }
