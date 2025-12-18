@@ -6,11 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Modules\Memories\DTOs\MemoryDataResponse;
+use Modules\Memories\Actions\GetMemoriesForPlace;
+use Modules\Memories\Actions\GetMemoryDetails;
+use Modules\Memories\Actions\GetPlacePins;
+use Modules\Memories\DTOs\MemorySummaryData;
 use Modules\Memories\DTOs\StoreMemoryData;
 use Modules\Memories\Interfaces\Services\IMemoriesService;
 use Modules\Memories\Models\Memorie;
-use Modules\Memories\ViewModels\MemoriesIndexViewModel;
+use Modules\Memories\View\MemoriesIndexView;
+use Spatie\LaravelData\Lazy;
 
 class MemoriesController extends Controller
 {
@@ -18,20 +22,36 @@ class MemoriesController extends Controller
         protected IMemoriesService $service
     ) {}
 
-    public function index(Request $request)
-    {
-        return Inertia::render('Auth/Memories/Index', MemoriesIndexViewModel::fromRequest($request));
-    }
+    public function index(
+        Request $request,
+        GetPlacePins $getPlacePins,
+        GetMemoriesForPlace $getMemoriesForPlace,
+        GetMemoryDetails $getMemoryDetails
+    ) {
+        $viewer = $request->user();
 
-    public function show(Memorie $memory)
-    {
-        // Carrega as relações necessárias que talvez não estivessem na carga inicial
-        $memory->load(['user', 'comments.user']);
+        return Inertia::render(
+            'Auth/Memories/Index',
+            (new MemoriesIndexView(
+                places: $getPlacePins($viewer),
 
-        return Inertia::render('Auth/Memories/Index', [
-            // aqui você devolve explicitamente o que o front precisa
-            'selectedMemoryDetails' => MemoryDataResponse::from($memory),
-        ]);
+                selectedPlaceMemories: Lazy::when(
+                    fn() => $request->filled('place_id'),
+                    fn() => MemorySummaryData::collect(
+                        $getMemoriesForPlace($request->input('place_id'), $viewer)
+                    )
+                ),
+
+                selectedMemoryDetails: Lazy::when(
+                    fn() => $request->filled('memory_id'),
+                    fn() => $getMemoryDetails(
+                        $request->input('memory_id'),
+                        $viewer,
+                        (int) $request->input('comments_page', 1)
+                    )
+                )
+            ))->toArray()
+        );
     }
 
     // * OK

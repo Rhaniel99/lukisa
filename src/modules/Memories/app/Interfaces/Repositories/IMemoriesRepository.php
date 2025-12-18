@@ -3,7 +3,7 @@
 namespace Modules\Memories\Interfaces\Repositories;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Modules\Memories\Models\Memorie;
 
 interface IMemoriesRepository
@@ -15,5 +15,13 @@ interface IMemoriesRepository
         string $userId
     ): Memorie;
 
-    public function getForPlace(string $placeId, ?User $viewer): Collection;
+    public function getForPlace(string $placeId): Collection;
+
+    public function getDetailsWithComments(
+        string $memoryId,
+        int $commentsPage = 1,
+        int $perPage = 3
+    ): array;
+
+    // public function isVisibleTo(Memorie $memory, ?User $viewer): bool;
 }

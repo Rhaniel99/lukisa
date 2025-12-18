@@ -4,9 +4,9 @@ namespace Modules\Memories\Repositories;
 
 use App\Models\User;
 use App\Repositories\Base\CoreRepository;
+use Illuminate\Support\Collection;
 use Modules\Memories\Interfaces\Repositories\IMemoriesRepository;
 use Modules\Memories\Models\Memorie;
-use Illuminate\Database\Eloquent\Collection;
 
 class MemoriesRepository extends CoreRepository implements IMemoriesRepository
 {
@@ -29,50 +29,71 @@ class MemoriesRepository extends CoreRepository implements IMemoriesRepository
         ]);
     }
 
+    public function getDetailsWithComments(
+        string $memoryId,
+        int $commentsPage = 1,
+        int $perPage = 3
+    ): array {
+        $memory = $this->model
+            ->with('user', 'media')
+            ->withCount(['likes', 'comments'])
+            ->findOrFail($memoryId);
+
+        $comments = $memory->comments()
+            ->with('user')
+            ->latest()
+            ->paginate(
+                $perPage,
+                ['*'],
+                'comments_page',
+                $commentsPage
+            );
+
+        return [
+            'memory'   => $memory,
+            'comments' => $comments,
+        ];
+    }
+
+
     /**
      * Busca memórias de um lugar respeitando a privacidade.
      */
-    public function getForPlace(string $placeId, ?User $viewer): Collection
-    {
-        $query = $this->model
-            ->where('place_id', $placeId)
-            ->with('user') // Carrega o autor da memória
-            ->withCount(['likes', 'comments']);
+ public function getForPlace(string $placeId): Collection
+{
+    return $this->model
+        ->where('place_id', $placeId)
+        ->with('user')
+        ->withCount(['likes', 'comments'])
+        ->latest()
+        ->get();
+}
 
-        // Se for visitante (não logado), vê apenas PUBLIC
-        if (!$viewer) {
-            return $query->whereHas('user', function ($q) {
-                $q->where('privacy', 'public');
-            })->latest()->get();
-        }
 
-        // Se for usuário logado, aplicamos as 3 regras:
-        // 1. É minha memória? (Sempre vejo)
-        // 2. É pública? (Sempre vejo)
-        // 3. É de amigo e está configurada para 'friends'? (Vejo se for amigo)
+    /**
+     * Visibilidade centralizada (apoia Actions / Policies)
+     */
+    
+    // public function isVisibleTo(Memorie $memory, ?User $viewer): bool
+    // {
+    //     if (!$viewer) {
+    //         return $memory->user->privacy === 'public';
+    //     }
 
-        // Pegamos os IDs dos amigos do usuário logado
-        $friendIds = $viewer->friends()->pluck('id')->toArray();
+    //     if ($viewer->id === $memory->user_id) {
+    //         return true;
+    //     }
 
-        $query->where(function ($q) use ($viewer, $friendIds) {
-            // Regra 1: Minhas memórias
-            $q->where('user_id', $viewer->id)
+    //     if ($memory->user->privacy === 'public') {
+    //         return true;
+    //     }
 
-                // Regra 2 e 3: Memórias de outros
-                ->orWhereHas('user', function ($u) use ($friendIds) {
-                    $u->where(function ($privacyQuery) use ($friendIds) {
-                        // A. Público
-                        $privacyQuery->where('privacy', 'public')
+    //     if ($memory->user->privacy === 'friends') {
+    //         return $viewer->friends()
+    //             ->where('id', $memory->user_id)
+    //             ->exists();
+    //     }
 
-                            // B. Amigos (Se o autor da memória estiver na minha lista de amigos)
-                            ->orWhere(function ($friendsQuery) use ($friendIds) {
-                                $friendsQuery->where('privacy', 'friends')
-                                    ->whereIn('id', $friendIds);
-                            });
-                    });
-                });
-        });
-
-        return $query->latest()->get();
-    }
+    //     return false;
+    // }
 }

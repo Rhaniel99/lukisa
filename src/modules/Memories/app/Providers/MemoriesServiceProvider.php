@@ -181,7 +181,9 @@ class MemoriesServiceProvider extends ServiceProvider
      */
     public function provides(): array
     {
-        return [];
+        return [
+           \Modules\Memories\Models\Memorie::class => \Modules\Memories\Policies\MemoriePolicy::class,
+        ];
     }
 
     private function getPublishableViewPaths(): array

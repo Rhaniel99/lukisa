@@ -148,4 +148,19 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasMany(Friendship::class, 'friend_id')->where('status', 'pending');
     }
+
+    public function isFriendsWith(string $userId): bool
+    {
+        return DB::table('friendships')
+            ->where('status', 'accepted')
+            ->where(function ($q) use ($userId) {
+                $q->where('user_id', $this->id)
+                    ->where('friend_id', $userId);
+            })
+            ->orWhere(function ($q) use ($userId) {
+                $q->where('friend_id', $this->id)
+                    ->where('user_id', $userId);
+            })
+            ->exists();
+    }
 }

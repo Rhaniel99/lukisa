@@ -28,7 +28,7 @@ class CommentData extends Data
         return new self(
             memory_id: $comment->memory_id,
             id: $comment->id,
-            content: $comment->content, // Mapeia a coluna 'content' para 'text'
+            content: $comment->content, 
             created: $comment->created_at->diffForHumans(), // Formata a data
             author: UserData::fromModel($comment->user),
         );

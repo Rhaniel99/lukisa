@@ -13,6 +13,8 @@ use Modules\Memories\Models\Place;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class Memorie extends Model implements HasMedia
 {
@@ -81,5 +83,34 @@ class Memorie extends Model implements HasMedia
 
         // Caso contrário, faça uma query otimizada com exists().
         return $this->likes()->where('user_id', $user->id)->exists();
+    }
+
+    // * Scope SQL para consultas de place e memorias visiveis, otimizado para pins.
+    public function scopeVisibleTo(Builder $query, ?User $viewer): Builder
+    {
+        // Visitante: apenas público
+        if (!$viewer) {
+            return $query->whereHas(
+                'user',
+                fn($q) =>
+                $q->where('privacy', 'public')
+            );
+        }
+
+        return $query->where(function ($q) use ($viewer) {
+            $q->where('user_id', $viewer->id)
+                ->orWhereHas(
+                    'user',
+                    fn($u) =>
+                    $u->where('privacy', 'public')
+                        ->orWhere(function ($fq) use ($viewer) {
+                            $fq->where('privacy', 'friends')
+                                ->whereIn(
+                                    'id',
+                                    $viewer->friends()->pluck('id')
+                                );
+                        })
+                );
+        });
     }
 }
