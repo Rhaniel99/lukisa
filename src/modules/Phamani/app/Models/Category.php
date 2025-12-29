@@ -17,6 +17,7 @@ class Category extends Model
         'type',
         'color',
         'icon',
+        'is_default',
     ];
 
     /* ---------------- Hierarchy ---------------- */

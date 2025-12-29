@@ -17,18 +17,33 @@ return new class extends Migration
     {
         Schema::create("{$this->schema}.categories", function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
+            $table->uuid('user_id')->nullable();
+            // $table->uuid('user_id');
             $table->uuid('parent_id')->nullable();
             $table->string('name');
             $table->enum('type', ['income', 'expense', 'both'])->default('expense');
+            $table->boolean('is_default')->default(false);
             $table->string('color')->nullable();
             $table->string('icon')->nullable();
-
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('parent_id')->references('id')->on('categories')->nullOnDelete();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->nullOnDelete();
+            
+            $table->unique(['user_id', 'name']);
+        });
+
+        // 🔑 FK SELF-REFERENTE EM SEGUNDA ETAPA
+        Schema::table("{$this->schema}.categories", function (Blueprint $table) {
+            $table->foreign('parent_id')
+                ->references('id')
+                ->on("{$this->schema}.categories")
+                ->nullOnDelete();
         });
     }
+
 
     /**
      * Reverse the migrations.
