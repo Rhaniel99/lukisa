@@ -67,7 +67,6 @@ export default function Index({
     loadPlaceMemories(place.id);
   };
 
-
   return (
     <>
       <Head title="Memories Maps" />

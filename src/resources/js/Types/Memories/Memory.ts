@@ -8,7 +8,7 @@ export interface Memory {
     created: string;
     likes: number;
     liked: boolean;
-    image: string | null;
+    image: string;
     is_owner: boolean;
     author: User;
 

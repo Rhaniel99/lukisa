@@ -3,22 +3,28 @@ import { motion, AnimatePresence } from "motion/react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
 import { FallbackImage } from "@/Components/ui/FallbackImage";
 import { Memory } from "@/Types/Memories";
-import { useAuth } from "@/Hooks/useAuth";
 import { useMemoryComments } from "@/Pages/Auth/Memories/hooks/useMemoryComment";
-import { CommentForm } from "@/Pages/Auth/Memories/components/form/CommentForm"; 
+import { CommentForm } from "@/Pages/Auth/Memories/components/form/CommentForm";
+import { useMemoryLayout } from "@/Pages/Auth/Memories/hooks/useMemoryModalLayout";
+import { useState } from "react";
 
 interface MemoryDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // memory: Memory;
   memory: Memory | null;
   onLike: (memory: Memory) => void;
   onUpdateMemory: (memory: Memory) => void;
 }
 
 export function MemoryDetailsModal({ isOpen, onClose, memory, onLike, onUpdateMemory }: MemoryDetailsModalProps) {
-  const { user } = useAuth();
   const { comments, hasMore, loadMore, loading } =
     useMemoryComments(memory);
+  
+    // const layout = useMemoryLayout(memory.image);
+    const layout = useMemoryLayout(memory?.image ?? "");
+
+  const [fit, setFit] = useState<'cover' | 'contain'>('contain');
 
   if (!memory) return null;
 
@@ -36,11 +42,32 @@ export function MemoryDetailsModal({ isOpen, onClose, memory, onLike, onUpdateMe
           >
 
             {/* Left — Image */}
-            <div className="w-full md:w-1/2 h-48 md:h-full relative bg-[#D4C5A9]">
+            <div className="relative w-full md:w-1/2 h-full bg-[#D4C5A9]">
+
+              {/* Image controls */}
+              <div className="absolute top-4 left-4 flex gap-2 z-10">
+                <button
+                  onClick={() => setFit(fit === 'contain' ? 'cover' : 'contain')}
+                  className="
+                      p-2 rounded-xl
+                      bg-black/30 backdrop-blur-sm
+                      text-white
+                      hover:bg-black/40
+                      transition
+                  "
+                  title="Ajustar imagem"
+                >
+                  <span className="text-xs font-semibold">
+                    {fit === 'contain' ? 'Ajustar' : 'Encaixar'}
+                  </span>
+                </button>
+              </div>
+
+              {/* Image */}
               <FallbackImage
-                src={memory.image ?? ""}
+                src={memory.image ?? ''}
                 alt={memory.title}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-${fit}`}
               />
 
               {/* Mobile close */}
@@ -51,6 +78,7 @@ export function MemoryDetailsModal({ isOpen, onClose, memory, onLike, onUpdateMe
                 <X className="w-5 h-5" />
               </button>
             </div>
+
 
             {/* Right — content */}
             <div className="w-full md:w-1/2 flex flex-col h-full bg-[#F5EFE6]">
@@ -182,10 +210,10 @@ export function MemoryDetailsModal({ isOpen, onClose, memory, onLike, onUpdateMe
 
               {/* Footer — comment input */}
               <div className="p-4 border-t border-[#E8DCC4] bg-[#FAF7F2]">
-<CommentForm
-  memoryId={memory.id}
-  onUpdateMemory={onUpdateMemory}
-/>
+                <CommentForm
+                  memoryId={memory.id}
+                  onUpdateMemory={onUpdateMemory}
+                />
               </div>
 
             </div>
