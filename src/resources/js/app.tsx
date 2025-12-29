@@ -11,6 +11,7 @@ import { createRoot } from "react-dom/client";
 import GuestLayout from "@/Layouts/GuestLayout";
 import AuthLayout from "@/Layouts/Auth/Index";
 import MemoriesLayout from "@/Layouts/Memories/Index";
+import PhamaniLayout from "@/Layouts/Phamani/Index";
 
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
@@ -37,6 +38,11 @@ createInertiaApp({
                     );
                     break;
 
+                case name.startsWith("Auth/Phamani/"):
+                    page.default.layout = (pageEl: React.ReactNode) => (
+                        <PhamaniLayout>{pageEl}</PhamaniLayout>
+                    );
+                    break;
                 default:
                     page.default.layout = (pageEl: React.ReactNode) => (
                         <AuthLayout>{pageEl}</AuthLayout>

@@ -6,23 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    private string $schema;
+
+    public function __construct()
+    {
+        $this->schema = config('phamani.database.schema');
+    }
+
     public function up(): void
     {
-        Schema::create('transaction_tags', function (Blueprint $table) {
-            $table->id();
-            
-            $table->timestamps();
+        Schema::create("{$this->schema}.transaction_tags", function (Blueprint $table) {
+            $table->uuid('transaction_id');
+            $table->uuid('tag_id');
+
+            $table->primary(['transaction_id', 'tag_id']);
+
+            $table->foreign('transaction_id')->references('id')->on("{$this->schema}.transactions")->cascadeOnDelete();
+            $table->foreign('tag_id')->references('id')->on("{$this->schema}.tags")->cascadeOnDelete();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('transaction_tags');
+        Schema::dropIfExists("{$this->schema}.transaction_tags");
     }
 };
