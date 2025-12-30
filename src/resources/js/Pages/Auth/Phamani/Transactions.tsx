@@ -5,7 +5,7 @@ import { Button } from './ui/Button';
 // import { TransactionDrawer } from './TransactionDrawer';
 // import { NewTransactionModal } from './NewTransactionModal';
 import { Transaction } from '@/Types/Phamani';
-import { NewTransactionModal } from './components/modal/NewTransactionModal';
+// import { NewTransactionModal } from './components/modal/NewTransactionModal';
 
 interface TransactionsProps {
   onBack: () => void;
@@ -15,12 +15,34 @@ export default function Transactions({ onBack }: TransactionsProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isNewTransactionOpen, setIsNewTransactionOpen] = useState(false);
 
-  const mockTransactions: Transaction[] = [
-    { id: '1', description: 'Supermercado', amount: 450.00, type: 'expense', category: 'Alimentação', account: 'Nubank', date: '2023-12-01', status: 'paid' },
-    { id: '2', description: 'Freelance UI', amount: 2500.00, type: 'income', category: 'Trabalho', account: 'Inter', date: '2023-11-30', status: 'paid' },
-    { id: '3', description: 'MacBook Pro', amount: 12999.00, type: 'expense', category: 'Eletrônicos', account: 'Nubank', date: '2023-11-28', isInstallment: true, installments: { current: 3, total: 12 }, status: 'pending' },
-    { id: '4', description: 'Spotify', amount: 21.90, type: 'expense', category: 'Assinaturas', account: 'Nubank', date: '2023-11-28', isRecurring: true, frequency: 'mensal', status: 'paid' },
-  ];
+const mockTransactions: Transaction[] = [
+  {
+    id: '1',
+    description: 'Supermercado',
+    amount: 450.0,
+    type: 'expense',
+
+    category_id: 'cat-1',
+    category: {
+      id: 'cat-1',
+      name: 'Alimentação',
+      type: 'expense',
+      color: '#F59E0B',
+      icon: 'ShoppingCart',
+    },
+
+    account_id: 'acc-1',
+    account: {
+      id: 'acc-1',
+      name: 'Nubank',
+      type: 'checking',
+    },
+
+    date: '2023-12-01',
+    status: 'paid',
+  },
+]
+
 
   return (
     <div className="min-h-screen bg-[#F5EFE6] text-[#3D2817] font-sans">
@@ -106,15 +128,15 @@ export default function Transactions({ onBack }: TransactionsProps) {
                   </td>
                   <td className="py-4 px-6 hidden md:table-cell">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#FBF7F1] border border-[#E8DCC4] text-[#6B4F3A]">
-                      {t.category}
+                      {t.category?.name}
                     </span>
                   </td>
                   <td className="py-4 px-6 hidden sm:table-cell">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-[#3D2817] flex items-center justify-center text-[10px] text-[#F5EFE6]">
-                        {t.account[0]}
+                        {t.account?.name.charAt(0).toUpperCase()}
                       </div>
-                      <span className="text-sm text-[#3D2817]">{t.account}</span>
+                      <span className="text-sm text-[#3D2817]">{t.account?.name}</span>
                     </div>
                   </td>
                   <td className="py-4 px-6 text-right">
@@ -140,14 +162,14 @@ export default function Transactions({ onBack }: TransactionsProps) {
         transaction={selectedTransaction} 
       /> */}
 
-      <NewTransactionModal 
+      {/* <NewTransactionModal 
         isOpen={isNewTransactionOpen} 
         onClose={() => setIsNewTransactionOpen(false)}
         onSave={(t) => {
           console.log(t);
           setIsNewTransactionOpen(false);
         }} 
-      />
+      /> */}
     </div>
   );
 }

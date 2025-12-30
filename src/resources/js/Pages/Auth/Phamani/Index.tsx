@@ -20,11 +20,11 @@ import { Badge } from './ui/Badge';
 import { CashFlowChart, CategoryPieChart } from './ui/Chart';
 
 import { FallbackImage } from '@/Components/ui/FallbackImage';
-// import { NewTransactionModal } from './NewTransactionModal';
-// import { ImageWithFallback } from '../figma/ImageWithFallback';
 import Transactions from './Transactions';
 import { NewTransactionModal } from './components/modal/NewTransactionModal';
 import { Head } from '@inertiajs/react';
+import { PageProps } from '@/Types/models';
+import { Account, Category } from '@/Types/Phamani';
 
 interface KPIProps {
     title: string;
@@ -35,19 +35,24 @@ interface KPIProps {
     variant?: 'default' | 'primary' | 'success' | 'danger';
 }
 
+interface Props extends PageProps {
+    categories: Category[]
+    accounts: Account[]
+}
+
 function KPICard({ title, value, trend, trendUp, icon: Icon, variant = 'default' }: KPIProps) {
     return (
         <Card
             className={`relative overflow-hidden p-6 ${variant === 'primary'
-                    ? 'bg-[#E8DCC4] border-[#3D2817] border-2'
-                    : 'bg-[#FBF7F1]'
+                ? 'bg-[#E8DCC4] border-[#3D2817] border-2'
+                : 'bg-[#FBF7F1]'
                 }`}
             variant="interactive"
         >
             <div className="flex justify-between items-start mb-4">
                 <div className={`p-3 rounded-2xl flex items-center justify-center ${variant === 'primary'
-                        ? 'bg-[#3D2817] text-[#F5EFE6]'
-                        : 'bg-[#E8DCC4] text-[#6B4F3A]'
+                    ? 'bg-[#3D2817] text-[#F5EFE6]'
+                    : 'bg-[#E8DCC4] text-[#6B4F3A]'
                     }`}>
                     <Icon className="w-6 h-6" />
                 </div>
@@ -71,7 +76,7 @@ function KPICard({ title, value, trend, trendUp, icon: Icon, variant = 'default'
     );
 }
 
-export default function Index({ onBack }: { onBack?: () => void }) {
+export default function Index({ categories, accounts }: Props) {
     const [isNewTransactionOpen, setIsNewTransactionOpen] = useState(false);
     const [view, setView] = useState<'dashboard' | 'transactions'>('dashboard');
 
@@ -107,7 +112,7 @@ export default function Index({ onBack }: { onBack?: () => void }) {
                 <header className="flex items-center justify-between mb-10 px-0">
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={onBack}
+                            // onClick={onBack}
                             className="p-2 -ml-2 rounded-xl border-2 border-transparent hover:border-[#E8DCC4] text-[#6B4F3A] hover:bg-[#E8DCC4] transition-colors"
                         >
                             <ArrowLeft className="w-6 h-6" />
@@ -301,7 +306,9 @@ export default function Index({ onBack }: { onBack?: () => void }) {
                 <NewTransactionModal
                     isOpen={isNewTransactionOpen}
                     onClose={() => setIsNewTransactionOpen(false)}
-                    onSave={(t) => console.log('Transaction saved:', t)}
+                    onSave={(t) => console.log(t)}
+                    categories={categories}   // 👈 passa aqui
+                    accounts={accounts}
                 />
             </div>
         </>

@@ -4,6 +4,9 @@ namespace Modules\Phamani\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Modules\Phamani\Models\Account;
+use Modules\Phamani\Models\Category;
 
 class PhamaniController extends Controller
 {
@@ -12,7 +15,21 @@ class PhamaniController extends Controller
      */
     public function index()
     {
-        return inertia('Auth/Phamani/Index');
+        $userId = Auth::id();
+
+
+        return inertia('Auth/Phamani/Index', [
+            'categories' => Category::query()
+                ->whereNull('user_id') // defaults
+                ->orWhere('user_id', $userId)
+                ->orderBy('name')
+                ->get(['id', 'name', 'type', 'color', 'icon']),
+
+            'accounts' => Account::query()
+                ->where('user_id', $userId)
+                ->orderBy('name')
+                ->get(['id', 'name', 'type']),
+        ]);
     }
 
     /**

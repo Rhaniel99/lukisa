@@ -1,3 +1,6 @@
+import { Account } from "./Account";
+import { Category } from "./Category";
+
 export type TransactionType = 'income' | 'expense';
 
 export interface Transaction {
@@ -5,8 +8,13 @@ export interface Transaction {
   description: string;
   amount: number;
   type: TransactionType;
-  category: string;
-  account: string;
+  
+  category_id: string;
+  category?: Category;
+
+  account_id: string;
+  account?: Account;
+  
   date: string;
   isInstallment?: boolean;
   installments?: {
