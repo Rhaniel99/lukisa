@@ -10,7 +10,7 @@ networks:
         - subnet: 172.29.0.0/16
 
 x-php-common: &php-common
-  image: lukisa-php:latest
+  # image: lukisa-php:latest
   build:
     context: ./docker/php
     dockerfile: Dockerfile
@@ -57,6 +57,7 @@ services:
   php:
     <<: *php-common # Herda a configuração comum
     container_name: php_lukisa
+    mem_limit: 768m
     depends_on:
       redis:
         condition: service_healthy
@@ -64,8 +65,8 @@ services:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
       - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
-    devices:
-      - /dev/dri:/dev/dri
+    # devices:
+      # - /dev/dri:/dev/dri
 
   artisan:
     <<: *php-common
@@ -115,8 +116,8 @@ services:
       - ./src:/var/www/html:z
       - .env:/var/www/html/.env
     command: php artisan horizon
-    devices:
-      - /dev/dri:/dev/dri
+    # devices:
+    #   - /dev/dri:/dev/dri
 
   scheduler:
     <<: *php-common
