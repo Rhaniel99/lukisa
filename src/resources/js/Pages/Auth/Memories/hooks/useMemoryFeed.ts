@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { router } from "@inertiajs/react";
 import { Memory } from "@/Types/Memories";
+import { useMemoryRealtime } from "./useMemoryRealtime";
 
 export function useMemoryFeed(initialMemories: Memory[] = []) {
   const [memories, setMemories] = useState<Memory[]>(initialMemories);
-  const prevIdsRef = useRef<string>(initialMemories.map(m => m.id).join(","));
+  const prevIdsRef = useRef<string>("");
+
+  const memoryIds = memories.map(m => m.id);
 
   /**
-   * Atualiza uma memória COMPLETA no feed
-   * (vinda do servidor ou de qualquer ação)
+   * ✅ Atualiza memória COMPLETA
+   * (HTTP, Inertia, comentários, detalhes)
    */
   const updateMemory = useCallback((updated: Memory) => {
     setMemories(current =>
@@ -17,41 +20,72 @@ export function useMemoryFeed(initialMemories: Memory[] = []) {
   }, []);
 
   /**
-   * Atualização otimista (likes, etc)
+   * ✅ Patch parcial vindo do Realtime
    */
-  const optimisticUpdate = useCallback(
-    (id: string, patch: Partial<Memory>) => {
+  const applyLikeUpdate = useCallback(
+    (id: string, likes: number, liked: boolean) => {
       setMemories(current =>
         current.map(m =>
-          m.id === id ? { ...m, ...patch } : m
+          m.id === id ? { ...m, likes, liked } : m
         )
       );
     },
     []
   );
 
+  const applyCommentCountUpdate = useCallback(
+    (id: string, commentsCount: number) => {
+      setMemories(prev =>
+        prev.map(m =>
+          m.id === id
+            ? { ...m, comments_count: commentsCount }
+            : m
+        )
+      );
+    },
+    []
+  );
+
+
   /**
-   * Sync quando o backend trocar a lista inteira (troca de place)
+   * 🔌 Realtime (likes)
+   */
+  useMemoryRealtime(
+    memories.map(m => m.id),
+    applyLikeUpdate,
+    applyCommentCountUpdate
+  );
+
+  /**
+   * Sync ao trocar de place
    */
   useEffect(() => {
-    const currentIds = initialMemories.map(m => m.id).join(",");
-    if (prevIdsRef.current !== currentIds) {
+    const ids = initialMemories.map(m => m.id).join(",");
+    if (prevIdsRef.current !== ids) {
       setMemories(initialMemories);
-      prevIdsRef.current = currentIds;
+      prevIdsRef.current = ids;
     }
   }, [initialMemories]);
 
   /**
-   * Like padronizado
+   * ❤️ Like otimista
    */
   const toggleLike = useCallback(
     (memory: Memory) => {
       const isLiked = memory.liked;
 
-      optimisticUpdate(memory.id, {
-        liked: !isLiked,
-        likes: isLiked ? memory.likes - 1 : memory.likes + 1,
-      });
+      // otimista
+      setMemories(current =>
+        current.map(m =>
+          m.id === memory.id
+            ? {
+              ...m,
+              liked: !isLiked,
+              likes: isLiked ? m.likes - 1 : m.likes + 1,
+            }
+            : m
+        )
+      );
 
       router[isLiked ? "delete" : "post"](
         route(isLiked ? "memories.unlike" : "memories.like", memory.id),
@@ -59,16 +93,19 @@ export function useMemoryFeed(initialMemories: Memory[] = []) {
         {
           preserveState: true,
           preserveScroll: true,
-          onError: () => updateMemory(memory),
+          onError: () => {
+            // rollback seguro
+            updateMemory(memory);
+          },
         }
       );
     },
-    [optimisticUpdate, updateMemory]
+    [updateMemory]
   );
 
   return {
     memories,
-    updateMemory,
     toggleLike,
+    updateMemory, // 👈 continua existindo
   };
 }

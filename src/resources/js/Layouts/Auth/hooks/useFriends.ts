@@ -12,12 +12,12 @@ interface FriendRequestEvent {
 
 export function useFriends() {
 
-    const { props } = usePage<PageProps & { 
-        friendships: { 
-            count: number; 
-            pending?: PendingFriend[]; 
-            accepted?: Friend[] 
-        } 
+    const { props } = usePage<PageProps & {
+        friendships: {
+            count: number;
+            pending?: PendingFriend[];
+            accepted?: Friend[]
+        }
     }>();
 
     const { id: userId } = useAuth();
@@ -124,17 +124,15 @@ export function useFriends() {
         tag: "",
     });
 
-        const sendRequest = (tag: string) => {
-        friendRequestForm.setData("tag", tag);
+    const sendRequest = (tag: string) => {
+        friendRequestForm.transform(() => ({ tag }));
 
         friendRequestForm.post(route("friends.store"), {
             preserveScroll: true,
 
             onSuccess: () => {
-                // limpa campo
                 friendRequestForm.reset();
-                // incrementa contador
-                setCounts(prev => prev + 1);
+                // setCounts(prev => prev + 1);
             },
 
             onStart: () => setLoading(true),
@@ -142,17 +140,17 @@ export function useFriends() {
         });
     };
 
-        return {
-            pending,
-            accepted,
-            counts,
-            loading,
-            load,
-            acceptFriend,
-            rejectFriend,
-            removeFriend,
-            blockFriend,
-            sendRequest, 
-            friendRequestForm, // ⬅️ opcional caso queira acessar erros
-        };
-    }
+    return {
+        pending,
+        accepted,
+        counts,
+        loading,
+        load,
+        acceptFriend,
+        rejectFriend,
+        removeFriend,
+        blockFriend,
+        sendRequest,
+        friendRequestForm, // ⬅️ opcional caso queira acessar erros
+    };
+}

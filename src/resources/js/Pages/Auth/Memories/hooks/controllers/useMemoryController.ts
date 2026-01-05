@@ -12,9 +12,9 @@ export function useMemoryController(
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const activeMemory =
-    serverDetails?.id === activeId
-      ? serverDetails
-      : memoriesList.find(m => m.id === activeId) || null;
+    memoriesList.find(m => m.id === activeId)
+    ?? serverDetails
+    ?? null;
 
   /**
    * Sempre que o servidor devolver uma versão mais rica,

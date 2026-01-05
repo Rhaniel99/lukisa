@@ -54,7 +54,7 @@ export function useProfileForm(user: ProfileUser) {
       onSuccess: () => {
         reset("avatar", "media_id");
         setJustSaved(true);
-        notify.success("Perfil atualizado com sucesso!");
+        // notify.success("Perfil atualizado com sucesso!");
       },
     });
   }, [data.fullname, data.username, data.media_id, post, reset]);

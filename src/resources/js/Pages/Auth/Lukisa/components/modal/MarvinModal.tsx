@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { X, Send, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChatMessage } from "@/Pages/Auth/Marvin/Types/models";
+import { ChatMessage } from "@/Types/Marvin";
 
 interface MarvinModalProps {
   isOpen: boolean;

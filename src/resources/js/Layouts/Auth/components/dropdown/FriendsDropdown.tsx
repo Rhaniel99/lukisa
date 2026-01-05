@@ -109,9 +109,8 @@ export function FriendsDropdown({ isOpen, onClose }: FriendsDropdownProps) {
                 <div className="flex gap-2">
                   <button
                     onClick={toggleAdding}
-                    className={`p-2 rounded-xl transition ${
-                      isAdding ? "bg-[#3D2817] text-[#FDFBF7]" : "text-[#6B4E3D] hover:bg-[#E8DCC4]"
-                    }`}
+                    className={`p-2 rounded-xl transition ${isAdding ? "bg-[#3D2817] text-[#FDFBF7]" : "text-[#6B4E3D] hover:bg-[#E8DCC4]"
+                      }`}
                     aria-label={isAdding ? "Fechar adicionar" : "Adicionar amigo"}
                   >
                     <UserPlus className="w-5 h-5" />
@@ -136,6 +135,12 @@ export function FriendsDropdown({ isOpen, onClose }: FriendsDropdownProps) {
                       <Input
                         value={addInput}
                         onChange={(e) => setAddInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSendRequest();
+                          }
+                        }}
                         placeholder="Nome#0000"
                         className="bg-white border-[#E8DCC4] text-[#3D2817]"
                       />
@@ -170,9 +175,8 @@ export function FriendsDropdown({ isOpen, onClose }: FriendsDropdownProps) {
             <div className="flex border-b border-[#E8DCC4] bg-[#FDFBF7]">
               <button
                 onClick={() => changeTab("all")}
-                className={`flex-1 py-3 font-medium text-sm relative transition-colors ${
-                  activeTab === "all" ? "text-[#3D2817]" : "text-[#A69580] hover:text-[#6B4E3D]"
-                }`}
+                className={`flex-1 py-3 font-medium text-sm relative transition-colors ${activeTab === "all" ? "text-[#3D2817]" : "text-[#A69580] hover:text-[#6B4E3D]"
+                  }`}
               >
                 Todos
                 {activeTab === "all" && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#3D2817]" />}
@@ -180,9 +184,8 @@ export function FriendsDropdown({ isOpen, onClose }: FriendsDropdownProps) {
 
               <button
                 onClick={() => changeTab("pending")}
-                className={`flex-1 py-3 font-medium text-sm relative transition-colors ${
-                  activeTab === "pending" ? "text-[#3D2817]" : "text-[#A69580] hover:text-[#6B4E3D]"
-                }`}
+                className={`flex-1 py-3 font-medium text-sm relative transition-colors ${activeTab === "pending" ? "text-[#3D2817]" : "text-[#A69580] hover:text-[#6B4E3D]"
+                  }`}
               >
                 Pendentes
                 {counts > 0 && <span className="ml-2 px-2 py-0.5 text-white bg-[#D4183D] rounded-full text-[10px]">{counts}</span>}

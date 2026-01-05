@@ -1,11 +1,14 @@
 import { useRef, useState } from "react";
 import { Camera, Loader2, Upload, User } from "lucide-react";
 import { useForm } from "@inertiajs/react";
+import usernameSchema from "@/Pages/Public/Authentication/Profile/schemas/username";
 
 export default function ProfileForm() {
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [usernameError, setUsernameError] = useState<string | null>(null);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
-    
+
     // Hook do Inertia para gerenciamento de formulário
     const { data, setData, post, processing } = useForm({
         username: "",
@@ -31,7 +34,7 @@ export default function ProfileForm() {
 
     return (
         <form onSubmit={submit} className="flex flex-col items-center space-y-8 mt-6">
-            
+
             {/* --- Área do Avatar --- */}
             <div className="flex flex-col items-center gap-4">
                 <div className="relative group">
@@ -45,14 +48,14 @@ export default function ProfileForm() {
                     </div>
 
                     {/* Botão Flutuante de Upload (Ícone pequeno) */}
-                    <button 
+                    <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         className="absolute bottom-0 right-0 bg-[#6B4E3D] p-2 rounded-full cursor-pointer shadow-lg hover:bg-[#3D2817] transition-colors z-10"
                     >
                         <Upload className="w-4 h-4 text-[#F5EFE6]" />
                     </button>
-                    
+
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -77,32 +80,57 @@ export default function ProfileForm() {
 
             {/* --- Área do Username --- */}
             <div className="w-full">
-                <label htmlFor="username" className="block text-[#3D2817] mb-2 text-sm font-medium text-left">
+                <label
+                    htmlFor="username"
+                    className="block text-[#3D2817] mb-2 text-sm font-medium text-left"
+                >
                     Nome de Usuário
                 </label>
+
+                {/* Campo */}
                 <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8B7355]" />
+
                     <input
                         type="text"
                         id="username"
                         placeholder="Escolha um nome de usuário"
                         value={data.username}
-                        onChange={(e) => setData("username", e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-[#F5F5F5] border border-[#D4C5A9] rounded-lg focus:outline-none focus:border-[#6B4E3D] transition-colors text-[#3D2817] placeholder:text-[#A69580]"
+                        onChange={(e) => {
+                            const value = e.target.value;
+
+                            setData("username", value);
+
+                            const result = usernameSchema.safeParse(value);
+                            setUsernameError(
+                                result.success ? null : result.error.issues[0].message
+                            );
+                        }}
+                        className={`w-full pl-12 pr-4 py-3 rounded-lg transition-colors text-[#3D2817] placeholder:text-[#A69580] focus:outline-none ${usernameError
+                                ? "border border-red-400 bg-red-50 focus:border-red-500"
+                                : "border border-[#D4C5A9] bg-[#F5F5F5] focus:border-[#6B4E3D]"
+                            }`}
                         required
                     />
                 </div>
+
+                {/* Erro fora do campo */}
+                {usernameError && (
+                    <p className="mt-1 text-xs text-red-600">
+                        {usernameError}
+                    </p>
+                )}
             </div>
 
             {/* --- Botão Final --- */}
             <button
                 type="submit"
-                disabled={!data.avatar || processing}
-                className={`w-full py-4 rounded-lg transition-all duration-300 shadow-md font-medium flex items-center justify-center ${
-                    (data.avatar && !processing)
-                        ? 'bg-[#6B4E3D] text-[#F5EFE6] hover:bg-[#3D2817] hover:shadow-lg'
-                        : 'bg-[#8B7355] text-[#F5EFE6]/50 cursor-not-allowed'
-                }`}
+                disabled={!data.avatar || processing || !!usernameError}
+
+                className={`w-full py-4 rounded-lg transition-all duration-300 shadow-md font-medium flex items-center justify-center ${(data.avatar && !processing)
+                    ? 'bg-[#6B4E3D] text-[#F5EFE6] hover:bg-[#3D2817] hover:shadow-lg'
+                    : 'bg-[#8B7355] text-[#F5EFE6]/50 cursor-not-allowed'
+                    }`}
             >
                 {processing ? (
                     <>

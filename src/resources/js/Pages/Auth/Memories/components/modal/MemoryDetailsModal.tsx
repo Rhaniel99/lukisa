@@ -5,7 +5,6 @@ import { FallbackImage } from "@/Components/ui/FallbackImage";
 import { Memory } from "@/Types/Memories";
 import { useMemoryComments } from "@/Pages/Auth/Memories/hooks/useMemoryComment";
 import { CommentForm } from "@/Pages/Auth/Memories/components/form/CommentForm";
-import { useMemoryLayout } from "@/Pages/Auth/Memories/hooks/useMemoryModalLayout";
 import { useState } from "react";
 
 interface MemoryDetailsModalProps {
@@ -18,11 +17,7 @@ interface MemoryDetailsModalProps {
 }
 
 export function MemoryDetailsModal({ isOpen, onClose, memory, onLike, onUpdateMemory }: MemoryDetailsModalProps) {
-  const { comments, hasMore, loadMore, loading } =
-    useMemoryComments(memory);
-  
-    // const layout = useMemoryLayout(memory.image);
-    const layout = useMemoryLayout(memory?.image ?? "");
+  const { comments, hasMore, loadMore, loading } = useMemoryComments(memory);
 
   const [fit, setFit] = useState<'cover' | 'contain'>('contain');
 

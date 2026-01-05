@@ -8,16 +8,19 @@ use Spatie\LaravelData\Attributes\Validation\Mimes;
 use Spatie\LaravelData\Attributes\Validation\Required;
 use Spatie\LaravelData\Attributes\Validation\StringType;
 use Illuminate\Http\UploadedFile;
+use Spatie\LaravelData\Attributes\Validation\Regex;
 use Spatie\LaravelData\Data;
 
 class CompleteProfileData extends Data
 {
     public function __construct(
-        #[Required, StringType, Max(255)]
+        #[Required]
+        #[StringType]
+        #[Max(255)]
+        #[Regex('/^[a-zA-Z0-9._]+$/')]
         public string $username,
 
         #[Required, File, Mimes('jpg', 'jpeg', 'png', 'webp'), Max(10240)] // 10MB
         public UploadedFile $avatar,
-    ) {
-    }
+    ) {}
 }
