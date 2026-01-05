@@ -4,6 +4,7 @@ import { useSettings } from "@/Layouts/Auth/context/SettingsContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
 import { Settings, LogOut } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { dropdownMotion, menuButtonMotion } from "@/Components/Shared/Ui/motionPresets";
 
 export default function ProfileMenu() {
   const { user, logout } = useAuth();
@@ -16,20 +17,21 @@ export default function ProfileMenu() {
 
       {/* Trigger */}
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
         onClick={() => toggleMenu("profile")}
         className="
           w-10 h-10 rounded-xl
           bg-[#FDFBF7]
-          shadow-md
+          shadow-lg
           border border-[#E8DCC4]/60
           flex items-center justify-center
           overflow-hidden
-          transition-all hover:bg-[#F5EFE6]
+          hover:bg-[#F5EFE6]
+          transition-colors
         "
+
+        {...menuButtonMotion}
       >
-        <Avatar className="w-10 h-10 rounded-xl border border-[#E8DCC4]/60">
+        <Avatar className="w-10 h-10 rounded-xl">
           <AvatarImage src={user?.avatar_url || ""} />
           <AvatarFallback className="bg-[#6B4E3D] text-[#F5EFE6] font-semibold">
             {user?.username?.charAt(0)?.toUpperCase()}
@@ -41,27 +43,29 @@ export default function ProfileMenu() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.96 }}
-            transition={{ duration: 0.18 }}
             className="
               absolute right-0 top-14 w-64
               bg-white/90 backdrop-blur-md
-              rounded-2xl border border-[#E8DCC4]
-              shadow-[0_8px_30px_rgba(0,0,0,0.08)]
+              rounded-2xl
+              border border-[#E8DCC4]
+              shadow-[0_8px_30px_rgba(0,0,0,0.12)]
               p-2 z-50
             "
+
+            {...dropdownMotion}
           >
             {/* User Info */}
             <div className="
-                text-center py-4 mb-2
-                bg-[#F5EFE6]/50 rounded-xl
-                border border-[#E8DCC4]
+              text-center py-4 mb-2
+              bg-[#F5EFE6]/60
+              rounded-xl
+              border border-[#E8DCC4]
             ">
               <p className="text-[#3D2817] font-bold">{user?.username}</p>
               {user?.discriminator && (
-                <p className="text-[#8B7355] text-xs">#{user.discriminator}</p>
+                <p className="text-[#8B7355] text-xs">
+                  #{user.discriminator}
+                </p>
               )}
             </div>
 
@@ -98,7 +102,6 @@ export default function ProfileMenu() {
               </button>
 
             </div>
-
           </motion.div>
         )}
       </AnimatePresence>

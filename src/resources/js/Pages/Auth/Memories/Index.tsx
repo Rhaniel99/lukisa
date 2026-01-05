@@ -90,7 +90,8 @@ export default function Index({
             />
           </div>
 
-          <button onClick={() => router.get("/lukisa")} className="p-4 bg-[#F5EFE6] rounded-xl shadow">
+          <button onClick={() => router.get("/lukisa")}           
+          className="pointer-events-auto ml-4 p-4 bg-[#F5EFE6]/95 backdrop-blur-md border-2 border-[#D4C5A9] rounded-2xl text-[#6B4E3D] hover:bg-[#3D2817] hover:text-[#F5EFE6] transition-colors shadow-lg">
             <ArrowLeft />
           </button>
         </div>

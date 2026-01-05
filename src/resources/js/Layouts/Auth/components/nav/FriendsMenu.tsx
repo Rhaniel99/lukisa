@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 import { FriendsDropdown } from "@/Layouts/Auth/components/dropdown/FriendsDropdown";
 import { useMenu } from "@/Layouts/Auth/context/MenuContext";
 import { useFriends } from "@/Layouts/Auth/hooks/useFriends";
+import { menuButtonMotion } from "@/Components/Shared/Ui/motionPresets";
 
 export default function FriendsMenu() {
     const { openMenu, toggleMenu, closeMenu } = useMenu();
@@ -12,15 +13,16 @@ export default function FriendsMenu() {
     return (
         <div className="relative">
             <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 onClick={() => toggleMenu("friends")}
                 className="
                         relative w-10 h-10 bg-[#FDFBF7]
                         rounded-xl border border-[#E8DCC4]/60
                         flex items-center justify-center
                         hover:bg-[#F5EFE6] transition-all shadow-sm
-                        ">
+                        "
+
+                {...menuButtonMotion}
+            >
                 <Users className="w-5 h-5 text-[#3D2817]" />
 
                 {counts > 0 && (

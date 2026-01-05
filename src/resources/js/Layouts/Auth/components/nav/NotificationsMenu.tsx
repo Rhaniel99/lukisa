@@ -5,6 +5,7 @@ import { useNotifications } from "@/Layouts/Auth/hooks/useNotifications";
 import { router } from "@inertiajs/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { ScrollArea } from "@/Components/ui/scroll-area";
+import { dropdownMotion, menuButtonMotion } from "@/Components/Shared/Ui/motionPresets";
 
 export default function NotificationsMenu() {
     const { openMenu, toggleMenu, closeMenu } = useMenu();
@@ -46,8 +47,6 @@ export default function NotificationsMenu() {
         <div className="relative">
             {/* botão */}
             <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 onClick={() => toggleMenu("notifications")}
                 className="
                     w-10 h-10 rounded-xl 
@@ -59,6 +58,8 @@ export default function NotificationsMenu() {
                     hover:bg-[#F5EFE6]
                     relative
                 "
+
+                {...menuButtonMotion}
             >
                 <Bell className="w-5 h-5 text-[#3D2817]" />
 
@@ -82,10 +83,6 @@ export default function NotificationsMenu() {
             <AnimatePresence>
                 {open && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.18 }}
                         className="
                             absolute right-0 top-14 w-80 z-50
                             bg-white
@@ -93,6 +90,8 @@ export default function NotificationsMenu() {
                             border border-[#E8DCC4]
                             overflow-hidden
                         "
+
+                        {...dropdownMotion}
                     >
                         {/* HEADER */}
                         <div className="flex items-center justify-between mb-3 pb-3 border-b border-[#E8DCC4] px-4 pt-4 bg-white/40">

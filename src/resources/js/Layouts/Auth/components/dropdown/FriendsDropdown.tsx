@@ -13,6 +13,7 @@ import {
 } from "@/Components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { useFriendsUI } from "@/Layouts/Auth/context/FriendsContext";
+import { dropdownMotion } from "@/Components/Shared/Ui/motionPresets";
 
 interface FriendsDropdownProps {
   isOpen: boolean;
@@ -89,10 +90,6 @@ export function FriendsDropdown({ isOpen, onClose }: FriendsDropdownProps) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.18 }}
             className="
               absolute right-0 top-16 w-80 z-50
               bg-[#FDFBF7]/90 backdrop-blur-xl
@@ -100,6 +97,8 @@ export function FriendsDropdown({ isOpen, onClose }: FriendsDropdownProps) {
               border border-[#E8DCC4] overflow-hidden
               flex flex-col
             "
+
+            {...dropdownMotion}
           >
             {/* HEADER */}
             <div className="p-4 border-b border-[#E8DCC4] bg-[#FDFBF7]">

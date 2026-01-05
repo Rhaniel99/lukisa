@@ -11,3 +11,7 @@ Broadcast::channel('memories.{memoryId}', function ($user, $memoryId) {
     // e qualquer pessoa pode se inscrever, autenticada ou não.
     return true;
 });
+
+Broadcast::channel('user.notifications.{userId}', function ($user, $userId) {
+    return (string) $user->id === (string) $userId;
+});
