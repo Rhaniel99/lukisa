@@ -4,31 +4,18 @@ namespace Modules\Phamani\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Modules\Phamani\Models\Account;
-use Modules\Phamani\Models\Category;
+use Modules\Phamani\DTOs\Transaction\StoreTransactionData;
+use Modules\Phamani\Interfaces\Services\ITransactionService;
 
-class PhamaniController extends Controller
+class TransactionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct(
+        protected ITransactionService $service
+    ) {}
+
     public function index()
     {
-        $userId = Auth::id();
-
-        return inertia('Auth/Phamani/Index', [
-            'categories' => Category::query()
-                ->whereNull('user_id') // defaults
-                ->orWhere('user_id', $userId)
-                ->orderBy('name')
-                ->get(['id', 'name', 'type', 'color', 'icon']),
-
-            'accounts' => Account::query()
-                ->where('user_id', $userId)
-                ->orderBy('name')
-                ->get(['id', 'name', 'type']),
-        ]);
+        return view('phamani::index');
     }
 
     /**
@@ -42,7 +29,11 @@ class PhamaniController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(StoreTransactionData $r)
+    {
+        $this->service->create($r);
+        return back()->with('success', 'Transação criada com sucesso!');
+    }
 
     /**
      * Show the specified resource.

@@ -1,5 +1,6 @@
 export interface User {
-  id: number;
+  id: string;
   username: string;
+  discriminator?: string | null
   avatar_url?: string;
 }

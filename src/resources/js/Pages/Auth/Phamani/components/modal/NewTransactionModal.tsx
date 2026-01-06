@@ -3,7 +3,7 @@ import { X, Calendar, Layers, Repeat, Receipt } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import * as Icons from 'lucide-react'
 
-import { Transaction } from '@/Types/Phamani/Transaction'
+import { CreateTransaction, Transaction } from '@/Types/Phamani/Transaction'
 import { Account, Category } from '@/Types/Phamani'
 
 import { CategoryDropdown } from '../dropdown/CategoryDropDown'
@@ -24,11 +24,16 @@ import Toggle from '@/Components/Shared/Ui/Toggle'
 interface NewTransactionModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (transaction: any) => void
+  onSave: (transaction: CreateTransaction) => void
+
+  processing?: boolean
+  errors?: Record<string, string>
+
   categories: Category[]
   accounts: Account[]
   initialData?: Transaction | null
 }
+
 
 /* -------------------------------------------------------------------------- */
 /*                              PUBLIC COMPONENT                              */
@@ -100,12 +105,12 @@ function ModalContent({
       category_id: category.id,
       account_id: account.id,
       date,
-      isInstallment,
-      installments: isInstallment
-        ? { current: 1, total: installmentsCount }
-        : undefined,
-      isRecurring,
-      frequency: isRecurring ? frequency : undefined,
+      // isInstallment,
+      // installments: isInstallment
+      //   ? { current: 1, total: installmentsCount }
+      //   : undefined,
+      // isRecurring,
+      // frequency: isRecurring ? frequency : undefined,
     })
 
     reset()

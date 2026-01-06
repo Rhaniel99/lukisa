@@ -13,6 +13,7 @@ class PhamaniDatabaseSeeder extends Seeder
     {
         $this->call([
             CategorySeeder::class,
+            DefaultAccountsSeeder::class,
         ]);
     }
 }

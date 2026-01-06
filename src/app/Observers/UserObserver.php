@@ -1,16 +1,24 @@
 <?php
 
-namespace Modules\Phamani\Database\Seeders;
+namespace App\Observers;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 use App\Models\User;
+use Illuminate\Support\Str;
+use Modules\Phamani\Models\Account;
 use Modules\Phamani\Models\Category;
 
-class CategorySeeder extends Seeder
+class UserObserver
 {
-    public function run(): void
+    public function created(User $user): void
     {
+        Account::create([
+            'id'      => Str::uuid(),
+            'user_id' => $user->id,
+            'name'    => 'Carteira',
+            'type'    => 'cash',
+            'balance' => 0,
+        ]);
+
         $defaults = [
             [
                 'name'  => 'Alimentação',
@@ -56,23 +64,15 @@ class CategorySeeder extends Seeder
             ],
         ];
 
-        $users = User::all();
-
-        foreach ($users as $user) {
-            foreach ($defaults as $category) {
-                Category::firstOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'name'    => $category['name'],
-                    ],
-                    [
-                        'id'    => Str::uuid(),
-                        'type'  => $category['type'],
-                        'icon'  => $category['icon'],
-                        'color' => $category['color'],
-                    ]
-                );
-            }
+        foreach ($defaults as $category) {
+            Category::create([
+                'id'      => Str::uuid(),
+                'user_id' => $user->id,
+                'name'    => $category['name'],
+                'type'    => $category['type'],
+                'icon'    => $category['icon'],
+                'color'   => $category['color'],
+            ]);
         }
     }
 }

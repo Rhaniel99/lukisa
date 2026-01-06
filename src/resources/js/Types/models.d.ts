@@ -34,35 +34,35 @@ export type FlashMessage = {
 
 
 // ✅ Define e exporta o tipo base que todas as páginas terão
-export type PageProps = InertiaPageProps & {
-    auth: {
-        user: AuthUser;
-    };
-    flash?: {
-        success?: FlashMessage;
-        error?: FlashMessage;
-        info?: FlashMessage;
-        warning?: FlashMessage;
-    };
-    notifications?: NotificationsData;
-    settings_user?: SettingsUser; 
-};
+// export type PageProps = InertiaPageProps & {
+//     auth: {
+//         user: AuthUser;
+//     };
+//     flash?: {
+//         success?: FlashMessage;
+//         error?: FlashMessage;
+//         info?: FlashMessage;
+//         warning?: FlashMessage;
+//     };
+//     notifications?: NotificationsData;
+//     settings_user?: SettingsUser; 
+// };
 
-declare module '@inertiajs/core' {
-    export interface PageProps extends InertiaPageProps {
-        auth: {
-            user: AuthUser;
-        };
-        flash?: {
-            success?: string;
-            error?: string;
-        };
-        friendships?: FriendshipsData;
-        notifications?: NotificationsData;
-        settings_user?: SettingsUser;
-        // Adicione aqui outras props que são compartilhadas em TODAS as páginas
-    }
-}
+// declare module '@inertiajs/core' {
+//     export interface PageProps extends InertiaPageProps {
+//         auth: {
+//             user: AuthUser;
+//         };
+//         flash?: {
+//             success?: string;
+//             error?: string;
+//         };
+//         friendships?: FriendshipsData;
+//         notifications?: NotificationsData;
+//         settings_user?: SettingsUser;
+//         // Adicione aqui outras props que são compartilhadas em TODAS as páginas
+//     }
+// }
 
 export interface PaginatedResponse<T> {
     data: T[];

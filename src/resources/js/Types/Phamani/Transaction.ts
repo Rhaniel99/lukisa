@@ -8,13 +8,13 @@ export interface Transaction {
   description: string;
   amount: number;
   type: TransactionType;
-  
+
   category_id: string;
   category?: Category;
 
   account_id: string;
   account?: Account;
-  
+
   date: string;
   isInstallment?: boolean;
   installments?: {
@@ -24,4 +24,13 @@ export interface Transaction {
   isRecurring?: boolean;
   frequency?: string;
   status: 'paid' | 'pending';
+}
+
+export interface CreateTransaction {
+  description: string
+  amount: number
+  type: TransactionType
+  category_id: string
+  account_id: string
+  date: string
 }
