@@ -4,6 +4,7 @@ namespace App\Inertia;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Modules\Memories\Models\Memorie;
 
 class NotificationsProps
 {
@@ -22,7 +23,7 @@ class NotificationsProps
                 ->latest()
                 ->limit(10)
                 ->get()
-                ->map(fn ($n) => self::hydrate($n));
+                ->map(fn($n) => self::hydrate($n));
         }
 
         return $data;
@@ -32,11 +33,20 @@ class NotificationsProps
     {
         $data = $notification->data;
 
+        // Avatar do ator
         if (!isset($data['actor_avatar']) && isset($data['actor_id'])) {
             if ($actor = User::find($data['actor_id'])) {
-                $data['actor_avatar'] = $actor
-                    ->getFirstMedia('avatars')
-                    ?->getTemporaryUrl(now()->addMinutes(60), 'thumb');
+                $data['actor_avatar'] = $actor->getPublicAvatarUrl();
+            }
+        }
+
+        // 🖼️ Thumbnail da memória (TEMPORÁRIA)
+        if (
+            in_array($data['type'] ?? null, ['like', 'comment'], true)
+            && isset($data['memory_id'])
+        ) {
+            if ($memory = Memorie::find($data['memory_id'])) {
+                $data['memory_thumbnail'] = $memory->getPublicThumbnailUrl();
             }
         }
 

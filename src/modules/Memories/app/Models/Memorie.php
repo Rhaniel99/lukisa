@@ -3,6 +3,7 @@
 namespace Modules\Memories\Models;
 
 use App\Models\User;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Builder;
-
+use Illuminate\Support\Facades\Storage;
 
 class Memorie extends Model implements HasMedia
 {
@@ -112,5 +113,85 @@ class Memorie extends Model implements HasMedia
                         })
                 );
         });
+    }
+
+
+    /**
+     * Thumbnail público (notificações, dropdown, listas)
+     */
+    public function getPublicThumbnailUrl(int $minutes = 10): ?string
+    {
+        $media = $this->getFirstMedia('memories_media');
+
+        if (!$media) {
+            return null;
+        }
+
+        // ✅ Se a conversão EXISTIR de fato
+        if ($media->hasGeneratedConversion('thumb')) {
+            return $media->getTemporaryUrl(
+                now()->addMinutes($minutes),
+                'thumb'
+            );
+        }
+
+        // 🔁 Fallback seguro: imagem original
+        return $media->getTemporaryUrl(
+            now()->addMinutes($minutes)
+        );
+    }
+
+    /**
+     * Imagem grande (modal, detalhes)
+     */
+    public function getPublicImageUrl(int $minutes = 10): ?string
+    {
+        $media = $this->getLatestMedia();
+
+        if (!$media) {
+            return null;
+        }
+
+        return $this->temporaryMediaUrl($media, null, $minutes);
+    }
+
+    /**
+     * 🔒 Método interno centralizado
+     */
+    protected function temporaryMediaUrl(
+        Media $media,
+        ?string $conversion,
+        int $minutes
+    ): string {
+        $path = $conversion
+            ? $media->getPathRelativeToRoot($conversion)
+            : $media->getPathRelativeToRoot();
+
+        return Storage::disk($media->disk)->temporaryUrl(
+            $path,
+            now()->addMinutes($minutes)
+        );
+    }
+
+    /**
+     * Pega sempre a mídia mais recente
+     */
+    protected function getLatestMedia(): ?Media
+    {
+        return $this->getMedia('memories_media')
+            ->sortByDesc('created_at')
+            ->first();
+    }
+
+    /**
+     * Conversions
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(150)
+            ->height(150)
+            ->sharpen(10)
+            ->nonQueued();
     }
 }

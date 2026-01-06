@@ -44,8 +44,6 @@ export function useMemoryRealtime(
             channel.listen(
                 ".memory.comments.updated",
                 (payload: { id: string; commentsCount: number }) => {
-                    console.log("[Realtime] comments updated", payload);
-
                     applyCommentCountUpdate(payload.id, payload.commentsCount);
                 }
             );

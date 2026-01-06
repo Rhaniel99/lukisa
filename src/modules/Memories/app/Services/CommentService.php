@@ -8,7 +8,7 @@ use Modules\Memories\Events\MemoryCommentUpdated;
 use Modules\Memories\Interfaces\Repositories\ICommentRepository;
 use Modules\Memories\Interfaces\Services\ICommentService;
 use Modules\Memories\Models\Comment;
-use Modules\Memories\Events\MemoryInteracted;
+use Modules\Memories\Notifications\MemoryInteracted;
 
 class CommentService implements ICommentService
 {
@@ -18,29 +18,43 @@ class CommentService implements ICommentService
 
     public function save(StoreCommentData $data): ?Comment
     {
-        $userId = Auth::id();
+        $user = Auth::user();
 
-        $memory = $this->repository
-            ->create([
-                'content'   => $data->content,
-                'memory_id' => $data->memory_id,
-                'user_id'   => $userId,
-            ]);
+        $comment = $this->repository->create([
+            'content'   => $data->content,
+            'memory_id' => $data->memory_id,
+            'user_id'   => $user->id,
+        ]);
+
+        $memory = $comment->memory;
 
         broadcast(new MemoryCommentUpdated(
-            $memory->memory_id,
-            $memory->memory->comments()->count()
+            $memory->id,
+            $memory->comments()->count()
         ));
 
-        if ($memory->user_id !== $userId) {
-            broadcast(new MemoryInteracted(
-                $memory->user_id,
-                Auth::user()->username,
-                Auth::user()->avatar_url,
-                'comment'
-            ));
+        if ((string) $memory->user_id !== (string) $user->id) {
+            $memory->user->notify(
+                new MemoryInteracted(
+                    actor: $user,
+                    memory: $memory,
+                    action: 'comment'
+                )
+            );
+
+            // broadcast(new MemoryInteracted(
+            //     $memory->user_id,
+            //     $user->username,
+            //     $user->getPublicAvatarUrl(),
+            //     $memory->getPublicThumbnailUrl(),
+            //     'comment',
+            //     route('memo.maps.index', [
+            //         'memory_id' => $memory->id,
+            //         'place_id'  => $memory->place_id,
+            //     ])
+            // ));
         }
 
-        return $memory;
+        return $comment;
     }
 }

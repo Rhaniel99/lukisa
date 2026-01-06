@@ -8,12 +8,14 @@ use Modules\Memories\Interfaces\Repositories\ICommentRepository;
 use Modules\Memories\Interfaces\Repositories\IMemoriesRepository;
 use Modules\Memories\Interfaces\Repositories\IPlaceRepository;
 use Modules\Memories\Interfaces\Services\ICommentService;
+use Modules\Memories\Interfaces\Services\ILikeService;
 use Modules\Memories\Interfaces\Services\IMemoriesService;
 use Modules\Memories\Interfaces\Services\IPlaceService;
 use Modules\Memories\Repositories\CommentRepository;
 use Modules\Memories\Repositories\MemoriesRepository;
 use Modules\Memories\Repositories\PlaceRepository;
 use Modules\Memories\Services\CommentService;
+use Modules\Memories\Services\LikeService;
 use Modules\Memories\Services\MemoriesService;
 use Modules\Memories\Services\PlaceService;
 use Nwidart\Modules\Traits\PathNamespace;
@@ -63,6 +65,11 @@ class MemoriesServiceProvider extends ServiceProvider
         $this->app->bind(
             IPlaceService::class,
             PlaceService::class
+        );
+
+        $this->app->bind(
+            ILikeService::class,
+            LikeService::class
         );
 
         // REPOSITORY
@@ -182,7 +189,7 @@ class MemoriesServiceProvider extends ServiceProvider
     public function provides(): array
     {
         return [
-           \Modules\Memories\Models\Memorie::class => \Modules\Memories\Policies\MemoriePolicy::class,
+            \Modules\Memories\Models\Memorie::class => \Modules\Memories\Policies\MemoriePolicy::class,
         ];
     }
 

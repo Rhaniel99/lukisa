@@ -34,8 +34,7 @@ class MemoryListItemData extends Data
             likes: $memory->likes_count ?? 0,
             commentsCount: $memory->comments_count ?? 0,
             liked: $memory->isLikedBy(Auth::user()),
-            image: $memory->getFirstMedia('memories_media')
-                ?->getTemporaryUrl(now()->addMinutes(5)),
+            image: $memory->getPublicImageUrl(5),
             author: UserData::fromModel($memory->user),
             isOwner: $memory->user_id === Auth::id(),
         );

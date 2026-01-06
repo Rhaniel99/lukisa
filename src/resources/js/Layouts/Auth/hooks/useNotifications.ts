@@ -76,8 +76,11 @@ export function useNotifications() {
                         actor_name: notification.actor_name || notification.data?.actor_name,
                         actor_avatar: notification.actor_avatar || notification.data?.actor_avatar,
                         link: notification.link || notification.data?.link,
+                        memory_thumbnail:
+                            notification.memory_thumbnail || notification.data?.memory_thumbnail,
                     },
                 };
+
 
                 setList(prev => [newItem, ...prev]);
             }

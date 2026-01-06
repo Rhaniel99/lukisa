@@ -29,6 +29,9 @@ export default function NotificationsMenu() {
 
     // clicar em uma notificação
     const handleNotificationClick = (item: any) => {
+        if (!item.data.link) return;
+
+
         const go = () => {
             if (item.data.link) {
                 closeMenu();
@@ -129,6 +132,7 @@ export default function NotificationsMenu() {
                             {/* lista real */}
                             <div className="space-y-2 pb-2">
                                 {list.map((item) => (
+                                    
                                     <div
                                         key={item.id}
                                         onClick={() => handleNotificationClick(item)}
@@ -166,6 +170,31 @@ export default function NotificationsMenu() {
                                                 {item.created_at}
                                             </p>
                                         </div>
+
+                                        {(item.data.type === 'like' || item.data.type === 'comment') &&
+                                            item.data.memory_thumbnail &&
+                                            (() => {
+                                                const link = item.data.link;
+                                                if (!link) return null;
+
+                                                return (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            closeMenu();
+                                                            router.get(link); 
+                                                        }}
+                                                        className="shrink-0"
+                                                    >
+                                                        <img
+                                                            src={item.data.memory_thumbnail}
+                                                            alt=""
+                                                            className="w-12 h-12 rounded-lg object-cover border border-[#E8DCC4]"
+                                                        />
+                                                    </button>
+                                                );
+                                            })()}
+
 
                                         {/* bolinha unread */}
                                         {!item.read_at && (
