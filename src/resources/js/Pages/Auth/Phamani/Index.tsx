@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Transactions from './Transactions';
-import { NewTransactionModal } from './components/modal/NewTransactionModal';
 import { Head, router } from '@inertiajs/react';
 import { Account, Category } from '@/Types/Phamani';
 import { useTransactions } from './hooks/useTransactions';
@@ -9,6 +8,7 @@ import { PageProps } from '@/Types/Inertia/PageProps';
 import { DashboardMain } from './components/dashboard/DashboardMain';
 import { DashboardContent } from './components/dashboard/DashboardContent';
 import { DashboardSidebar } from './components/dashboard/DashboardSidebar';
+import { NewTransactionModal } from './components/modal/transactions/NewTransactionModal';
 
 interface Props extends PageProps {
     categories: Category[]
@@ -75,10 +75,6 @@ export default function Index({ categories, accounts }: Props) {
                     isOpen={isNewTransactionOpen}
                     onClose={() => setIsNewTransactionOpen(false)}
                     onSave={create.submit}
-
-                    processing={create.processing}
-                    errors={create.errors}
-
                     categories={categories}
                     accounts={accounts}
                 />
