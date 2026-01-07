@@ -93,4 +93,13 @@ abstract class CoreRepository implements ICoreRepository
             $page
         );
     }
+
+    /**
+     * Retorna uma nova instância do Query Builder do modelo.
+     *
+     */
+    public function query(): Builder
+    {
+        return $this->model->newQuery();
+    }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Transactions from './Transactions';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Account, Category } from '@/Types/Phamani';
 import { useTransactions } from './hooks/useTransactions';
 import { DashboardHeader } from './components/dashboard/DashboardHeader';
@@ -9,6 +9,7 @@ import { DashboardMain } from './components/dashboard/DashboardMain';
 import { DashboardContent } from './components/dashboard/DashboardContent';
 import { DashboardSidebar } from './components/dashboard/DashboardSidebar';
 import { NewTransactionModal } from './components/modal/transactions/NewTransactionModal';
+import { useInertiaPreload } from '@/Hooks/useInertiaPreload';
 
 interface Props extends PageProps {
     categories: Category[]
@@ -20,6 +21,10 @@ export default function Index({ categories, accounts }: Props) {
     const [view, setView] = useState<'dashboard' | 'transactions'>('dashboard');
 
     const { create } = useTransactions();
+
+    const preloadTransactionData = useInertiaPreload({
+        only: ['categories', 'accounts'],
+    })
 
     // Mock Data for Charts
     const lineData = [
@@ -67,6 +72,8 @@ export default function Index({ categories, accounts }: Props) {
                         <DashboardSidebar
                             onNewTransaction={() => setIsNewTransactionOpen(true)}
                             onViewAll={() => setView('transactions')}
+                            onPreloadNewTransaction={preloadTransactionData}
+
                         />
                     }
                 />

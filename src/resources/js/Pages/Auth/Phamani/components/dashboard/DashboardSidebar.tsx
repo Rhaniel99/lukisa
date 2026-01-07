@@ -2,16 +2,17 @@ import { Plus, Wallet } from 'lucide-react'
 import { motion } from 'motion/react'
 import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
-import { on } from 'events'
 
 interface DashboardSidebarProps {
     onNewTransaction: () => void
     onViewAll: () => void
+    onPreloadNewTransaction: () => void
 }
 
 export function DashboardSidebar({
     onNewTransaction,
     onViewAll,
+    onPreloadNewTransaction,
 }: DashboardSidebarProps) {
     return (
         <>
@@ -19,6 +20,8 @@ export function DashboardSidebar({
                 variant="primary"
                 size="lg"
                 className="w-full py-8 text-lg shadow-xl flex flex-col gap-2 rounded-2xl"
+                onMouseEnter={onPreloadNewTransaction}
+                onFocus={onPreloadNewTransaction}
                 onClick={onNewTransaction}
             >
                 <Plus className="w-8 h-8" />

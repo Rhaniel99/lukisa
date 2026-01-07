@@ -4,32 +4,17 @@ namespace Modules\Phamani\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
-use Modules\Phamani\Interfaces\Services\IAccountService;
 use Modules\Phamani\Interfaces\Services\ICategoryService;
 
-class PhamaniController extends Controller
+class CategoryController extends Controller
 {
     public function __construct(
-        protected ICategoryService $categoryService,
-        protected IAccountService $accountService
+        protected ICategoryService $service,
     ) {}
 
     public function index()
     {
-        $userId = Auth::id();
-
-        return inertia('Auth/Phamani/Index', [
-            'categories' => Inertia::lazy(
-                fn() =>
-                $this->categoryService->listForUser($userId)
-            ),
-            'accounts' => Inertia::lazy(
-                fn() =>
-                $this->accountService->listForUser($userId)
-            ),
-        ]);
+        return view('phamani::index');
     }
 
     /**
@@ -43,7 +28,9 @@ class PhamaniController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request) {
+        
+    }
 
     /**
      * Show the specified resource.

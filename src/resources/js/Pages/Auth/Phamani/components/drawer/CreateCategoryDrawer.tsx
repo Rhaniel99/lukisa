@@ -2,6 +2,7 @@ import { Category } from '@/Types/Phamani';
 import { X, Tag, Home, Car, Heart, Briefcase } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
+import { useCategories } from '@/Pages/Auth/Phamani/hooks/useCategories';
 
 const icons = [
     { id: 'Tag', icon: Tag },
@@ -27,15 +28,23 @@ export function CreateCategoryDrawer({
         icon: string;
     }) => void;
 }) {
+    const { create } = useCategories();
+
     const [name, setName] = useState('');
     const [type, setType] = useState<'expense' | 'income' | 'both'>('expense');
     const [color, setColor] = useState(colors[0]);
     const [icon, setIcon] = useState('tag');
 
-    const handleCreate = () => {
-        onCreate({ name, type, color, icon });
-        onClose();
-    };
+    function handleCreate() {
+        create.submit({
+            name,
+            type,
+            color,
+            icon,
+        })
+
+        onClose()
+    }
 
     return (
         <AnimatePresence>
