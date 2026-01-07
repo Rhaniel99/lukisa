@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { router, usePage } from "@inertiajs/react";
-import { PageProps } from "@/Types/models";
 import { useAuth } from "@/Hooks/useAuth";
 import { NotificationItem } from "@/Types/Notification";
 import { notificationUserChannel } from "../services/notificationChannel";
+import { PageProps } from "@/Types/Inertia/PageProps";
 
 export function useNotifications() {
     const { props } = usePage<PageProps & {

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback } from "react";
 import { router, usePage } from "@inertiajs/react";
 import type { PropsWithChildren } from "react";
 import type { SettingsUser, SettingsTab } from "@/Types/Settings";
-import type { PageProps } from "@/Types/models";
+import { PageProps } from "@/Types/Inertia/PageProps";
 
 interface SettingsContextValue {
   isOpen: boolean;

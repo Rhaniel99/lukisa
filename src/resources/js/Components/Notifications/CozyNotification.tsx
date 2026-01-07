@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 import { usePage } from "@inertiajs/react";
 import { Toaster, toast } from "sonner";
-import { PageProps } from "@/Types/models";
+import { PageProps } from "@/Types/Inertia/PageProps";
 
 export default function CozyNotification() {
-const { props } = usePage<PageProps>();
+    const { props } = usePage<PageProps>();
     const { flash, errors } = props;
-    
+
     const lastFlashRef = useRef<string>("");
 
     useEffect(() => {
@@ -31,7 +31,7 @@ const { props } = usePage<PageProps>();
         // Erros de Validação
         if (errors && Object.keys(errors).length > 0) {
             Object.values(errors).forEach((errMsg) => {
-                toast.error(errMsg, { id: errMsg }); 
+                toast.error(errMsg, { id: errMsg });
             });
         }
     }, [flash?.success, flash?.error, errors]);
@@ -40,7 +40,7 @@ const { props } = usePage<PageProps>();
         <Toaster
             position="bottom-right"
             // Define o espaço entre os toasts
-            gap={12} 
+            gap={12}
             toastOptions={{
                 // Estilo BASE (comum a todos)
                 className: "font-sans shadow-lg rounded-xl border border-[#D4C5A9]",
@@ -52,15 +52,15 @@ const { props } = usePage<PageProps>();
                     // --- ESTILO DE SUCESSO ---
                     // Adiciona uma borda esquerda grossa Marrom Café
                     success: "border-l-[6px] border-l-[#6B4E3D] bg-[#F5EFE6]",
-                    
+
                     // --- ESTILO DE ERRO ---
                     // Adiciona uma borda esquerda grossa Terracota (Vermelho Queimado)
                     // E muda levemente o fundo para um rosado muito pálido para dar ênfase
                     error: "border-l-[6px] border-l-[#A65D57] bg-[#FFF5F5] text-[#8B4543]",
-                    
+
                     // --- ESTILO DE INFO ---
                     info: "border-l-[6px] border-l-[#8B7355] bg-[#F5EFE6]",
-                    
+
                     // Customiza a cor do botão de fechar (se houver) e ícones
                     actionButton: "bg-[#6B4E3D] text-white",
                 },

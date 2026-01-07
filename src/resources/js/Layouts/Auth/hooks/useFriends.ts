@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { router, useForm, usePage } from "@inertiajs/react";
-import { PageProps } from "@/Types/models";
 import { useAuth } from "@/Hooks/useAuth";
 import { Friend, PendingFriend } from "@/Types/Friend";
+import { PageProps } from "@/Types/Inertia/PageProps";
 
 type ListType = "pending" | "accepted";
 

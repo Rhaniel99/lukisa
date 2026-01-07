@@ -22,9 +22,9 @@ export function MemoryModal({
   coords,
   placeMeta,
 }: MemoryModalProps) {
-  const { user } = useAuth();
-  const authorName = user?.name || user?.username || 'Você';
-  const authorAvatar = user?.avatar_url;
+  const { username, avatarUrl } = useAuth();
+  const authorName = username || 'Você';
+  const authorAvatar = avatarUrl;
 
   const {
     form,

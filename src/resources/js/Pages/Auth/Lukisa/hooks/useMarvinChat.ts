@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { router, usePage } from '@inertiajs/react'
-import { PageProps } from '@/Types/models'
 import { ChatMessage } from '@/Types/Marvin'
 import { marvinUserChannel } from '@/Pages/Auth/Lukisa/services/marvinChannel'
+import { PageProps } from '@/Types/Inertia/PageProps'
+import { useAuth } from '@/Hooks/useAuth'
 
 export function useMarvinChat() {
-    const { auth, ollamaStatus: initialOllamaStatus } =
-        usePage<PageProps>().props
+    const { user } = useAuth();
+    const { ollamaStatus: initialOllamaStatus } = usePage<PageProps>().props
 
     const [isChatOpen, setIsChatOpen] = useState(false)
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
@@ -17,9 +18,9 @@ export function useMarvinChat() {
     )
 
     useEffect(() => {
-        if (!auth.user) return
+        if (!user) return
 
-        const channel = marvinUserChannel(auth.user.id)
+        const channel = marvinUserChannel(user.id)
 
         channel
             .listen('.marvin.new-message', ({ message }: { message: ChatMessage }) => {
@@ -38,7 +39,7 @@ export function useMarvinChat() {
         return () => {
             channel.unsubscribe()
         }
-    }, [auth.user?.id])
+    }, [user?.id])
 
     const openChat = () => {
         router.get(
@@ -61,7 +62,7 @@ export function useMarvinChat() {
     const closeChat = () => setIsChatOpen(false)
 
     const sendMessage = (prompt: string) => {
-        if (!prompt.trim() || !auth.user) return
+        if (!prompt.trim() || !user) return
 
         const now = new Date().toISOString()
 
@@ -71,7 +72,7 @@ export function useMarvinChat() {
             content: prompt,
             created_at: now,
             updated_at: now,
-            user_id: auth.user.id.toString(),
+            user_id: user.id.toString(),
         }
 
         const optimisticThinkingMessage: ChatMessage = {
@@ -80,7 +81,7 @@ export function useMarvinChat() {
             content: '...',
             created_at: now,
             updated_at: now,
-            user_id: auth.user.id.toString(),
+            user_id: user.id.toString(),
         }
 
         setChatMessages(current => [
