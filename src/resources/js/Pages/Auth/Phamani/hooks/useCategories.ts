@@ -4,47 +4,48 @@ import { useForm, router } from '@inertiajs/react'
 export type CreateCategory = Omit<Category, 'id'>
 
 function categoryDefaults(): CreateCategory {
-    return {
-        name: '',
-        color: '#000000',
-        icon: 'Tag',
-        type: 'expense',
-    }
+  return {
+    name: '',
+    color: '#000000',
+    icon: 'Tag',
+    type: 'expense',
+  }
 }
 
-
 export function useCategories() {
-    const create = useCreateCategoryForm()
+  const create = useCreateCategoryForm()
 
-    return {
-        create,
-    }
+  return {
+    create,
+  }
 }
 
 function useCreateCategoryForm() {
-    const form = useForm<CreateCategory>(categoryDefaults())
+  const form = useForm<CreateCategory>(categoryDefaults())
 
-    function submit(payload: CreateCategory) {
-        form.setData(payload)
+  function submit(payload: CreateCategory) {
+    form.setData(payload)
 
-        form.post(route('category.store'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                router.reload({
-                    only: ['categories'],
-                })
-            },
+    form.post(route('category.store'), {
+      preserveScroll: true,
+      onSuccess: () => {
+        router.reload({
+          only: ['categories'],
         })
-    }
 
-    return {
-        submit,
+        form.reset()
+      },
+    })
+  }
 
-        processing: form.processing,
-        errors: form.errors,
-        recentlySuccessful: form.recentlySuccessful,
+  return {
+    submit,
 
-        reset: form.reset,
-        clearErrors: form.clearErrors,
-    }
+    processing: form.processing,
+    errors: form.errors,
+    recentlySuccessful: form.recentlySuccessful,
+
+    reset: form.reset,
+    clearErrors: form.clearErrors,
+  }
 }

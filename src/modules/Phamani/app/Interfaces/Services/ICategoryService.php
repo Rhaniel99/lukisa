@@ -3,6 +3,7 @@
 namespace Modules\Phamani\Interfaces\Services;
 
 use Illuminate\Support\Collection;
+use Modules\Phamani\DTOs\Category\StoreCategoryData;
 
 /**
  * Interface ICategoryService
@@ -10,5 +11,6 @@ use Illuminate\Support\Collection;
  */
 interface ICategoryService
 {
+    public function create(string $userId, StoreCategoryData $dto);
     public function listForUser(string $userId): Collection;
 }

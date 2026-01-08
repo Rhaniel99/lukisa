@@ -4,6 +4,8 @@ namespace Modules\Phamani\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Modules\Phamani\DTOs\Category\StoreCategoryData;
 use Modules\Phamani\Interfaces\Services\ICategoryService;
 
 class CategoryController extends Controller
@@ -28,8 +30,14 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {
+    public function store(StoreCategoryData $r)
+    {
+        $this->service->create(
+            userId: Auth::id(),
+            dto: $r
+        );
         
+        return back()->with('success', 'Categoria criada com sucesso!');
     }
 
     /**
