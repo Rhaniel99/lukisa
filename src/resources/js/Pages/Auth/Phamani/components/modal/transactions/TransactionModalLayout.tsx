@@ -80,7 +80,6 @@ export function TransactionModalLayout({
       <CreateCategoryDrawer
         isOpen={categoryDrawerOpen}
         onClose={() => setCategoryDrawerOpen(false)}
-        onCreate={() => setCategoryDrawerOpen(false)}
       />
     </>
   )
