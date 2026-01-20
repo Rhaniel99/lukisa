@@ -8,7 +8,6 @@ use Modules\Phamani\DTOs\Transaction\StoreTransactionData;
 use Modules\Phamani\Interfaces\Repositories\ITransactionRepository;
 use Modules\Phamani\Interfaces\Services\ITransactionService;
 use Modules\Phamani\Interfaces\Repositories\IAccountRepository;
-use Str;
 
 class TransactionService implements ITransactionService
 {
@@ -20,8 +19,8 @@ class TransactionService implements ITransactionService
     public function create(StoreTransactionData $dto)
     {
         return DB::transaction(function () use ($dto) {
+
             $transaction = $this->repository->create([
-                'id'          => Str::uuid(),
                 'user_id'     => Auth::id(),
                 'account_id'  => $dto->account_id,
                 'category_id' => $dto->category_id,

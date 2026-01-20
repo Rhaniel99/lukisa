@@ -5,9 +5,6 @@ networks:
     external: true
   default:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.29.0.0/16
 
 x-php-common: &php-common
   # image: lukisa-php:latest
