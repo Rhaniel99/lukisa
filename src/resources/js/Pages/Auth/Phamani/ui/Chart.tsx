@@ -1,4 +1,5 @@
 import { CashFlowPoint } from '@/Types/Phamani';
+import { useEffect, useState } from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
 
 const PALETTE = {
@@ -36,12 +37,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 }
 
 export const CashFlowChart = ({ data }: { data: CashFlowPoint[] }) => {
-  if (!data || data.length === 0) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !data || data.length === 0) {
     return null
   }
 
   return (
-<ResponsiveContainer width="100%" height="100%" minWidth={0}>
+    <ResponsiveContainer width="100%" height={288}>
       <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
@@ -100,9 +107,18 @@ export const CashFlowChart = ({ data }: { data: CashFlowPoint[] }) => {
 
 
 export const CategoryPieChart = ({ data }: { data: any[] }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    
-    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+    <ResponsiveContainer width="100%" height={288}>
       <PieChart>
         <Pie
           data={data}
