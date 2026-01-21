@@ -9,12 +9,14 @@ use Modules\Phamani\Interfaces\Repositories\ICategoryRepository;
 use Modules\Phamani\Interfaces\Repositories\ITransactionRepository;
 use Modules\Phamani\Interfaces\Services\IAccountService;
 use Modules\Phamani\Interfaces\Services\ICategoryService;
+use Modules\Phamani\Interfaces\Services\IDashboardService;
 use Modules\Phamani\Interfaces\Services\ITransactionService;
 use Modules\Phamani\Repositories\AccountRepository;
 use Modules\Phamani\Repositories\CategoryRepository;
 use Modules\Phamani\Repositories\TransactionRepository;
 use Modules\Phamani\Services\AccountService;
 use Modules\Phamani\Services\CategoryService;
+use Modules\Phamani\Services\DashboardService;
 use Modules\Phamani\Services\TransactionService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
@@ -64,6 +66,11 @@ class PhamaniServiceProvider extends ServiceProvider
         $this->app->bind(
             ICategoryService::class,
             CategoryService::class
+        );
+
+        $this->app->bind(
+            IDashboardService::class,
+            DashboardService::class
         );
 
         // REPOSITORY

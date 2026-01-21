@@ -1,51 +1,29 @@
 import { Category } from '@/Types/Phamani'
-import { useForm, router } from '@inertiajs/react'
+import { router, useForm } from '@inertiajs/react'
 
 export type CreateCategory = Omit<Category, 'id'>
 
-function categoryDefaults(): CreateCategory {
-  return {
+export function useCreateCategoryForm(onSuccess?: () => void) {
+  const form = useForm<CreateCategory>({
     name: '',
-    color: '#000000',
-    icon: 'Tag',
     type: 'expense',
-  }
-}
+    color: '#3D2817',
+    icon: 'tag',
+  })
 
-export function useCategories() {
-  const create = useCreateCategoryForm()
-
-  return {
-    create,
-  }
-}
-
-function useCreateCategoryForm() {
-  const form = useForm<CreateCategory>(categoryDefaults())
-
-  function submit(payload: CreateCategory) {
-    form.setData(payload)
-
+  function submit() {
     form.post(route('category.store'), {
       preserveScroll: true,
       onSuccess: () => {
-        router.reload({
-          only: ['categories'],
-        })
-
+        router.reload({ only: ['categories', 'accounts'] })
         form.reset()
+        onSuccess?.()
       },
     })
   }
 
   return {
+    form,
     submit,
-
-    processing: form.processing,
-    errors: form.errors,
-    recentlySuccessful: form.recentlySuccessful,
-
-    reset: form.reset,
-    clearErrors: form.clearErrors,
   }
 }

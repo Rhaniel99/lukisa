@@ -1,29 +1,20 @@
 import { X, Wallet, CreditCard, Banknote } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useState } from 'react';
 import { cn } from '@/Lib/Utils';
 import { Label } from '@/Components/ui/label';
+import { Form } from '@/Components/Shared/Form/Form';
+import { useAccountsForm } from '../../hooks/useAccounts';
 
 interface CreateAccountDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (account: { name: string; type: string }) => void;
 }
 
 export function CreateAccountDrawer({
   isOpen,
   onClose,
-  onCreate,
 }: CreateAccountDrawerProps) {
-  const [name, setName] = useState('');
-  const [type, setType] = useState<'cash' | 'checking' | 'credit'>('checking');
-
-  const handleCreate = () => {
-    onCreate({ name, type });
-    setName('');
-    setType('checking');
-    onClose();
-  };
+  const { form, submit } = useAccountsForm(onClose)
 
   return (
     <AnimatePresence>
@@ -57,13 +48,13 @@ export function CreateAccountDrawer({
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+            <Form onSubmit={submit} className="flex-1 overflow-y-auto p-6 space-y-8">
               {/* Nome */}
               <div className="space-y-3">
                 <Label className="text-[#6B4E3D] font-serif">Nome da conta</Label>
                 <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={form.data.name}
+                  onChange={(e) => form.setData('name', e.target.value)}
                   placeholder="Ex: Nubank"
                   className="w-full px-4 py-3 bg-white border-2 border-[#E8DCC4] rounded-xl text-[#3D2817] placeholder:text-[#D4C5A9] focus:outline-none focus:border-[#6B4E3D]"
                 />
@@ -74,10 +65,12 @@ export function CreateAccountDrawer({
                 <Label className="text-[#6B4E3D] font-serif">Tipo</Label>
                 <div className="grid grid-cols-3 gap-3">
                   <button
-                    onClick={() => setType('cash')}
+                    type="button"
+                    onClick={() => form.setData('type', 'cash')}
+
                     className={cn(
                       "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2",
-                      type === 'cash'
+                      form.data.type === 'cash'
                         ? "bg-white border-[#3D2817] text-[#3D2817]"
                         : "bg-white border-transparent text-[#D4C5A9] hover:border-[#E8DCC4]"
                     )}
@@ -87,10 +80,11 @@ export function CreateAccountDrawer({
                   </button>
 
                   <button
-                    onClick={() => setType('checking')}
+                    type="button"
+                    onClick={() => form.setData('type', 'checking')}
                     className={cn(
                       "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2",
-                      type === 'checking'
+                      form.data.type === 'checking'
                         ? "bg-[#D4C5A9]/30 border-[#3D2817] text-[#3D2817]"
                         : "bg-white border-transparent text-[#D4C5A9] hover:border-[#E8DCC4]"
                     )}
@@ -100,10 +94,11 @@ export function CreateAccountDrawer({
                   </button>
 
                   <button
-                    onClick={() => setType('credit')}
+                    type="button"
+                    onClick={() => form.setData('type', 'credit')}
                     className={cn(
                       "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2",
-                      type === 'credit'
+                      form.data.type === 'credit'
                         ? "bg-white border-[#3D2817] text-[#3D2817]"
                         : "bg-white border-transparent text-[#D4C5A9] hover:border-[#E8DCC4]"
                     )}
@@ -113,18 +108,18 @@ export function CreateAccountDrawer({
                   </button>
                 </div>
               </div>
-            </div>
 
-            {/* Footer */}
-            <div className="p-6 border-t border-[#E8DCC4] bg-[#F5EFE6]">
-              <button
-                disabled={!name}
-                onClick={handleCreate}
-                className="w-full py-4 bg-[#8B7355] text-[#F5EFE6] rounded-xl hover:bg-[#6B4E3D] text-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
-              >
-                Criar e usar conta
-              </button>
-            </div>
+              {/* Footer */}
+              <div className="p-6 border-t border-[#E8DCC4] bg-[#F5EFE6]">
+                <button
+                  type="submit"
+                  disabled={form.processing || !form.data.name}
+                  className="w-full py-4 bg-[#8B7355] text-[#F5EFE6] rounded-xl hover:bg-[#6B4E3D] text-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+                >
+                  Criar e usar conta
+                </button>
+              </div>
+            </Form>
           </motion.div>
         </>
       )}

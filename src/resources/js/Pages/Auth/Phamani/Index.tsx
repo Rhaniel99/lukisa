@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Transactions from './Transactions';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Account, Category } from '@/Types/Phamani';
+import { Account, CashFlowPoint, Category, Kpis } from '@/Types/Phamani';
 import { useTransactions } from './hooks/useTransactions';
 import { DashboardHeader } from './components/dashboard/DashboardHeader';
 import { PageProps } from '@/Types/Inertia/PageProps';
@@ -12,11 +12,13 @@ import { NewTransactionModal } from './components/modal/transactions/NewTransact
 import { useInertiaPreload } from '@/Hooks/useInertiaPreload';
 
 interface Props extends PageProps {
+    kpis: Kpis
+    cashFlow: CashFlowPoint[]
     categories: Category[]
     accounts: Account[]
 }
 
-export default function Index({ categories, accounts }: Props) {
+export default function Index({ kpis, cashFlow, categories, accounts }: Props) {
     const [isNewTransactionOpen, setIsNewTransactionOpen] = useState(false);
     const [view, setView] = useState<'dashboard' | 'transactions'>('dashboard');
 
@@ -25,17 +27,6 @@ export default function Index({ categories, accounts }: Props) {
     const preloadTransactionData = useInertiaPreload({
         only: ['categories', 'accounts'],
     })
-
-    // Mock Data for Charts
-    const lineData = [
-        { name: 'Jan', value: 2400 },
-        { name: 'Fev', value: 1398 },
-        { name: 'Mar', value: 9800 },
-        { name: 'Abr', value: 3908 },
-        { name: 'Mai', value: 4800 },
-        { name: 'Jun', value: 3800 },
-        { name: 'Jul', value: 4300 },
-    ];
 
     const pieData = [
         { name: 'Moradia', value: 400 },
@@ -64,7 +55,8 @@ export default function Index({ categories, accounts }: Props) {
                 <DashboardMain
                     left={
                         <DashboardContent
-                            lineData={lineData}
+                            kpis={kpis}
+                            lineData={cashFlow}
                             pieData={pieData}
                         />
                     }

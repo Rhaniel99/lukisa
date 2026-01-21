@@ -74,7 +74,6 @@ export function TransactionModalLayout({
       <CreateAccountDrawer
         isOpen={accountDrawerOpen}
         onClose={() => setAccountDrawerOpen(false)}
-        onCreate={() => setAccountDrawerOpen(false)}
       />
 
       <CreateCategoryDrawer

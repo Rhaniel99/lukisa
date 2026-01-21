@@ -4,12 +4,16 @@ namespace Modules\Phamani\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Modules\Phamani\DTOs\Account\StoreAccountData;
+use Modules\Phamani\Interfaces\Services\IAccountService;
 
 class AccountController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct(
+        protected IAccountService $service
+    ) {}
+
     public function index()
     {
         return view('phamani::index');
@@ -26,7 +30,15 @@ class AccountController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(StoreAccountData $r)
+    {
+        $this->service->create(
+            userId: Auth::id(),
+            dto: $r
+        );
+
+        return back()->with('success', 'Conta criada com sucesso!');
+    }
 
     /**
      * Show the specified resource.

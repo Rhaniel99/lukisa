@@ -54,8 +54,8 @@ interface ProviderProps {
 }
 
 export function TransactionFormProvider({
-  categories,
-  accounts,
+  categories = [],
+  accounts = [],
   initialData,
   children,
 }: ProviderProps) {
