@@ -28,6 +28,7 @@ class PhamaniController extends Controller
             'kpis' => $this->dashboardService->kpis($userId),
 
             'cashFlow' => $this->dashboardService->cashFlow($userId, $period),
+                'categoryPie' => $this->dashboardService->categoryPie($userId, $period),
 
             'period' => $period,
 

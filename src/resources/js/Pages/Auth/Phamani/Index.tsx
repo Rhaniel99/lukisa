@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Transactions from './Transactions';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Account, CashFlowPoint, Category, Kpis } from '@/Types/Phamani';
+import { Account, CashFlowPoint, Category, CategoryPiePoint, Kpis } from '@/Types/Phamani';
 import { useTransactions } from './hooks/useTransactions';
 import { DashboardHeader } from './components/dashboard/DashboardHeader';
 import { PageProps } from '@/Types/Inertia/PageProps';
@@ -14,11 +14,12 @@ import { useInertiaPreload } from '@/Hooks/useInertiaPreload';
 interface Props extends PageProps {
     kpis: Kpis
     cashFlow: CashFlowPoint[]
+    categoryPie: CategoryPiePoint[]
     categories: Category[]
     accounts: Account[]
 }
 
-export default function Index({ kpis, cashFlow, categories, accounts }: Props) {
+export default function Index({ kpis, cashFlow, categoryPie, categories, accounts }: Props) {
     const [isNewTransactionOpen, setIsNewTransactionOpen] = useState(false);
     const [view, setView] = useState<'dashboard' | 'transactions'>('dashboard');
 
@@ -57,7 +58,7 @@ export default function Index({ kpis, cashFlow, categories, accounts }: Props) {
                         <DashboardContent
                             kpis={kpis}
                             lineData={cashFlow}
-                            pieData={pieData}
+                            pieData={categoryPie}
                         />
                     }
                     right={

@@ -19,6 +19,7 @@ export function DashboardContent({
     lineData,
     pieData,
 }: DashboardContentProps) {
+    
     const { props } = usePage()
     const currentPeriod = props.period ?? 'yearly'
 
@@ -113,16 +114,16 @@ export function DashboardContent({
                     </div>
                 </Card>
 
-<Card className="min-w-0"> {/* 🔑 min-w-0 aqui também */}
-        <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold text-[#3D2817]">Categorias</h3>
-            <MoreHorizontal className="w-5 h-5 text-[#8B7355]" />
-        </div>
+                <Card className="min-w-0"> {/* 🔑 min-w-0 aqui também */}
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="font-bold text-[#3D2817]">Categorias</h3>
+                        <MoreHorizontal className="w-5 h-5 text-[#8B7355]" />
+                    </div>
 
-        <div className="h-72 w-full">
-            <CategoryPieChart data={pieData} />
-        </div>
-    </Card>
+                    <div className="h-72 w-full">
+                        <CategoryPieChart data={pieData} />
+                    </div>
+                </Card>
             </div>
         </>
     )

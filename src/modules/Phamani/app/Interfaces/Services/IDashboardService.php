@@ -13,4 +13,9 @@ interface IDashboardService
         string $userId,
         string $period = 'yearly'
     ): array;
+      public function categoryPie(
+        string $userId,
+        string $period = 'monthly'
+    ): array ;
+    // public function categoryPie(string $userId, string $period): array;
 }

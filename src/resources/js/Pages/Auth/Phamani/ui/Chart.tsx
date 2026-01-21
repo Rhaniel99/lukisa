@@ -130,9 +130,12 @@ export const CategoryPieChart = ({ data }: { data: any[] }) => {
           dataKey="value"
           stroke="none"
         >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-          ))}
+  {data.map((entry, index) => (
+    <Cell
+      key={`cell-${index}`}
+      fill={entry.color} 
+    />
+  ))}
         </Pie>
         <Tooltip content={<CustomTooltip />} />
         <Legend

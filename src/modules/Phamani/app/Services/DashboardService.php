@@ -55,6 +55,46 @@ class DashboardService implements IDashboardService
         return $this->cashFlowByMonth($userId, $now->year);
     }
 
+    public function categoryPie(
+        string $userId,
+        string $period = 'monthly'
+    ): array {
+        $query = Transaction::query()
+            ->selectRaw('
+    phamani.categories.name as name,
+    phamani.categories.color as color,
+    SUM(transactions.amount) as value
+')
+            ->join('phamani.categories', 'phamani.categories.id', '=', 'transactions.category_id')
+
+            ->where('transactions.user_id', $userId)
+            ->where('transactions.type', 'expense'); // 📌 normalmente o pie é de despesas
+
+        if ($period === 'monthly') {
+            $query
+                ->whereMonth('transactions.date', now()->month)
+                ->whereYear('transactions.date', now()->year);
+        }
+
+        if ($period === 'yearly') {
+            $query->whereYear('transactions.date', now()->year);
+        }
+
+        return $query
+            ->groupBy('phamani.categories.id', 'phamani.categories.name')
+
+            ->orderByDesc('value')
+            ->get()
+            ->map(fn($row) => [
+                'name' => $row->name,
+                'value' => (float) $row->value,
+                'color' => $row->color,
+            ])
+            ->values()
+            ->toArray();
+    }
+
+
     protected function cashFlowByDay(string $userId, Carbon $date): array
     {
         $rows = Transaction::query()
