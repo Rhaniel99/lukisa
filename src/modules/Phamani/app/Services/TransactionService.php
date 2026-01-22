@@ -2,13 +2,14 @@
 
 namespace Modules\Phamani\Services;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Phamani\DTOs\Transaction\StoreTransactionData;
 use Modules\Phamani\Interfaces\Repositories\ITransactionRepository;
 use Modules\Phamani\Interfaces\Services\ITransactionService;
 use Modules\Phamani\Interfaces\Repositories\IAccountRepository;
-use Modules\Phamani\Models\Installment;
+use Modules\Phamani\Interfaces\Services\IInstallmentService;
 use Modules\Phamani\Models\RecurringTransaction;
 
 class TransactionService implements ITransactionService
@@ -16,14 +17,25 @@ class TransactionService implements ITransactionService
     public function __construct(
         protected ITransactionRepository $repository,
         protected IAccountRepository $accountRepository,
+        protected IInstallmentService $installmentService,
     ) {}
+
+    public function getRecentForDashboard(
+        string $userId,
+        int $limit = 5
+    ): Collection {
+        return $this->repository->getLatestForUser(
+            userId: $userId,
+            limit: $limit
+        );
+    }
 
     public function create(StoreTransactionData $dto)
     {
         return DB::transaction(function () use ($dto) {
 
             if ($dto->is_installment) {
-                return $this->createInstallment($dto);
+                return $this->installmentService->createFromTransaction($dto);
             }
 
             if ($dto->is_recurring) {
@@ -36,7 +48,7 @@ class TransactionService implements ITransactionService
 
     private function createSingleTransaction(StoreTransactionData $dto)
     {
-        return $this->repository->create([
+        $transaction = $this->repository->create([
             'user_id'     => Auth::id(),
             'account_id'  => $dto->account_id,
             'category_id' => $dto->category_id,
@@ -45,53 +57,17 @@ class TransactionService implements ITransactionService
             'type'        => $dto->type,
             'amount'      => $dto->amount,
             'date'        => $dto->date,
-            'is_installment' => false,
-            'is_recurring'   => false,
-        ]);
-    }
-
-    private function createInstallment(StoreTransactionData $dto)
-    {
-        $installmentAmount = round(
-            $dto->amount / $dto->installments_count,
-            2
-        );
-
-        $installment = Installment::create([
-            'user_id' => Auth::id(),
-            'name' => $dto->description,
-            'total_amount' => $dto->amount,
-            'installment_amount' => $installmentAmount,
-            'installments' => $dto->installments_count,
-            'start_date' => $dto->date,
-            'end_date' => now()->parse($dto->date)->addMonths($dto->installments_count - 1),
-            'status' => 'active',
         ]);
 
-        foreach (range(1, $dto->installments_count) as $i) {
-            $date = now()->parse($dto->date)->addMonths($i - 1);
-
-            $this->repository->create([
-                'user_id' => Auth::id(),
-                'account_id' => $dto->account_id,
-                'category_id' => $dto->category_id,
-                'name' => "{$dto->description} ({$i}/{$dto->installments_count})",
-                'description' => $dto->description,
-                'type' => $dto->type,
-                'amount' => $installmentAmount,
-                'date' => $date,
-                'is_installment' => true,
-                'installment_id' => $installment->id,
-            ]);
-        }
-
-        // ⚠️ aplica saldo apenas da PRIMEIRA parcela
         $this->accountRepository->applyTransaction(
             $dto->account_id,
-            $installmentAmount,
+            $dto->amount,
             $dto->type
         );
+
+        return $transaction;
     }
+
 
     private function createRecurring(StoreTransactionData $dto)
     {

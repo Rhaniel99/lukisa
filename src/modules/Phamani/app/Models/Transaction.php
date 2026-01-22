@@ -18,17 +18,13 @@ class Transaction extends ModuleBaseModel
         'type',
         'amount',
         'date',
-        'is_recurring',
         'recurring_id',
-        'is_installment',
         'installment_id',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'date' => 'date',
-        'is_recurring' => 'boolean',
-        'is_installment' => 'boolean',
     ];
 
     /* ---------------- Relationships ---------------- */

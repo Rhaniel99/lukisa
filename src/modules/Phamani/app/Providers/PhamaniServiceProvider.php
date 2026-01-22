@@ -6,17 +6,25 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Phamani\Interfaces\Repositories\IAccountRepository;
 use Modules\Phamani\Interfaces\Repositories\ICategoryRepository;
+use Modules\Phamani\Interfaces\Repositories\IInstallmentRepository;
+use Modules\Phamani\Interfaces\Repositories\IRecurringTransactionRepository;
 use Modules\Phamani\Interfaces\Repositories\ITransactionRepository;
 use Modules\Phamani\Interfaces\Services\IAccountService;
 use Modules\Phamani\Interfaces\Services\ICategoryService;
 use Modules\Phamani\Interfaces\Services\IDashboardService;
+use Modules\Phamani\Interfaces\Services\IInstallmentService;
+use Modules\Phamani\Interfaces\Services\IRecurringTransactionService;
 use Modules\Phamani\Interfaces\Services\ITransactionService;
 use Modules\Phamani\Repositories\AccountRepository;
 use Modules\Phamani\Repositories\CategoryRepository;
+use Modules\Phamani\Repositories\InstallmentRepository;
+use Modules\Phamani\Repositories\RecurringTransactionRepository;
 use Modules\Phamani\Repositories\TransactionRepository;
 use Modules\Phamani\Services\AccountService;
 use Modules\Phamani\Services\CategoryService;
 use Modules\Phamani\Services\DashboardService;
+use Modules\Phamani\Services\InstallmentService;
+use Modules\Phamani\Services\RecurringTransactionService;
 use Modules\Phamani\Services\TransactionService;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
@@ -52,7 +60,7 @@ class PhamaniServiceProvider extends ServiceProvider
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
 
-        // SERVICES
+        // * SERVICES
         $this->app->bind(
             ITransactionService::class,
             TransactionService::class
@@ -73,7 +81,17 @@ class PhamaniServiceProvider extends ServiceProvider
             DashboardService::class
         );
 
-        // REPOSITORY
+        $this->app->bind(
+            IInstallmentService::class,
+            InstallmentService::class
+        );
+
+        $this->app->bind(
+            IRecurringTransactionService::class,
+            RecurringTransactionService::class
+        );
+
+        // ? REPOSITORY 
         $this->app->bind(
             ITransactionRepository::class,
             TransactionRepository::class
@@ -87,6 +105,16 @@ class PhamaniServiceProvider extends ServiceProvider
         $this->app->bind(
             ICategoryRepository::class,
             CategoryRepository::class
+        );
+
+        $this->app->bind(
+            IInstallmentRepository::class,
+            InstallmentRepository::class
+        );
+
+        $this->app->bind(
+            IRecurringTransactionRepository::class,
+            RecurringTransactionRepository::class
         );
     }
 

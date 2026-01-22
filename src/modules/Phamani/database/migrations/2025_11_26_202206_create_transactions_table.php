@@ -30,10 +30,10 @@ return new class extends Migration
 
             $table->date('date');
 
-            $table->boolean('is_recurring')->default(false);
+            // $table->boolean('is_recurring')->default(false);
             $table->uuid('recurring_id')->nullable();
 
-            $table->boolean('is_installment')->default(false);
+            // $table->boolean('is_installment')->default(false);
             $table->uuid('installment_id')->nullable();
 
             $table->timestamps();

@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use Modules\Phamani\Interfaces\Services\IAccountService;
 use Modules\Phamani\Interfaces\Services\ICategoryService;
 use Modules\Phamani\Interfaces\Services\IDashboardService;
+use Modules\Phamani\Interfaces\Services\ITransactionService;
 use Modules\Phamani\Models\Transaction;
 
 class PhamaniController extends Controller
@@ -17,6 +18,7 @@ class PhamaniController extends Controller
         protected ICategoryService $categoryService,
         protected IAccountService $accountService,
         protected IDashboardService $dashboardService,
+        protected ITransactionService $transactionService
     ) {}
 
     public function index(Request $request)
@@ -30,12 +32,7 @@ class PhamaniController extends Controller
             'cashFlow' => $this->dashboardService->cashFlow($userId, $period),
             'categoryPie' => $this->dashboardService->categoryPie($userId, $period),
             'period' => $period,
-            'recentTransactions' => Transaction::query()
-                ->where('user_id', $userId)
-                ->with(['account:id,name,type', 'category:id,name,color,icon'])
-                ->orderByDesc('date')
-                ->limit(5)
-                ->get(),
+            'recentTransactions' => $this->transactionService->getRecentForDashboard($userId),
             'categories' => Inertia::lazy(
                 fn() =>
                 $this->categoryService->listForUser($userId)
