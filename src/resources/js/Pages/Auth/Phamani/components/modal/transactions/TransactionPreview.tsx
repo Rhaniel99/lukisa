@@ -1,21 +1,57 @@
 import { Calendar, Receipt } from 'lucide-react'
 import { motion } from 'motion/react'
-import { useTransactionForm } from '@/Pages/Auth/Phamani/contexts/TransactionFormContext'
 import * as Icons from 'lucide-react'
 
-export function TransactionPreview() {
-    const {
-        description,
-        amount,
-        type,
-        category,
-        account,
-        date,
-        isRecurring,
-        frequency,
-        isInstallment,
-        installmentsCount,
-    } = useTransactionForm()
+interface TransactionPreviewProps {
+    form: {
+        data: any
+    }
+}
+
+export function TransactionPreview({ form }: TransactionPreviewProps) {
+    const { data } = form
+
+    const category = data.category
+    const account = data.account
+
+    // ?
+    const amount = Number(data.amount || 0)
+
+    const installmentValue =
+        data.is_installment && data.installments_count
+            ? amount / data.installments_count
+            : null
+
+    function getNextDate() {
+        if (!data.date) return null
+
+        const base = new Date(data.date)
+        const next = new Date(base)
+
+        if (data.is_installment) {
+            next.setMonth(base.getMonth() + 1)
+        }
+
+        if (data.is_recurring) {
+            switch (data.frequency) {
+                case 'diario':
+                    next.setDate(base.getDate() + 1)
+                    break
+                case 'semanal':
+                    next.setDate(base.getDate() + 7)
+                    break
+                case 'mensal':
+                    next.setMonth(base.getMonth() + 1)
+                    break
+                case 'anual':
+                    next.setFullYear(base.getFullYear() + 1)
+                    break
+            }
+        }
+
+        return next.toLocaleDateString('pt-BR')
+    }
+    // ?
 
     return (
         <div className="hidden md:flex w-1/2 bg-[#E8DCC4]/50 border-l-2 border-[#D4C5A9]
@@ -28,7 +64,7 @@ export function TransactionPreview() {
             </p>
 
             <motion.div
-                key={type}
+                key={data.type}
                 initial={{ scale: 0.95, opacity: 0.8 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="w-full max-w-sm bg-[#F5EFE6] rounded-[2rem]
@@ -36,9 +72,9 @@ export function TransactionPreview() {
             >
                 <div className="flex justify-between items-start mb-8">
                     <div
-                        className={`p-4 rounded-2xl ${type === 'income'
-                                ? 'bg-[#E3F9E5] text-[#1F5428]'
-                                : 'bg-[#FCE7E7] text-[#D4183D]'
+                        className={`p-4 rounded-2xl ${data.type === 'income'
+                            ? 'bg-[#E3F9E5] text-[#1F5428]'
+                            : 'bg-[#FCE7E7] text-[#D4183D]'
                             }`}
                     >
                         <Receipt className="w-8 h-8" />
@@ -57,13 +93,13 @@ export function TransactionPreview() {
                 <div className="mb-8">
                     <p className="text-[#8B7355] text-sm mb-2 font-medium">Valor</p>
                     <h3
-                        className={`text-4xl font-bold ${type === 'income'
-                                ? 'text-[#1F5428]'
-                                : 'text-[#D4183D]'
+                        className={`text-4xl font-bold ${data.type === 'income'
+                            ? 'text-[#1F5428]'
+                            : 'text-[#D4183D]'
                             }`}
                     >
-                        {type === 'expense' ? '-' : '+'} R${' '}
-                        {Number(amount).toFixed(2) || '0.00'}
+                        {data.type === 'expense' ? '-' : '+'} R${' '}
+                        {Number(data.amount).toFixed(2) || '0.00'}
                     </h3>
                 </div>
 
@@ -88,7 +124,7 @@ export function TransactionPreview() {
 
                         <div>
                             <p className="text-[#3D2817] font-bold text-sm">
-                                {description || 'Sem descrição'}
+                                {data.description || 'Sem descrição'}
                             </p>
                             <p className="text-[#8B7355] text-xs">
                                 {category?.name ?? 'Sem categoria'}
@@ -103,17 +139,30 @@ export function TransactionPreview() {
 
                         <div>
                             <p className="text-[#3D2817] font-bold text-sm">
-                                {new Date(date).toLocaleDateString('pt-BR')}
+                                {new Date(data.date).toLocaleDateString('pt-BR') ?? '—'}
                             </p>
-                            {isRecurring && (
-                                <p className="text-[#8B7355] text-xs">
-                                    Repete {frequency}
-                                </p>
+                            {data.is_recurring && (
+                                <>
+                                    <p className="text-[#8B7355] text-xs">
+                                        Repete {data.frequency}
+                                    </p>
+                                    <p className="text-[#6B4E3D] text-xs font-medium">
+                                        Próxima: {getNextDate()}
+                                    </p>
+                                </>
                             )}
-                            {isInstallment && (
-                                <p className="text-[#8B7355] text-xs">
-                                    Parcela 1 de {installmentsCount}
-                                </p>
+                            {data.is_installment && (
+                                <>
+                                    <p className="text-[#8B7355] text-xs">
+                                        Parcela 1 de {data.installments_count}
+                                    </p>
+                                    <p className="text-[#8B7355] text-xs">
+                                        R$ {installmentValue?.toFixed(2)} por parcela
+                                    </p>
+                                    <p className="text-[#6B4E3D] text-xs font-medium">
+                                        Próxima: {getNextDate()}
+                                    </p>
+                                </>
                             )}
                         </div>
                     </div>

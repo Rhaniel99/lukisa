@@ -28,5 +28,11 @@ class StoreTransactionData extends Data
 
         #[Required]
         public string $date,
+
+        public bool $is_installment = false,
+        public ?int $installments_count = null,
+
+        public bool $is_recurring = false,
+        public ?string $frequency = null,
     ) {}
 }

@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import Transactions from './Transactions';
-import { Head, router, usePage } from '@inertiajs/react';
-import { Account, CashFlowPoint, Category, CategoryPiePoint, Kpis } from '@/Types/Phamani';
-import { useTransactions } from './hooks/useTransactions';
+import { Head, router } from '@inertiajs/react';
+import { Account, CashFlowPoint, Category, CategoryPiePoint, Kpis, Transaction } from '@/Types/Phamani';
 import { DashboardHeader } from './components/dashboard/DashboardHeader';
 import { PageProps } from '@/Types/Inertia/PageProps';
 import { DashboardMain } from './components/dashboard/DashboardMain';
@@ -17,28 +15,15 @@ interface Props extends PageProps {
     categoryPie: CategoryPiePoint[]
     categories: Category[]
     accounts: Account[]
+    recentTransactions: Transaction[]
 }
 
-export default function Index({ kpis, cashFlow, categoryPie, categories, accounts }: Props) {
+export default function Index({ kpis, cashFlow, categoryPie, categories, accounts, recentTransactions }: Props) {
     const [isNewTransactionOpen, setIsNewTransactionOpen] = useState(false);
-    const [view, setView] = useState<'dashboard' | 'transactions'>('dashboard');
-
-    const { create } = useTransactions();
 
     const preloadTransactionData = useInertiaPreload({
-        only: ['categories', 'accounts'],
+        only: ['categories'],
     })
-
-    const pieData = [
-        { name: 'Moradia', value: 400 },
-        { name: 'Alimentação', value: 300 },
-        { name: 'Lazer', value: 300 },
-        { name: 'Outros', value: 200 },
-    ];
-
-    if (view === 'transactions') {
-        return <Transactions onBack={() => setView('dashboard')} />;
-    }
 
     return (
         <>
@@ -63,10 +48,10 @@ export default function Index({ kpis, cashFlow, categoryPie, categories, account
                     }
                     right={
                         <DashboardSidebar
+                            recentTransactions={recentTransactions}
+                            accounts={accounts}
                             onNewTransaction={() => setIsNewTransactionOpen(true)}
-                            onViewAll={() => setView('transactions')}
                             onPreloadNewTransaction={preloadTransactionData}
-
                         />
                     }
                 />
@@ -74,7 +59,7 @@ export default function Index({ kpis, cashFlow, categoryPie, categories, account
                 <NewTransactionModal
                     isOpen={isNewTransactionOpen}
                     onClose={() => setIsNewTransactionOpen(false)}
-                    onSave={create.submit}
+                    // onSave={create.submit}
                     categories={categories}
                     accounts={accounts}
                 />

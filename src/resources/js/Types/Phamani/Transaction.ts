@@ -5,6 +5,7 @@ export type TransactionType = 'income' | 'expense';
 
 export interface Transaction {
   id: string;
+  name: string;
   description: string;
   amount: number;
   type: TransactionType;
@@ -33,4 +34,27 @@ export interface CreateTransaction {
   category_id: string
   account_id: string
   date: string
+
+  // 🔽 novos campos
+  is_installment?: boolean
+  installments_count?: number
+
+  is_recurring?: boolean
+  frequency?: 'diario' | 'semanal' | 'mensal' | 'anual'
+}
+
+
+export interface TransactionFormData {
+  description: string
+  amount: number
+  type: 'income' | 'expense'
+  category_id: string
+  account_id: string
+  date: string
+
+  // avançados
+  is_installment: boolean
+  installments_count: number
+  is_recurring: boolean
+  frequency: 'diario' | 'semanal' | 'mensal' | 'anual'
 }

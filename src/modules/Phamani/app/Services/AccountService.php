@@ -26,10 +26,10 @@ class AccountService implements IAccountService
 
     public function listForUser(string $userId): Collection
     {
-        return $this->repository
-            ->query()
-            ->where('user_id', $userId)
-            ->orderBy('name')
-            ->get(['id', 'name', 'type', 'balance']);
+    return $this->repository
+        ->query()
+        ->where('user_id', $userId)
+        ->orderByDesc('balance') 
+        ->get(['id', 'name', 'type', 'balance']);
     }
 }

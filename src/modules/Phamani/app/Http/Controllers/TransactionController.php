@@ -15,7 +15,7 @@ class TransactionController extends Controller
 
     public function index()
     {
-        return view('phamani::index');
+        return inertia('Auth/Phamani/Transactions');;
     }
 
     /**

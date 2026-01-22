@@ -7,37 +7,27 @@ import { TransactionPreview } from "./TransactionPreview"
 import { CreateAccountDrawer } from "../../drawer/CreateAccountDrawer"
 import { CreateCategoryDrawer } from "../../drawer/CreateCategoryDrawer"
 import { X } from "lucide-react"
+import { useTransactionsForm } from "../../../hooks/useTransactions"
 
-interface NewTransactionModalProps {
-  isOpen: boolean
+interface TransactionModalLayoutProps {
   onClose: () => void
-  onSave: (transaction: CreateTransaction) => void
-
-  processing?: boolean
-  errors?: Record<string, string>
-
-  categories: Category[]
-  accounts: Account[]
+  categories: any[]
+  accounts: any[]
   initialData?: Transaction | null
 }
 
 export function TransactionModalLayout({
   onClose,
-  onSave,
+  categories,
+  accounts,
   initialData,
-}: Pick<NewTransactionModalProps, 'onClose' | 'onSave' | 'initialData'>) {
-  const {
-    reset,
-  } = useTransactionForm()
+}: TransactionModalLayoutProps) {
 
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false)
 
-  function handleSave(payload: CreateTransaction) {
-    onSave(payload)
-    reset()
-    onClose()
-  }
+  const { form, submit } = useTransactionsForm(onClose)
+
 
   return (
     <>
@@ -60,14 +50,17 @@ export function TransactionModalLayout({
 
           {/* FORM */}
           <TransactionForm
+            form={form}
+            categories={categories}
+            accounts={accounts}
             initialData={initialData}
-            onSave={handleSave}
+            onSubmit={submit}
             onCreateCategory={() => setCategoryDrawerOpen(true)}
             onCreateAccount={() => setAccountDrawerOpen(true)}
           />
 
           {/* PREVIEW */}
-          <TransactionPreview />
+          <TransactionPreview form={form} />
         </motion.div>
       </div>
 
