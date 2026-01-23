@@ -17,21 +17,19 @@ return new class extends Migration
     {
         Schema::create("{$this->schema}.categories", function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id')->nullable();
-            // $table->uuid('user_id');
+            $table->uuid('user_id');
             $table->uuid('parent_id')->nullable();
             $table->string('name');
             $table->enum('type', ['income', 'expense', 'both'])->default('expense');
-            $table->boolean('is_default')->default(false);
-            $table->string('color')->nullable();
-            $table->string('icon')->nullable();
+            $table->string('color', 20)->nullable(); 
+            $table->string('icon', 30)->nullable();  
             $table->timestamps();
 
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
                 ->nullOnDelete();
-            
+
             $table->unique(['user_id', 'name']);
         });
 

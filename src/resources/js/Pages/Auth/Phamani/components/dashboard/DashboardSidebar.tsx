@@ -2,11 +2,12 @@ import { Plus } from 'lucide-react'
 import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
 import { Account, Transaction } from '@/Types/Phamani'
-import { getLucideIcon } from '@/Utils/formHelpers'
 import { AccountsList } from '../list/AccountsList'
 import { useState } from 'react'
 import { AccountsListModal } from '../modal/accounts/AccountsListModal'
 import { router } from '@inertiajs/react'
+import * as Icons from 'lucide-react'
+import { CATEGORY_ICON_MAP } from '@/Lib/category/icons'
 
 interface DashboardSidebarProps {
     recentTransactions: Transaction[]
@@ -51,7 +52,11 @@ export function DashboardSidebar({
 
                 <div className="space-y-3">
                     {recentTransactions.map((t) => {
-                        const Icon = getLucideIcon(t.category?.icon)
+                        const Icon =
+                            t.category?.icon
+                                ? CATEGORY_ICON_MAP[t.category.icon as keyof typeof CATEGORY_ICON_MAP]
+                                : null
+
 
                         return (
                             <Card
@@ -64,12 +69,16 @@ export function DashboardSidebar({
                                 <div className="flex items-center gap-3">
                                     <div
                                         className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
-                                        style={{ backgroundColor: t.category?.color ?? '#E8DCC4' }}
+                                        style={{
+                                            backgroundColor: t.category?.color
+                                                ? t.category.color
+                                                : '#E8DCC4',
+                                        }}
                                     >
                                         {Icon ? (
                                             <Icon className="w-5 h-5 text-white" />
                                         ) : (
-                                            <span className="text-sm">💸</span>
+                                            <Icons.Tag className="w-5 h-5 text-white" />
                                         )}
                                     </div>
 
@@ -85,8 +94,8 @@ export function DashboardSidebar({
 
                                 <span
                                     className={`font-bold text-sm ${t.type === 'income'
-                                            ? 'text-[#4A7A5E]'
-                                            : 'text-[#3D2817]'
+                                        ? 'text-[#4A7A5E]'
+                                        : 'text-[#3D2817]'
                                         }`}
                                 >
                                     {t.type === 'income' ? '+' : '-'} R$ {Number(t.amount).toFixed(2)}

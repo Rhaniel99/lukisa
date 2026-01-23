@@ -5,6 +5,8 @@ namespace Modules\Phamani\Providers;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
+use Modules\Phamani\Enums\Category\Color;
+use Modules\Phamani\Enums\Category\Icon;
 use Modules\Phamani\Enums\RecurringFrequency;
 use Modules\Phamani\Interfaces\Repositories\IAccountRepository;
 use Modules\Phamani\Interfaces\Repositories\ICategoryRepository;
@@ -245,6 +247,21 @@ class PhamaniServiceProvider extends ServiceProvider
                         'label' => $case->label(),
                     ],
                     RecurringFrequency::cases()
+                ),
+                'categoryIcons' => array_map(
+                    fn(Icon $case) => [
+                        'value' => $case->value,
+                        'label' => $case->label(),
+                    ],
+                    Icon::cases()
+                ),
+                'categoryColors' => array_map(
+                    fn(Color $case) => [
+                        'value' => $case->value,
+                        'label' => $case->label(),
+                        'hex'   => $case->hex(),
+                    ],
+                    Color::cases()
                 ),
             ],
         ]);

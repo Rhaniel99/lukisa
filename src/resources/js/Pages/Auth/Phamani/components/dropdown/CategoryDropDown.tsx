@@ -8,6 +8,8 @@ import {
   DropdownMenuPortal,
 } from "@/Components/ui/dropdown-menu"
 import { Category } from "@/Types/Phamani"
+import { CATEGORY_ICON_MAP } from "@/Lib/category/icons"
+import { CATEGORY_COLOR_MAP, CategoryColorName } from '@/Lib/category/colors'
 
 interface CategoryDropdownProps {
   value: Category | null
@@ -22,8 +24,8 @@ export function CategoryDropdown({
   onChange,
   onCreate,
 }: CategoryDropdownProps) {
-  const SelectedIcon =
-    value ? (Icons as any)[value.icon] ?? Icons.Tag : null
+  const SelectedIcon = value ? CATEGORY_ICON_MAP[value.icon as keyof typeof CATEGORY_ICON_MAP] ?? Icons.Tag : null
+  const selectedBgColor = value ? CATEGORY_COLOR_MAP[value.color as CategoryColorName] ?? CATEGORY_COLOR_MAP.charcoal : undefined
 
   return (
     <DropdownMenu>
@@ -36,7 +38,7 @@ export function CategoryDropdown({
             <div className="flex items-center gap-3">
               <span
                 className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: value.color }}
+                style={{ backgroundColor: selectedBgColor }}
               >
                 {SelectedIcon && (
                   <SelectedIcon className="w-4 h-4 text-white" />
@@ -64,7 +66,10 @@ export function CategoryDropdown({
         >
           {categories.map((cat) => {
             const CatIcon =
-              (Icons as any)[cat.icon] ?? Icons.Tag
+              CATEGORY_ICON_MAP[cat.icon as keyof typeof CATEGORY_ICON_MAP] ?? Icons.Tag
+            const bgColor =
+              CATEGORY_COLOR_MAP[cat.color as CategoryColorName]
+              ?? CATEGORY_COLOR_MAP.charcoal
 
             return (
               <DropdownMenuItem
@@ -74,7 +79,7 @@ export function CategoryDropdown({
               >
                 <span
                   className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: cat.color }}
+                  style={{ backgroundColor: bgColor }}
                 >
                   <CatIcon className="w-4 h-4 text-white" />
                 </span>

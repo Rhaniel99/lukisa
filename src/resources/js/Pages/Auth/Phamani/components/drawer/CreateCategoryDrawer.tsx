@@ -1,21 +1,11 @@
-import { Briefcase, Car, GraduationCap, Heart, Home, Plane, ShoppingBag, Tag, X, Zap } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useCreateCategoryForm } from '@/Pages/Auth/Phamani/hooks/useCategories'
 import { Label } from '@/Components/ui/label'
 import { cn } from '@/Lib/Utils'
 import { motion, AnimatePresence } from 'motion/react'
 import { Form } from '@/Components/Shared/Form/Form'
-
-const ICONS = [
-  { name: 'tag', icon: Tag },
-  { name: 'home', icon: Home },
-  { name: 'car', icon: Car },
-  { name: 'heart', icon: Heart },
-  { name: 'shopping-bag', icon: ShoppingBag },
-  { name: 'zap', icon: Zap },
-  { name: 'briefcase', icon: Briefcase },
-  { name: 'graduation-cap', icon: GraduationCap },
-  { name: 'plane', icon: Plane },
-]
+import { useEnums } from '@/Hooks/useEnums'
+import { CATEGORY_ICON_MAP } from '@/Lib/category/icons'
 
 const COLORS = [
   '#3D2817',
@@ -35,6 +25,8 @@ interface Props {
 
 export function CreateCategoryDrawer({ isOpen, onClose }: Props) {
   const { form, submit } = useCreateCategoryForm(onClose)
+  const { categoryIcons, categoryColors } = useEnums()
+
 
   return (
     <AnimatePresence>
@@ -108,23 +100,26 @@ export function CreateCategoryDrawer({ isOpen, onClose }: Props) {
               <div className="space-y-2">
                 <Label className="ml-1">Ícone</Label>
                 <div className="grid grid-cols-5 gap-3">
-                  {ICONS.map(({ name, icon: Icon }) => (
-                    <button
-                      type='button'
-                      key={name}
-                      onClick={() => form.setData('icon', name)}
+                  {categoryIcons.map(icon => {
+                    const IconComponent = CATEGORY_ICON_MAP[icon.value]
+                    { IconComponent && <IconComponent className="w-5 h-5" /> }
 
-                      // onClick={() => setIcon(iconName)}
-                      className={cn(
-                        'p-3 rounded-xl border-2 flex items-center justify-center transition-all',
-                        form.data.icon === name
-                          ? 'border-[#3D2817] bg-white text-[#3D2817]'
-                          : 'border-transparent bg-white/50 text-[#8B7355] hover:border-[#E8DCC4]'
-                      )}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </button>
-                  ))}
+                    return (
+                      <button
+                        type="button"
+                        key={icon.value}
+                        onClick={() => form.setData('icon', icon.value)}
+                        className={cn(
+                          'p-3 rounded-xl border-2 flex items-center justify-center transition-all',
+                          form.data.icon === icon.value
+                            ? 'border-[#3D2817] bg-white text-[#3D2817]'
+                            : 'border-transparent bg-white/50 text-[#8B7355] hover:border-[#E8DCC4]'
+                        )}
+                      >
+                        {IconComponent && <IconComponent className="w-5 h-5" />}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -132,16 +127,19 @@ export function CreateCategoryDrawer({ isOpen, onClose }: Props) {
               <div className="space-y-2">
                 <Label className="ml-1">Cor</Label>
                 <div className="flex flex-wrap gap-3">
-                  {COLORS.map((c) => (
+                  {categoryColors.map(color => (
                     <button
-                      type='button'
-                      key={c}
-                      onClick={() => form.setData('color', c)}
-                      style={{ backgroundColor: c }}
+                      key={color.value}
+                      type="button"
+                      onClick={() => form.setData('color', color.value)}
+                      style={{ backgroundColor: color.hex }}
                       className={cn(
                         'w-8 h-8 rounded-full border-2 transition-all',
-                        form.data.color === c ? 'border-[#3D2817] scale-110 shadow-md' : 'border-transparent opacity-70 hover:opacity-100'
+                        form.data.color === color.value
+                          ? 'border-[#3D2817] scale-110 shadow-md'
+                          : 'border-transparent opacity-70 hover:opacity-100'
                       )}
+                      title={color.label}
                     />
                   ))}
                 </div>

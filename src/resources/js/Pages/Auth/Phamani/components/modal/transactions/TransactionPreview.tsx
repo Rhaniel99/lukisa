@@ -1,6 +1,10 @@
 import { Calendar, Receipt } from 'lucide-react'
 import { motion } from 'motion/react'
 import * as Icons from 'lucide-react'
+import { useEnums } from '@/Hooks/useEnums'
+import { getInstallmentValue } from '@/Pages/Auth/Phamani/utils/transactionMath'
+import { getNextTransactionDate } from '../../../utils/transactionDates'
+import { resolveEnumLabel } from '@/Utils/enumHelpers'
 
 interface TransactionPreviewProps {
     form: {
@@ -9,49 +13,14 @@ interface TransactionPreviewProps {
 }
 
 export function TransactionPreview({ form }: TransactionPreviewProps) {
+    const { recurringFrequencies } = useEnums()
     const { data } = form
-
     const category = data.category
     const account = data.account
-
-    // ?
     const amount = Number(data.amount || 0)
-
-    const installmentValue =
-        data.is_installment && data.installments_count
-            ? amount / data.installments_count
-            : null
-
-    function getNextDate() {
-        if (!data.date) return null
-
-        const base = new Date(data.date)
-        const next = new Date(base)
-
-        if (data.is_installment) {
-            next.setMonth(base.getMonth() + 1)
-        }
-
-        if (data.is_recurring) {
-            switch (data.frequency) {
-                case 'diario':
-                    next.setDate(base.getDate() + 1)
-                    break
-                case 'semanal':
-                    next.setDate(base.getDate() + 7)
-                    break
-                case 'mensal':
-                    next.setMonth(base.getMonth() + 1)
-                    break
-                case 'anual':
-                    next.setFullYear(base.getFullYear() + 1)
-                    break
-            }
-        }
-
-        return next.toLocaleDateString('pt-BR')
-    }
-    // ?
+    const installmentValue = getInstallmentValue(amount, data.installments_count)
+    const nextDate = getNextTransactionDate(data)
+    const frequencyLabel = resolveEnumLabel(recurringFrequencies, data.frequency)
 
     return (
         <div className="hidden md:flex w-1/2 bg-[#E8DCC4]/50 border-l-2 border-[#D4C5A9]
@@ -144,10 +113,10 @@ export function TransactionPreview({ form }: TransactionPreviewProps) {
                             {data.is_recurring && (
                                 <>
                                     <p className="text-[#8B7355] text-xs">
-                                        Repete {data.frequency}
+                                        Repete {frequencyLabel}
                                     </p>
                                     <p className="text-[#6B4E3D] text-xs font-medium">
-                                        Próxima: {getNextDate()}
+                                        Próxima: {nextDate}
                                     </p>
                                 </>
                             )}
@@ -160,7 +129,7 @@ export function TransactionPreview({ form }: TransactionPreviewProps) {
                                         R$ {installmentValue?.toFixed(2)} por parcela
                                     </p>
                                     <p className="text-[#6B4E3D] text-xs font-medium">
-                                        Próxima: {getNextDate()}
+                                        Próxima: {nextDate}
                                     </p>
                                 </>
                             )}
@@ -171,3 +140,4 @@ export function TransactionPreview({ form }: TransactionPreviewProps) {
         </div>
     )
 }
+

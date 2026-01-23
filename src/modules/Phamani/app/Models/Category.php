@@ -16,7 +16,6 @@ class Category extends ModuleBaseModel
         'type',
         'color',
         'icon',
-        'is_default',
     ];
 
     /* ---------------- Hierarchy ---------------- */

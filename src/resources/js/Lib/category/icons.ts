@@ -1,0 +1,48 @@
+import {
+  Tag,
+  Home,
+  Car,
+  Heart,
+  ShoppingBag,
+  Zap,
+  Briefcase,
+  GraduationCap,
+  Plane,
+  Utensils,
+  Wallet,
+  CreditCard,
+  Gamepad2,
+  Music,
+  Film,
+  Dumbbell,
+  BookOpen,
+  Wrench,
+  Gift,
+  Coffee,
+} from 'lucide-react'
+
+export const CATEGORY_ICON_MAP = {
+  tag: Tag,
+  home: Home,
+  car: Car,
+  heart: Heart,
+  'shopping-bag': ShoppingBag,
+  zap: Zap,
+  briefcase: Briefcase,
+  'graduation-cap': GraduationCap,
+  plane: Plane,
+
+  utensils: Utensils,
+  wallet: Wallet,
+  'credit-card': CreditCard,
+  gamepad: Gamepad2,
+  music: Music,
+  film: Film,
+  dumbbell: Dumbbell,
+  book: BookOpen,
+  wrench: Wrench,
+  gift: Gift,
+  coffee: Coffee,
+} as const
+
+export type CategoryIconName = keyof typeof CATEGORY_ICON_MAP
