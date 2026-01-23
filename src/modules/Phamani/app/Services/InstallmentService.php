@@ -19,7 +19,7 @@ class InstallmentService implements IInstallmentService
         protected IAccountRepository $accounts,
     ) {}
 
-    public function createFromTransaction(StoreTransactionData $dto): Installment
+    public function createInstallment(StoreTransactionData $dto): Installment
     {
         return DB::transaction(function () use ($dto) {
 

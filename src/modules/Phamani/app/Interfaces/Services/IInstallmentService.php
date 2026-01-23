@@ -10,5 +10,5 @@ use Modules\Phamani\Models\Installment;
  * @package Modules\Phamani\Interfaces\Services
  */
 interface IInstallmentService {
-    public function createFromTransaction(StoreTransactionData $dto): Installment;
+    public function createInstallment(StoreTransactionData $dto): Installment;
 }

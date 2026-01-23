@@ -4,6 +4,7 @@ import { Transaction } from '@/Types/Phamani/Transaction'
 import { CategoryDropdown } from '@/Pages/Auth/Phamani/components/dropdown/CategoryDropDown'
 import { AccountDropdown } from '@/Pages/Auth/Phamani/components/dropdown/AccountDropdown'
 import { Form } from '@/Components/Shared/Form/Form'
+import { useEnums } from '@/Hooks/useEnums'
 
 interface TransactionFormProps {
     form: any
@@ -25,6 +26,7 @@ export function TransactionForm({
     onCreateAccount,
 }: TransactionFormProps) {
     const { data, setData, processing, errors } = form
+    const { recurringFrequencies } = useEnums()
 
     const safeCategories = Array.isArray(categories) ? categories : []
     const filteredCategories = safeCategories.filter(
@@ -194,13 +196,13 @@ export function TransactionForm({
                             <select
                                 value={data.frequency}
                                 onChange={e => setData('frequency', e.target.value)}
-                                className="w-full px-4 py-2 bg-white border-2 border-[#E8DCC4]
-                 rounded-xl text-[#3D2817]"
+                                className="w-full px-4 py-2 bg-white border-2 border-[#E8DCC4] rounded-xl text-[#3D2817]"
                             >
-                                <option value="diario">Diário</option>
-                                <option value="semanal">Semanal</option>
-                                <option value="mensal">Mensal</option>
-                                <option value="anual">Anual</option>
+                                {recurringFrequencies.map(freq => (
+                                    <option key={freq.value} value={freq.value}>
+                                        {freq.label}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     )}

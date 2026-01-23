@@ -4,6 +4,8 @@ namespace Modules\Phamani\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
+use Modules\Phamani\Enums\RecurringFrequency;
 use Modules\Phamani\Interfaces\Repositories\IAccountRepository;
 use Modules\Phamani\Interfaces\Repositories\ICategoryRepository;
 use Modules\Phamani\Interfaces\Repositories\IInstallmentRepository;
@@ -49,6 +51,7 @@ class PhamaniServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+        $this->shareEnums();
     }
 
     /**
@@ -230,5 +233,20 @@ class PhamaniServiceProvider extends ServiceProvider
         }
 
         return $paths;
+    }
+
+    private function shareEnums(): void
+    {
+        Inertia::share([
+            'enums' => [
+                'recurringFrequencies' => array_map(
+                    fn(RecurringFrequency $case) => [
+                        'value' => $case->value,
+                        'label' => $case->label(),
+                    ],
+                    RecurringFrequency::cases()
+                ),
+            ],
+        ]);
     }
 }
