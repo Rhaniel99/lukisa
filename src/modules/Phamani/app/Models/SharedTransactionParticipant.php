@@ -2,6 +2,7 @@
 
 namespace Modules\Phamani\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SharedTransactionParticipant extends ModuleBaseModel
 {
@@ -17,4 +18,9 @@ class SharedTransactionParticipant extends ModuleBaseModel
     protected $casts = [
         'amount' => 'decimal:2',
     ];
+
+    public function sharedTransaction(): BelongsTo
+    {
+        return $this->belongsTo(SharedTransaction::class);
+    }
 }

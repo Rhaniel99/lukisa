@@ -18,7 +18,8 @@ return new class extends Migration
         Schema::create("{$this->schema}.shared_transaction_participants", function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->uuid('shared_transaction_id');
+            $table->foreignUuid('shared_transaction_id')->constrained("{$this->schema}.shared_transactions")->onDelete('cascade');
+
 
             // Nome livre (ex: "Mac", "João", "Maria")
             $table->string('name');
@@ -27,14 +28,11 @@ return new class extends Migration
             $table->decimal('amount', 15, 2)->nullable();
 
             // Percentual da divisão
-            $table->decimal('percentage', 5, 2)->nullable();
+            $table->unsignedTinyInteger('percentage')->nullable();
 
             $table->timestamps();
+                        $table->index(['shared_transaction_id']);
 
-            $table->foreign('shared_transaction_id')
-                ->references('id')
-                ->on("{$this->schema}.shared_transactions")
-                ->cascadeOnDelete();
         });
     }
 

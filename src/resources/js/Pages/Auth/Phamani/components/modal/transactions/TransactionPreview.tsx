@@ -16,16 +16,22 @@ interface TransactionPreviewProps {
 
 export function TransactionPreview({ form, categories, accounts }: TransactionPreviewProps) {
     const { recurringFrequencies } = useEnums()
-
     const { data } = form
 
-    const category = categories.find(
+    const safeCategories = Array.isArray(categories) ? categories : []
+    const safeAccounts = Array.isArray(accounts) ? accounts : []
+
+    const category = safeCategories.find(
         (c) => c.id === data.category_id
     )
 
-    const account = accounts.find(
+    const account = safeAccounts.find(
         (a) => a.id === data.account_id
     )
+
+    if (!Array.isArray(categories) || !Array.isArray(accounts)) {
+        return null
+    }
 
     const tags = data.tags ?? []
 
@@ -133,18 +139,18 @@ export function TransactionPreview({ form, categories, accounts }: TransactionPr
                             </p>
 
                             {tags.length > 0 && (
-    <div className="flex flex-wrap gap-1 mt-2">
-      {tags.map((tag: { name: string }, index: number) => (
-        <span
-          key={index}
-          className="px-2 py-0.5 rounded-full text-xs
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                    {tags.map((tag: { name: string }, index: number) => (
+                                        <span
+                                            key={index}
+                                            className="px-2 py-0.5 rounded-full text-xs
                      bg-[#E8DCC4] text-[#6B4E3D]"
-        >
-          #{tag.name}
-        </span>
-      ))}
-    </div>
-  )}
+                                        >
+                                            #{tag.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
 

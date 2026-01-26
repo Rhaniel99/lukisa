@@ -59,7 +59,13 @@ class InstallmentService implements IInstallmentService
         StoreTransactionData $dto
     ): void {
         foreach (range(1, $installment->installments) as $i) {
-            $this->transactions->create([
+            $date = now()
+                ->parse($installment->start_date)
+                ->addMonths($i - 1)
+                ->toDateString();
+
+
+            $tx = $this->transactions->create([
                 'user_id'        => Auth::id(),
                 'account_id'     => $dto->account_id,
                 'category_id'    => $dto->category_id,
@@ -67,11 +73,32 @@ class InstallmentService implements IInstallmentService
                 'description'    => $installment->name,
                 'type'           => $dto->type,
                 'amount'         => $installment->installment_amount,
-                'date'           => now()
-                    ->parse($installment->start_date)
-                    ->addMonths($i - 1),
+                'date'           => $date,
                 'installment_id' => $installment->id,
+                'is_shared'      => $dto->is_shared,
             ]);
+
+            if ($dto->is_shared && !empty($dto->shared_participants)) {
+                $shared = \Modules\Phamani\Models\SharedTransaction::create([
+                    'transaction_id' => $tx->id,
+                    'user_id'        => Auth::id(),
+                    'total_amount'   => $tx->amount,
+                    'notes'          => null,
+                ]);
+
+                foreach ($dto->shared_participants as $p) {
+                    // $pct = (int) $p['percentage'];
+                    $pct = (int) $p->percentage;
+                    $amount = round($tx->amount * ($pct / 100), 2);
+
+                    \Modules\Phamani\Models\SharedTransactionParticipant::create([
+                        'shared_transaction_id' => $shared->id,
+                        'name'                  => $p->name,
+                        'amount'                => $amount,
+                        'percentage'            => $pct,
+                    ]);
+                }
+            }
         }
     }
 

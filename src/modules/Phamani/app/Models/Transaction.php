@@ -20,6 +20,7 @@ class Transaction extends ModuleBaseModel
         'date',
         'recurring_id',
         'installment_id',
+        'is_shared',
     ];
 
     protected $casts = [
@@ -55,5 +56,10 @@ class Transaction extends ModuleBaseModel
             Tag::class,
             config('phamani.database.schema') . '.transaction_tags'
         );
+    }
+
+    public function shared()
+    {
+        return $this->hasOne(SharedTransaction::class);
     }
 }

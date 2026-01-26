@@ -32,7 +32,7 @@ return new class extends Migration
 
             // $table->boolean('is_recurring')->default(false);
             $table->uuid('recurring_id')->nullable();
-
+            $table->boolean('is_shared')->default(false);
             // $table->boolean('is_installment')->default(false);
             $table->uuid('installment_id')->nullable();
 
@@ -51,6 +51,7 @@ return new class extends Migration
             $table->index(['type']);
             $table->index(['category_id']);
             $table->index(['account_id']);
+            $table->index(['is_shared']);
         });
     }
 

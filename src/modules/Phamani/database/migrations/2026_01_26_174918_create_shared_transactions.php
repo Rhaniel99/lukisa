@@ -17,9 +17,11 @@ return new class extends Migration
     {
         Schema::create("{$this->schema}.shared_transactions", function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('transaction_id')->nullable()->constrained("{$this->schema}.transactions")->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
 
-            $table->uuid('transaction_id');
-            $table->uuid('user_id');
+            // $table->uuid('transaction_id');
+            // $table->uuid('user_id');
 
             // Valor total da parcela ou transação compartilhada
             $table->decimal('total_amount', 15, 2);
@@ -29,15 +31,17 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->foreign('transaction_id')
-                ->references('id')
-                ->on("{$this->schema}.transactions")
-                ->cascadeOnDelete();
+            // $table->foreign('transaction_id')
+            //     ->references('id')
+            //     ->on("{$this->schema}.transactions")
+            //     ->cascadeOnDelete();
 
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->cascadeOnDelete();
+            // $table->foreign('user_id')
+            //     ->references('id')
+            //     ->on('users')
+            //     ->cascadeOnDelete();
+            $table->index(['user_id']);
+            $table->index(['transaction_id']);
         });
     }
 
