@@ -56,5 +56,13 @@ export interface TransactionFormData {
   is_installment: boolean
   installments_count: number
   is_recurring: boolean
+  is_shared: boolean
+  shared_participants: SharedParticipant[]
   frequency: 'diario' | 'semanal' | 'mensal' | 'anual'
+  tags: { id?: string; name: string }[]
+}
+
+export interface SharedParticipant {
+  name: string
+  percentage: number
 }

@@ -9,12 +9,16 @@ export function useTransactionsForm(onSuccess?: () => void) {
     category_id: '',
     account_id: '',
     date: new Date().toISOString().split('T')[0],
+    tags: [],
 
     // 🔽 novos
     is_installment: false,
     installments_count: 2,
     is_recurring: false,
     frequency: 'mensal',
+    
+    is_shared: false,
+    shared_participants: [],
   })
 
   function submit() {

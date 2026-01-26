@@ -33,18 +33,18 @@ class TransactionService implements ITransactionService
 
     public function create(StoreTransactionData $dto)
     {
-    return DB::transaction(function () use ($dto) {
+        return DB::transaction(function () use ($dto) {
 
-        if ($dto->is_installment) {
-            return $this->installmentService->createInstallment($dto);
-        }
+            if ($dto->is_installment) {
+                return $this->installmentService->createInstallment($dto);
+            }
 
-        if ($dto->is_recurring) {
-            return $this->recurringService->createRecurringTransaction($dto);
-        }
+            if ($dto->is_recurring) {
+                return $this->recurringService->createRecurringTransaction($dto);
+            }
 
-        return $this->createSingleTransaction($dto);
-    });
+            return $this->createSingleTransaction($dto);
+        });
     }
 
     private function createSingleTransaction(StoreTransactionData $dto)

@@ -1,10 +1,12 @@
-import { Layers, Repeat } from 'lucide-react'
+import { Layers, Repeat, Users } from 'lucide-react'
 import Toggle from '@/Components/Shared/Ui/Toggle'
-import { Transaction } from '@/Types/Phamani/Transaction'
+import { SharedParticipant, Transaction } from '@/Types/Phamani/Transaction'
 import { CategoryDropdown } from '@/Pages/Auth/Phamani/components/dropdown/CategoryDropDown'
 import { AccountDropdown } from '@/Pages/Auth/Phamani/components/dropdown/AccountDropdown'
 import { Form } from '@/Components/Shared/Form/Form'
 import { useEnums } from '@/Hooks/useEnums'
+import { TransactionTagsField } from '../../field/TransactionTagsField'
+
 
 interface TransactionFormProps {
     form: any
@@ -126,8 +128,11 @@ export function TransactionForm({
                         onChange={a => setData('account_id', a.id)}
                         onCreate={onCreateAccount}
                     />
-
                 </div>
+                <TransactionTagsField
+                    tags={data.tags}
+                    onChange={(tags) => setData('tags', tags)}
+                />
 
                 {/* Data */}
                 <div>
@@ -204,6 +209,136 @@ export function TransactionForm({
                                     </option>
                                 ))}
                             </select>
+                        </div>
+                    )}
+
+                    <Toggle
+                        label="Compartilhada?"
+                        icon={<Users className="w-5 h-5" />}
+                        active={data.is_shared}
+                        onToggle={() => {
+                            const next = !data.is_shared
+                            setData('is_shared', next)
+
+                            if (next && data.shared_participants.length === 0) {
+                                setData('shared_participants', [
+                                    { name: '', percentage: 0 },
+                                ])
+                            }
+
+                            if (!next) {
+                                setData('shared_participants', [])
+                            }
+                        }}
+
+                    />
+
+                    {data.is_shared && (
+                        <div className="pl-4 border-l-2 border-[#6B4E3D] space-y-4">
+
+
+                            <p className="text-sm font-serif text-[#6B4E3D]">
+                                Dividir com
+                            </p>
+
+                            <p className="text-xs text-[#8B7355]">
+                                Pelo menos uma pessoa é obrigatória
+                            </p>
+
+                            {(data.shared_participants as SharedParticipant[]).map(
+                                (p: SharedParticipant, index: number) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-[#E8DCC4]"
+                                    >
+
+                                        <input
+                                            type="text"
+                                            placeholder="Nome"
+                                            value={p.name}
+                                            onChange={e => {
+                                                const updated = [...data.shared_participants]
+                                                updated[index].name = e.target.value
+                                                setData('shared_participants', updated)
+                                            }}
+                                            className="flex-1 px-3 py-2 bg-white border-2 border-[#E8DCC4]
+                               rounded-lg text-[#3D2817]"
+                                        />
+
+                                        <div className="relative w-24">
+                                            <input
+                                                type="number"
+                                                min={0}
+                                                max={100}
+                                                value={p.percentage}
+                                                onChange={e => {
+                                                    const updated = [...data.shared_participants]
+                                                    updated[index].percentage = Number(e.target.value)
+                                                    setData('shared_participants', updated)
+                                                }}
+                                                className="w-full pr-6 px-3 py-2 bg-white border-2 border-[#E8DCC4]
+               rounded-lg text-[#3D2817]"
+                                            />
+                                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[#8B7355]">
+                                                %
+                                            </span>
+                                        </div>
+
+
+                                        <button
+                                            type="button"
+                                            disabled={data.shared_participants.length === 1}
+                                            onClick={() => {
+                                                const updated = data.shared_participants.filter(
+                                                    (_: SharedParticipant, i: number) => i !== index
+                                                )
+                                                setData('shared_participants', updated)
+                                            }}
+                                            className={`transition ${data.shared_participants.length === 1
+                                                ? 'text-[#D4C5A9] cursor-not-allowed'
+                                                : 'text-[#8B7355] hover:text-[#D4183D]'
+                                                }`}
+                                            title={
+                                                data.shared_participants.length === 1
+                                                    ? 'É necessário ao menos uma pessoa'
+                                                    : 'Remover'
+                                            }
+                                        >
+                                            ×
+                                        </button>
+
+                                    </div>
+                                ))}
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setData('shared_participants', [
+                                        ...data.shared_participants,
+                                        { name: '', percentage: 0 }
+                                    ])
+                                }
+                                className="text-sm text-[#6B4E3D] hover:underline"
+                            >
+                                + Adicionar pessoa
+                            </button>
+
+                            {/* Feedback visual simples */}
+                            {/* {data.is_shared && (
+                                <div className="mt-4 text-xs text-[#6B4E3D] space-y-1">
+                                    {data.shared_participants.map((p: SharedParticipant, i: number) => (
+                                        <div key={i} className="flex justify-between">
+                                            <span>{p.name}</span>
+                                            <span>
+                                                {p.mode === 'percentage'
+                                                    ? `${p.value}%`
+                                                    : `R$ ${p.value.toFixed(2)}`}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )} */}
+
                         </div>
                     )}
                 </div>

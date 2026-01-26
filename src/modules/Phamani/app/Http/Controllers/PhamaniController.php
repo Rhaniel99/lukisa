@@ -10,7 +10,6 @@ use Modules\Phamani\Interfaces\Services\IAccountService;
 use Modules\Phamani\Interfaces\Services\ICategoryService;
 use Modules\Phamani\Interfaces\Services\IDashboardService;
 use Modules\Phamani\Interfaces\Services\ITransactionService;
-use Modules\Phamani\Models\Transaction;
 
 class PhamaniController extends Controller
 {

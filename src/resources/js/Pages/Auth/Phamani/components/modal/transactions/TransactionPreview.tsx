@@ -2,7 +2,7 @@ import { Calendar, Receipt } from 'lucide-react'
 import { motion } from 'motion/react'
 import * as Icons from 'lucide-react'
 import { useEnums } from '@/Hooks/useEnums'
-import { getInstallmentValue } from '@/Pages/Auth/Phamani/utils/transactionMath'
+import { getInstallmentValue, getSharedInstallmentValue, getSharedUserAmount } from '@/Pages/Auth/Phamani/utils/transactionMath'
 import { getNextTransactionDate } from '../../../utils/transactionDates'
 import { resolveEnumLabel } from '@/Utils/enumHelpers'
 
@@ -10,15 +10,42 @@ interface TransactionPreviewProps {
     form: {
         data: any
     }
+    categories: any[]
+    accounts: any[]
 }
 
-export function TransactionPreview({ form }: TransactionPreviewProps) {
+export function TransactionPreview({ form, categories, accounts }: TransactionPreviewProps) {
     const { recurringFrequencies } = useEnums()
+
     const { data } = form
-    const category = data.category
-    const account = data.account
+
+    const category = categories.find(
+        (c) => c.id === data.category_id
+    )
+
+    const account = accounts.find(
+        (a) => a.id === data.account_id
+    )
+
+    const tags = data.tags ?? []
+
     const amount = Number(data.amount || 0)
-    const installmentValue = getInstallmentValue(amount, data.installments_count)
+    const participants = data.shared_participants ?? []
+    const isShared = data.is_shared
+    const isInstallment = data.is_installment
+
+    const originalInstallment = isInstallment
+        ? getInstallmentValue(amount, data.installments_count)
+        : null
+
+    const sharedAmount = isShared
+        ? getSharedUserAmount(amount, participants)
+        : amount
+
+    const sharedInstallment = isInstallment
+        ? getSharedInstallmentValue(amount, data.installments_count, participants)
+        : null
+
     const nextDate = getNextTransactionDate(data)
     const frequencyLabel = resolveEnumLabel(recurringFrequencies, data.frequency)
 
@@ -67,9 +94,15 @@ export function TransactionPreview({ form }: TransactionPreviewProps) {
                             : 'text-[#D4183D]'
                             }`}
                     >
-                        {data.type === 'expense' ? '-' : '+'} R${' '}
-                        {Number(data.amount).toFixed(2) || '0.00'}
+                        {data.type === 'expense' ? '-' : '+'} R$ {sharedAmount.toFixed(2)}
                     </h3>
+                    {isShared && (
+                        <p className="text-xs text-[#8B7355] mt-2">
+                            Total original: R$ {amount.toFixed(2)}
+                        </p>
+                    )}
+
+
                 </div>
 
                 <div className="space-y-4">
@@ -98,6 +131,20 @@ export function TransactionPreview({ form }: TransactionPreviewProps) {
                             <p className="text-[#8B7355] text-xs">
                                 {category?.name ?? 'Sem categoria'}
                             </p>
+
+                            {tags.length > 0 && (
+    <div className="flex flex-wrap gap-1 mt-2">
+      {tags.map((tag: { name: string }, index: number) => (
+        <span
+          key={index}
+          className="px-2 py-0.5 rounded-full text-xs
+                     bg-[#E8DCC4] text-[#6B4E3D]"
+        >
+          #{tag.name}
+        </span>
+      ))}
+    </div>
+  )}
                         </div>
                     </div>
 
@@ -120,18 +167,27 @@ export function TransactionPreview({ form }: TransactionPreviewProps) {
                                     </p>
                                 </>
                             )}
-                            {data.is_installment && (
-                                <>
-                                    <p className="text-[#8B7355] text-xs">
+
+                            {isInstallment && (
+                                <div className="mt-2 space-y-1">
+                                    <p className="text-[#3D2817] text-xs font-semibold">
                                         Parcela 1 de {data.installments_count}
                                     </p>
-                                    <p className="text-[#8B7355] text-xs">
-                                        R$ {installmentValue?.toFixed(2)} por parcela
-                                    </p>
-                                    <p className="text-[#6B4E3D] text-xs font-medium">
+
+                                    <div className="text-xs text-[#8B7355]">
+                                        Original: R$ {originalInstallment?.toFixed(2)}
+                                    </div>
+
+                                    {isShared && (
+                                        <div className="text-xs font-medium text-[#6B4E3D]">
+                                            Sua parcela: R$ {sharedInstallment?.toFixed(2)}
+                                        </div>
+                                    )}
+
+                                    <div className="text-xs text-[#6B4E3D]">
                                         Próxima: {nextDate}
-                                    </p>
-                                </>
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </div>

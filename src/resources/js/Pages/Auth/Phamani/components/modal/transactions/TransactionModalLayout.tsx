@@ -60,7 +60,11 @@ export function TransactionModalLayout({
           />
 
           {/* PREVIEW */}
-          <TransactionPreview form={form} />
+          <TransactionPreview
+            form={form}
+            categories={categories}
+            accounts={accounts}
+          />
         </motion.div>
       </div>
 
