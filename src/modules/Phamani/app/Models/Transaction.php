@@ -17,6 +17,7 @@ class Transaction extends ModuleBaseModel
         'description',
         'type',
         'amount',
+        'real_amount',
         'date',
         'recurring_id',
         'installment_id',

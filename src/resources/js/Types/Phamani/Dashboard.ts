@@ -10,9 +10,14 @@ export interface KPIValue {
 
 export interface Kpis {
     total_balance: number
+
     income: KPIValue
     expense: KPIValue
     installments: KPIValue
+
+    // opcionais (mock por enquanto)
+    bank_total?: number
+    shared_total?: number
 }
 
 export interface CashFlowPoint {

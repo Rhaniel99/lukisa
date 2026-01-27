@@ -27,13 +27,12 @@ return new class extends Migration
 
             $table->enum('type', ['income', 'expense']);
             $table->decimal('amount', 12, 2);
-
+            $table->decimal('real_amount', 15, 2);
+            
             $table->date('date');
 
-            // $table->boolean('is_recurring')->default(false);
             $table->uuid('recurring_id')->nullable();
             $table->boolean('is_shared')->default(false);
-            // $table->boolean('is_installment')->default(false);
             $table->uuid('installment_id')->nullable();
 
             $table->timestamps();
@@ -49,6 +48,7 @@ return new class extends Migration
             // ⚡ Índices para relatórios
             $table->index(['user_id', 'date']);
             $table->index(['type']);
+            $table->index(['real_amount']);
             $table->index(['category_id']);
             $table->index(['account_id']);
             $table->index(['is_shared']);

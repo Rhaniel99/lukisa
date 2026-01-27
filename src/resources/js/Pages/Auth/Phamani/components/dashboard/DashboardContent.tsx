@@ -19,7 +19,7 @@ export function DashboardContent({
     lineData,
     pieData,
 }: DashboardContentProps) {
-    
+
     const { props } = usePage()
     const currentPeriod = props.period ?? 'yearly'
 
@@ -36,43 +36,73 @@ export function DashboardContent({
         })
     }
 
+    const mockBankInfo = {
+        bank_total: 2000,
+        shared_total: 1000,
+    }
+
 
     return (
         <>
             {/* KPIs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-                <KPICard
-                    title="Saldo Total"
-                    value={formatCurrency(kpis.total_balance)}
-                    icon={Wallet}
-                    variant="primary"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-8 gap-6">
+                <div className="md:col-span-2">
+                    <KPICard
+                        title="Saldo Atual"
+                        value={formatCurrency(kpis.total_balance)}
+                        icon={Wallet}
+                        variant="primary"
+                    />
+                </div>
+                <div className="md:col-span-2">
+                    <KPICard
+                        title="Receitas"
+                        value={formatCurrency(kpis.income.value)}
+                        trend={formatTrend(kpis.income.trend)}
+                        trendUp={kpis.income.trend?.direction === 'up'}
+                        icon={TrendingUp}
+                    />
+                </div>
+                <div className="md:col-span-2">
+                    <KPICard
+                        title="Despesas"
+                        value={formatCurrency(kpis.expense.value)}
+                        trend={formatTrend(kpis.expense.trend)}
+                        trendUp={kpis.expense.trend?.direction === 'down'}
+                        icon={TrendingDown}
+                    />
+                </div>
+                <div className="md:col-span-2">
+                    <KPICard
+                        title="Parcelamentos"
+                        value={formatCurrency(kpis.installments.value)}
+                        icon={Layers}
+                    />
+                </div>
 
-                <KPICard
-                    title="Receitas"
-                    value={formatCurrency(kpis.income.value)}
-                    trend={formatTrend(kpis.income.trend)}
-                    trendUp={kpis.income.trend?.direction === 'up'}
-                    icon={TrendingUp}
-                />
-                <KPICard
-                    title="Despesas"
-                    value={formatCurrency(kpis.expense.value)}
-                    trend={formatTrend(kpis.expense.trend)}
-                    trendUp={kpis.expense.trend?.direction === 'down'}
-                    icon={TrendingDown}
-                />
-
-                <KPICard
-                    title="Parcelamentos"
-                    value={formatCurrency(kpis.installments.value)}
-                    icon={Layers}
-                />
+                {/* Contexto financeiro  */}
+                <div className="md:col-span-6">
+                    {/* total bancário grande */}
+                    <KPICard
+                        title="Total Bancário"
+                        value={formatCurrency(mockBankInfo.bank_total)}
+                        icon={Wallet}
+                        variant="default"
+                    />
+                </div>
+                <div className="md:col-span-2">
+                    <KPICard
+                        title="Valor Compartilhado"
+                        value={formatCurrency(mockBankInfo.shared_total)}
+                        icon={Layers}
+                        variant="default"
+                    />
+                </div>
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="md:col-span-2 min-h-0 min-w-0">
+            {/* Gráficos */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                <Card className="lg:col-span-2 min-w-0">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="font-bold text-[#3D2817]">Fluxo de Caixa</h3>

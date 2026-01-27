@@ -44,6 +44,7 @@ class RecurringTransactionService implements IRecurringTransactionService
                 'description'  => $dto->description,
                 'type'         => $dto->type,
                 'amount'       => $dto->amount,
+                'real_amount'  => $dto->amount,
                 'date'         => $dto->date,
                 'recurring_id' => $recurring->id,
             ]);

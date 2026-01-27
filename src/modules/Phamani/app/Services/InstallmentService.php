@@ -43,10 +43,17 @@ class InstallmentService implements IInstallmentService
 
             $this->generateTransactions($installment, $dto);
 
+            $firstTransaction = $this->transactions->query()
+                ->where('installment_id', $installment->id)
+                ->orderBy('date')
+                ->first();
+
+
             // ✅ aplica saldo somente da primeira parcela
             $this->accounts->applyTransaction(
                 $dto->account_id,
-                $installmentAmount,
+                $firstTransaction->real_amount,
+                // $installmentAmount,
                 $dto->type
             );
 
@@ -73,12 +80,15 @@ class InstallmentService implements IInstallmentService
                 'description'    => $installment->name,
                 'type'           => $dto->type,
                 'amount'         => $installment->installment_amount,
+                'real_amount'    => $installment->installment_amount,
                 'date'           => $date,
                 'installment_id' => $installment->id,
                 'is_shared'      => $dto->is_shared,
             ]);
 
             if ($dto->is_shared && !empty($dto->shared_participants)) {
+                $userShare = $tx->amount;
+
                 $shared = \Modules\Phamani\Models\SharedTransaction::create([
                     'transaction_id' => $tx->id,
                     'user_id'        => Auth::id(),
@@ -87,9 +97,9 @@ class InstallmentService implements IInstallmentService
                 ]);
 
                 foreach ($dto->shared_participants as $p) {
-                    // $pct = (int) $p['percentage'];
                     $pct = (int) $p->percentage;
                     $amount = round($tx->amount * ($pct / 100), 2);
+                    $userShare -= $amount;
 
                     \Modules\Phamani\Models\SharedTransactionParticipant::create([
                         'shared_transaction_id' => $shared->id,
@@ -98,6 +108,10 @@ class InstallmentService implements IInstallmentService
                         'percentage'            => $pct,
                     ]);
                 }
+
+                $tx->update([
+                    'real_amount' => max($userShare, 0),
+                ]);
             }
         }
     }

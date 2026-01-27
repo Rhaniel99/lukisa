@@ -57,18 +57,14 @@ class TransactionService implements ITransactionService
             'description' => $dto->description,
             'type'        => $dto->type,
             'amount'      => $dto->amount,
+            'real_amount' => $dto->amount,
             'date'        => $dto->date,
             'is_shared'   => $dto->is_shared,
         ]);
 
-        $this->accountRepository->applyTransaction(
-            $dto->account_id,
-            $dto->amount,
-            $dto->type
-        );
-
         // se for compartilhada, cria registro e participantes
         if ($dto->is_shared && !empty($dto->shared_participants)) {
+
             $shared = \Modules\Phamani\Models\SharedTransaction::create([
                 'transaction_id' => $transaction->id,
                 'user_id'        => Auth::id(),
@@ -76,9 +72,14 @@ class TransactionService implements ITransactionService
                 'notes'          => null,
             ]);
 
+            $userShare = $transaction->amount;
+
             foreach ($dto->shared_participants as $p) {
                 $pct = (int) $p->percentage;
                 $amount = round($transaction->amount * ($pct / 100), 2);
+
+                $userShare -= $amount;
+
 
                 \Modules\Phamani\Models\SharedTransactionParticipant::create([
                     'shared_transaction_id' => $shared->id,
@@ -87,7 +88,17 @@ class TransactionService implements ITransactionService
                     'percentage'            => $pct,
                 ]);
             }
+
+            $transaction->update([
+                'real_amount' => max($userShare, 0),
+            ]);
         }
+
+        $this->accountRepository->applyTransaction(
+            $dto->account_id,
+            $transaction->real_amount,
+            $dto->type
+        );
 
         return $transaction;
     }
