@@ -9,36 +9,41 @@ use Modules\Phamani\Interfaces\Services\IInstallmentService;
 use Modules\Phamani\Interfaces\Repositories\IInstallmentRepository;
 use Modules\Phamani\Interfaces\Repositories\ITransactionRepository;
 use Modules\Phamani\Interfaces\Repositories\IAccountRepository;
+use Modules\Phamani\Interfaces\Services\ITagService;
 use Modules\Phamani\Models\Installment;
+use Modules\Phamani\Traits\AppliesSharing;
 
 class InstallmentService implements IInstallmentService
 {
+    use AppliesSharing;
+
     public function __construct(
         protected IInstallmentRepository $installments,
         protected ITransactionRepository $transactions,
         protected IAccountRepository $accounts,
+        protected ITagService $tagService
     ) {}
 
     public function createInstallment(StoreTransactionData $dto): Installment
     {
         return DB::transaction(function () use ($dto) {
 
-            $installmentAmount = $this->calculateInstallmentAmount(
-                $dto->amount,
-                $dto->installments_count
-            );
+            $installmentsCount = (int) ($dto->installments_count ?? 0);
+            if ($installmentsCount < 2) {
+                throw new \InvalidArgumentException('installments_count inválido.');
+            }
+
+            $installmentAmount = $this->calculateInstallmentAmount($dto->amount, $installmentsCount);
 
             $installment = $this->installments->create([
-                'user_id'             => Auth::id(),
-                'name'                => $dto->description,
-                'total_amount'        => $dto->amount,
-                'installment_amount'  => $installmentAmount,
-                'installments'        => $dto->installments_count,
-                'start_date'          => $dto->date,
-                'end_date'            => now()
-                    ->parse($dto->date)
-                    ->addMonths($dto->installments_count - 1),
-                'status'              => 'active',
+                'user_id'            => Auth::id(),
+                'name'               => $dto->description,
+                'total_amount'       => $dto->amount,
+                'installment_amount' => $installmentAmount,
+                'installments'       => $installmentsCount,
+                'start_date'         => $dto->date,
+                'end_date'           => now()->parse($dto->date)->addMonths($installmentsCount - 1),
+                'status'             => 'active',
             ]);
 
             $this->generateTransactions($installment, $dto);
@@ -48,12 +53,14 @@ class InstallmentService implements IInstallmentService
                 ->orderBy('date')
                 ->first();
 
+            if (!$firstTransaction) {
+                throw new \RuntimeException('Não foi possível localizar a primeira parcela gerada.');
+            }
 
-            // ✅ aplica saldo somente da primeira parcela
+            // aplica saldo somente da primeira parcela (já com real_amount ajustado pelo sharing)
             $this->accounts->applyTransaction(
                 $dto->account_id,
                 $firstTransaction->real_amount,
-                // $installmentAmount,
                 $dto->type
             );
 
@@ -61,16 +68,13 @@ class InstallmentService implements IInstallmentService
         });
     }
 
-    private function generateTransactions(
-        Installment $installment,
-        StoreTransactionData $dto
-    ): void {
+    private function generateTransactions(Installment $installment, StoreTransactionData $dto): void
+    {
         foreach (range(1, $installment->installments) as $i) {
             $date = now()
                 ->parse($installment->start_date)
                 ->addMonths($i - 1)
                 ->toDateString();
-
 
             $tx = $this->transactions->create([
                 'user_id'        => Auth::id(),
@@ -86,40 +90,15 @@ class InstallmentService implements IInstallmentService
                 'is_shared'      => $dto->is_shared,
             ]);
 
-            if ($dto->is_shared && !empty($dto->shared_participants)) {
-                $userShare = $tx->amount;
+            $this->tagService->syncTransactionTags($tx, $dto->tags ?? []);
 
-                $shared = \Modules\Phamani\Models\SharedTransaction::create([
-                    'transaction_id' => $tx->id,
-                    'user_id'        => Auth::id(),
-                    'total_amount'   => $tx->amount,
-                    'notes'          => null,
-                ]);
-
-                foreach ($dto->shared_participants as $p) {
-                    $pct = (int) $p->percentage;
-                    $amount = round($tx->amount * ($pct / 100), 2);
-                    $userShare -= $amount;
-
-                    \Modules\Phamani\Models\SharedTransactionParticipant::create([
-                        'shared_transaction_id' => $shared->id,
-                        'name'                  => $p->name,
-                        'amount'                => $amount,
-                        'percentage'            => $pct,
-                    ]);
-                }
-
-                $tx->update([
-                    'real_amount' => max($userShare, 0),
-                ]);
-            }
+            // ✅ aplica compartilhamento por parcela (atualiza real_amount + cria shared_* se necessário)
+            $this->applySharingIfNeeded($tx, $dto);
         }
     }
 
-    private function calculateInstallmentAmount(
-        float $total,
-        int $installments
-    ): float {
+    private function calculateInstallmentAmount(float $total, int $installments): float
+    {
         return round($total / $installments, 2);
     }
 }

@@ -26,6 +26,7 @@ class Transaction extends ModuleBaseModel
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'real_amount' => 'decimal:2',
         'date' => 'date',
     ];
 

@@ -28,8 +28,11 @@ return new class extends Migration
             $table->enum('type', ['income', 'expense']);
             $table->decimal('amount', 12, 2);
             $table->decimal('real_amount', 15, 2);
-            
+
             $table->date('date');
+
+            // Novo campo para controle de status
+            $table->boolean('is_paid')->default(false);
 
             $table->uuid('recurring_id')->nullable();
             $table->boolean('is_shared')->default(false);
@@ -52,6 +55,7 @@ return new class extends Migration
             $table->index(['category_id']);
             $table->index(['account_id']);
             $table->index(['is_shared']);
+            $table->index(['is_paid']); // Índice adicionado para otimizar filtros de pendentes/pagos
         });
     }
 

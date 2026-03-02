@@ -11,14 +11,19 @@ use Modules\Phamani\Interfaces\Services\ITransactionService;
 use Modules\Phamani\Interfaces\Repositories\IAccountRepository;
 use Modules\Phamani\Interfaces\Services\IInstallmentService;
 use Modules\Phamani\Interfaces\Services\IRecurringTransactionService;
+use Modules\Phamani\Interfaces\Services\ITagService;
+use Modules\Phamani\Traits\AppliesSharing;
 
 class TransactionService implements ITransactionService
 {
+    use AppliesSharing;
+
     public function __construct(
         protected ITransactionRepository $repository,
         protected IAccountRepository $accountRepository,
         protected IInstallmentService $installmentService,
-        protected IRecurringTransactionService $recurringService
+        protected IRecurringTransactionService $recurringService,
+        protected ITagService $tagService
     ) {}
 
     public function getRecentForDashboard(
@@ -43,7 +48,11 @@ class TransactionService implements ITransactionService
                 return $this->recurringService->createRecurringTransaction($dto);
             }
 
-            return $this->createSingleTransaction($dto);
+            $transaction = $this->createSingleTransaction($dto);
+
+            $this->tagService->syncTransactionTags($transaction, $dto->tags ?? []);
+
+            return $transaction;
         });
     }
 
@@ -62,37 +71,7 @@ class TransactionService implements ITransactionService
             'is_shared'   => $dto->is_shared,
         ]);
 
-        // se for compartilhada, cria registro e participantes
-        if ($dto->is_shared && !empty($dto->shared_participants)) {
-
-            $shared = \Modules\Phamani\Models\SharedTransaction::create([
-                'transaction_id' => $transaction->id,
-                'user_id'        => Auth::id(),
-                'total_amount'   => $transaction->amount,
-                'notes'          => null,
-            ]);
-
-            $userShare = $transaction->amount;
-
-            foreach ($dto->shared_participants as $p) {
-                $pct = (int) $p->percentage;
-                $amount = round($transaction->amount * ($pct / 100), 2);
-
-                $userShare -= $amount;
-
-
-                \Modules\Phamani\Models\SharedTransactionParticipant::create([
-                    'shared_transaction_id' => $shared->id,
-                    'name'                  => $p->name,
-                    'amount'                => $amount,
-                    'percentage'            => $pct,
-                ]);
-            }
-
-            $transaction->update([
-                'real_amount' => max($userShare, 0),
-            ]);
-        }
+        $this->applySharingIfNeeded($transaction, $dto);
 
         $this->accountRepository->applyTransaction(
             $dto->account_id,

@@ -28,11 +28,10 @@ return new class extends Migration
             $table->decimal('amount', 15, 2)->nullable();
 
             // Percentual da divisão
-            $table->unsignedTinyInteger('percentage')->nullable();
+            $table->decimal('percentage', 5, 2)->nullable();
 
             $table->timestamps();
-                        $table->index(['shared_transaction_id']);
-
+            $table->index(['shared_transaction_id']);
         });
     }
 

@@ -24,4 +24,4 @@ class Tag extends ModuleBaseModel
             config('phamani.database.schema') . '.transaction_tags'
         );
     }
-}w
+}

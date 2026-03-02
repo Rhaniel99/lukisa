@@ -61,7 +61,7 @@ export function TransactionModalLayout({
 
           {/* PREVIEW */}
           <TransactionPreview
-            form={form}
+            data={form.data}
             categories={categories}
             accounts={accounts}
           />

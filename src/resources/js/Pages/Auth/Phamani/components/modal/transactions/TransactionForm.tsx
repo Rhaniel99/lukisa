@@ -5,7 +5,8 @@ import { CategoryDropdown } from '@/Pages/Auth/Phamani/components/dropdown/Categ
 import { AccountDropdown } from '@/Pages/Auth/Phamani/components/dropdown/AccountDropdown'
 import { Form } from '@/Components/Shared/Form/Form'
 import { useEnums } from '@/Hooks/useEnums'
-import { TransactionTagsField } from '../../field/TransactionTagsField'
+import { TransactionTagsField } from '@/Pages/Auth/Phamani/components/field/TransactionTagsField'
+import { normalizeEqualSplitParticipants, sumPercentages } from '@/Pages/Auth/Phamani/utils/transactionMath'
 
 
 interface TransactionFormProps {
@@ -35,6 +36,9 @@ export function TransactionForm({
         c => c.type === data.type || c.type === 'both'
     )
     const safeAccounts = Array.isArray(accounts) ? accounts : []
+
+    const sharedPct = sumPercentages(data.shared_participants)
+    const userPct = Math.max(100 - sharedPct, 0)
 
     return (
         <Form
@@ -129,6 +133,7 @@ export function TransactionForm({
                         onCreate={onCreateAccount}
                     />
                 </div>
+
                 <TransactionTagsField
                     tags={data.tags}
                     onChange={(tags) => setData('tags', tags)}
@@ -152,6 +157,9 @@ export function TransactionForm({
 
                 {/* Opções Avançadas */}
                 <div className="space-y-4 pt-4 border-t border-[#E8DCC4]">
+
+
+                    {/* Parcelamento */}
                     <Toggle
                         label="Parcelado?"
                         icon={<Layers className="w-5 h-5" />}
@@ -180,6 +188,8 @@ export function TransactionForm({
                             />
                         </div>
                     )}
+
+                    {/* Recorrente */}
 
                     <Toggle
                         label="Recorrente?"
@@ -212,6 +222,8 @@ export function TransactionForm({
                         </div>
                     )}
 
+                    {/* Compartilhado */}
+
                     <Toggle
                         label="Compartilhada?"
                         icon={<Users className="w-5 h-5" />}
@@ -220,13 +232,11 @@ export function TransactionForm({
                             const next = !data.is_shared
                             setData('is_shared', next)
 
-                            if (next && data.shared_participants.length === 0) {
-                                setData('shared_participants', [
-                                    { name: '', percentage: 0 },
-                                ])
-                            }
-
-                            if (!next) {
+                            if (next) {
+                                // cria 1 participante vazio e normaliza divisão
+                                const nextList = normalizeEqualSplitParticipants([{ name: '', percentage: 0 }])
+                                setData('shared_participants', nextList)
+                            } else {
                                 setData('shared_participants', [])
                             }
                         }}
@@ -259,29 +269,18 @@ export function TransactionForm({
                                             onChange={e => {
                                                 const updated = [...data.shared_participants]
                                                 updated[index].name = e.target.value
-                                                setData('shared_participants', updated)
+                                                const next = normalizeEqualSplitParticipants(updated)
+                                                setData('shared_participants', next)
                                             }}
                                             className="flex-1 px-3 py-2 bg-white border-2 border-[#E8DCC4]
                                rounded-lg text-[#3D2817]"
                                         />
 
-                                        <div className="relative w-24">
-                                            <input
-                                                type="number"
-                                                min={0}
-                                                max={100}
-                                                value={p.percentage}
-                                                onChange={e => {
-                                                    const updated = [...data.shared_participants]
-                                                    updated[index].percentage = Number(e.target.value)
-                                                    setData('shared_participants', updated)
-                                                }}
-                                                className="w-full pr-6 px-3 py-2 bg-white border-2 border-[#E8DCC4]
-               rounded-lg text-[#3D2817]"
-                                            />
-                                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[#8B7355]">
-                                                %
+                                        <div className="w-24 px-3 py-2 bg-white border-2 border-[#E8DCC4] rounded-lg text-[#3D2817] flex items-center justify-between">
+                                            <span className="tabular-nums">
+                                                {(p.percentage ?? 0).toFixed(2).replace('.', ',')}
                                             </span>
+                                            <span className="text-xs text-[#8B7355]">%</span>
                                         </div>
 
 
@@ -289,10 +288,9 @@ export function TransactionForm({
                                             type="button"
                                             disabled={data.shared_participants.length === 1}
                                             onClick={() => {
-                                                const updated = data.shared_participants.filter(
-                                                    (_: SharedParticipant, i: number) => i !== index
-                                                )
-                                                setData('shared_participants', updated)
+                                                const filtered = data.shared_participants.filter((_: SharedParticipant, i: number) => i !== index)
+                                                const next = normalizeEqualSplitParticipants(filtered)
+                                                setData('shared_participants', next)
                                             }}
                                             className={`transition ${data.shared_participants.length === 1
                                                 ? 'text-[#D4C5A9] cursor-not-allowed'
@@ -310,14 +308,20 @@ export function TransactionForm({
                                     </div>
                                 ))}
 
+
+                            <p className="text-xs text-[#8B7355]">
+                                Participantes: {sharedPct.toFixed(2).replace('.', ',')}% • Você: {userPct.toFixed(2).replace('.', ',')}%
+                            </p>
+
                             <button
                                 type="button"
-                                onClick={() =>
-                                    setData('shared_participants', [
+                                onClick={() => {
+                                    const next = normalizeEqualSplitParticipants([
                                         ...data.shared_participants,
                                         { name: '', percentage: 0 }
                                     ])
-                                }
+                                    setData('shared_participants', next)
+                                }}
                                 className="text-sm text-[#6B4E3D] hover:underline"
                             >
                                 + Adicionar pessoa

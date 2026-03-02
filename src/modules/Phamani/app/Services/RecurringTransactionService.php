@@ -9,6 +9,7 @@ use Modules\Phamani\Interfaces\Services\IRecurringTransactionService;
 use Modules\Phamani\Interfaces\Repositories\IRecurringTransactionRepository;
 use Modules\Phamani\Interfaces\Repositories\ITransactionRepository;
 use Modules\Phamani\Interfaces\Repositories\IAccountRepository;
+use Modules\Phamani\Interfaces\Services\ITagService;
 use Modules\Phamani\Models\RecurringTransaction;
 
 class RecurringTransactionService implements IRecurringTransactionService
@@ -17,6 +18,7 @@ class RecurringTransactionService implements IRecurringTransactionService
         protected IRecurringTransactionRepository $recurrings,
         protected ITransactionRepository $transactions,
         protected IAccountRepository $accounts,
+        protected ITagService $tagService, 
     ) {}
 
     public function createRecurringTransaction(StoreTransactionData $dto): RecurringTransaction
@@ -36,7 +38,7 @@ class RecurringTransactionService implements IRecurringTransactionService
             ]);
 
             // Primeira execução
-            $this->transactions->create([
+            $tx = $this->transactions->create([
                 'user_id'      => Auth::id(),
                 'account_id'   => $dto->account_id,
                 'category_id'  => $dto->category_id,
@@ -49,6 +51,8 @@ class RecurringTransactionService implements IRecurringTransactionService
                 'recurring_id' => $recurring->id,
             ]);
 
+            $this->tagService->syncTransactionTags($tx, $dto->tags ?? []);
+            
             $this->accounts->applyTransaction(
                 $dto->account_id,
                 $dto->amount,

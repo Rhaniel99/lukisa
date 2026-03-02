@@ -1,46 +1,48 @@
+name: lukisa
+
 networks:
   shared_net:
     name: shared_network
-    driver: bridge
     external: true
   default:
     driver: bridge
 
-x-php-common: &php-common
-  # image: lukisa-php:latest
+x-build-args: &build_args
+  - UID=${UID:-1000}
+  - GID=${GID:-1000}
+  - USER=${USER:-laravel}
+
+x-app-volumes: &app_volumes
+  - ./src:/var/www/html:z
+  - ./.env:/var/www/html/.env
+
+x-php-common: &php_common
   build:
     context: ./docker/php
     dockerfile: Dockerfile
-    args:
-      - UID=${UID:-1000}
-      - GID=${GID:-1000}
-      - USER=${USER:-laravel}
-  user: "${UID}:${GID}"
-  volumes:
-    - ./src:/var/www/html:z
-    - .env:/var/www/html/.env
+    args: *build_args
+  user: "${UID:-1000}:${GID:-1000}"
   working_dir: /var/www/html
+  volumes: *app_volumes
   networks:
     - default
     - shared_net
   restart: always
+  depends_on:
+    redis:
+      condition: service_healthy
 
 services:
   nginx:
     build:
       context: ./docker/nginx
       dockerfile: Dockerfile
-      args:
-        - UID=${UID:-1000}
-        - GID=${GID:-1000}
-        - USER=${USER:-laravel}
-    restart: always
+      args: *build_args
     container_name: nginx_lukisa
+    restart: always
     ports:
       - "8585:8000"
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
+    volumes: *app_volumes
     depends_on:
       php:
         condition: service_started
@@ -50,81 +52,57 @@ services:
         condition: service_healthy
     networks:
       - default
+      - shared_net
 
   php:
-    <<: *php-common # Herda a configuração comum
+    <<: *php_common
     container_name: php_lukisa
     mem_limit: 768m
-    depends_on:
-      redis:
-        condition: service_healthy
     volumes:
       - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
+      - ./.env:/var/www/html/.env
       - ./docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
-    # devices:
-      # - /dev/dri:/dev/dri
 
+  # roda comandos: docker compose run --rm artisan <cmd>
   artisan:
-    <<: *php-common
+    <<: *php_common
     container_name: artisan_lukisa
     profiles: ["artisan"]
-    depends_on:
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
-    entrypoint: ['php', 'artisan']
+    entrypoint: ["php", "artisan"]
     restart: "no"
 
   composer:
-    <<: *php-common
+    <<: *php_common
     container_name: composer_lukisa
     profiles: ["composer"]
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
-    entrypoint: ['composer']
+    entrypoint: ["composer"]
     restart: "no"
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
 
+  # ✅ IMPORTANTE: sem container_name aqui para DNS do compose ficar redondo
+  # Nginx deve proxy_pass para http://reverb:8080
   reverb:
-    <<: *php-common
-    container_name: reverb_lukisa
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
+    <<: *php_common
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    # opcional: expor pra host (bom pra debug, mas não necessário se usar via nginx)
+    # ports:
+    #   - "8080:8080"
     depends_on:
       php:
         condition: service_started
       redis:
         condition: service_healthy
-    command: php artisan reverb:start --host=0.0.0.0 --port=8080
 
   horizon:
-    <<: *php-common
+    <<: *php_common
     container_name: horizon_lukisa
-    depends_on:
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
     command: php artisan horizon
-    # devices:
-    #   - /dev/dri:/dev/dri
 
   scheduler:
-    <<: *php-common
+    <<: *php_common
     container_name: scheduler_lukisa
-    depends_on:
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
     command: php artisan schedule:work
 
   node:
@@ -132,15 +110,13 @@ services:
       context: ./docker/node
       dockerfile: Dockerfile
     container_name: node_lukisa
-    user: "${UID}:${GID}"
-    volumes:
-      - ./src:/var/www/html:z
-      - .env:/var/www/html/.env
-    ports:
-      - 3000:3000
-      - 3001:3001
-      - 5173:5173
+    user: "${UID:-1000}:${GID:-1000}"
     working_dir: /var/www/html
+    volumes: *app_volumes
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "5173:5173"
     profiles: ["node"]
     networks:
       - default
@@ -149,7 +125,7 @@ services:
     image: redis:7.2-alpine
     container_name: redis_lukisa
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     sysctls:
       - net.core.somaxconn=1024
     volumes:
@@ -160,7 +136,7 @@ services:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
 volumes:
   redis_data:
